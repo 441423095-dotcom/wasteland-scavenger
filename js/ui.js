@@ -363,7 +363,8 @@
         '" data-id="' + s.id + '">' +
         '<span class="mini-fig">' + portraitHtml(s, 40, 40) + moodTag + '</span>' +
         '<span class="mini-main">' +
-        '<span class="mini-name">' + s.name + '</span>' +
+        '<span class="mini-name"><span class="mini-ap' + (s.ap > 0 ? ' is-on' : '') +
+        '"></span>' + s.name + '</span>' +
         '<span class="mini-track">' +
         '<i class="mini-fill ' + kind + '" style="width:' + val + '%"></i>' +
         '</span>' +
@@ -435,25 +436,20 @@
 
     var food = 0;
     var water = 0;
+    var ap = 0;
     var waterR = SF.waterRation(state);
 
     for (var i = 0; i < alive.length; i++) {
       food += SF.foodNeed(alive[i]);
       water += waterR;
+      ap += alive[i].ap;
     }
 
-    var need = '今夜的用量：食物 ' + food + ' · 水 ' + (Math.round(water * 10) / 10);
-    var have = '存货：食物 ' + (state.supplies.food || 0) + ' · 水 ' +
-      (state.supplies.water || 0);
+    var need = '今夜要 食物 ' + food + ' · 水 ' + (Math.round(water * 10) / 10) +
+      '，存货 食物 ' + (state.supplies.food || 0) + ' · 水 ' + (state.supplies.water || 0) + '。';
+    var apText = '还剩 ' + ap + ' 点行动点。';
 
-    if ((state.supplies.food || 0) < food || (state.supplies.water || 0) < water) {
-      need = '物资不够！' + need + '，' + have + '。';
-    }
-
-    if (state.actionUsed) {
-      return '今天已经动过了，可以结束今天。' + need;
-    }
-    return '每天只能做一件事：出门，或者留在家里干活。' + need;
+    return apText + need;
   }
 
   function renderShelter() {
@@ -467,7 +463,7 @@
 
     var alive = SF.aliveAll(state);
     var exploreBtn = $('btn-explore');
-    var locked = state.actionUsed || !alive.length;
+    var anyAp = SF.anyAp(state);
 
     if (!alive.length) {
       exploreBtn.disabled = true;
@@ -478,18 +474,13 @@
       $('btn-status').disabled = false;
       $('btn-night').disabled = false;
 
-      if (state.actionUsed) {
-        exploreBtn.disabled = true;
-        exploreBtn.textContent = '今天已行动';
-      } else {
-        exploreBtn.disabled = false;
-        exploreBtn.textContent = '出门探索';
-      }
+      exploreBtn.disabled = !anyAp;
+      exploreBtn.textContent = anyAp ? '出门探索' : '没有力气了';
     }
 
-    $('btn-clean').disabled = locked;
-    $('btn-repair').disabled = locked;
-    $('btn-talk').disabled = locked;
+    $('btn-clean').disabled = !anyAp || (state.supplies.water || 0) < 1;
+    $('btn-repair').disabled = !anyAp;
+    $('btn-talk').disabled = !anyAp;
 
     $('hintbar').textContent = dayHint();
   }
@@ -529,6 +520,100 @@
     $('map-grid').innerHTML = html;
   }
 
+  /* 出发前的装备界面 */
+  var raidLoc = '';
+  var raidIds = [];
+
+  function gearButtons(s) {
+    var defs = [
+      { key: 'mask', label: '面具', has: s.hasMask, own: state.items.gasMask },
+      { key: 'torch', label: '手电', has: s.hasTorch, own: state.items.flashlight },
+      { key: 'weapon', label: '武器', has: s.hasWeapon, own: state.items.weapon }
+    ];
+    var html = '';
+
+    for (var i = 0; i < defs.length; i++) {
+      var d = defs[i];
+      if (!d.has && !d.own) continue;
+      html += '<button type="button" class="gear-chip' + (d.has ? ' is-on' : '') + '"' +
+        ' data-act="equip" data-gear="' + d.key + '" data-id="' + s.id + '">' +
+        d.label + (d.has ? ' ✓' : '') + '</button>';
+    }
+    return html;
+  }
+
+  function openEquipment(locId, ids) {
+    raidLoc = locId;
+    raidIds = ids;
+
+    var loc = SF.findLocation(locId);
+    var html = '<div class="modal-head">' +
+      '<span class="modal-title">出发前准备</span>' +
+      '<span class="modal-sub">' + (loc ? loc.name : '') + '</span>' +
+      '</div>' +
+      '<div class="res-text">给出发的人分配装备，不穿也能出发。</div>';
+
+    for (var i = 0; i < ids.length; i++) {
+      var s = SF.find(state, ids[i]);
+      if (!s) continue;
+      html += '<div class="equip-row">' +
+        '<span class="equip-fig">' + portraitHtml(s, 34, 34) + '</span>' +
+        '<span class="equip-main">' + s.name +
+        '<span class="equip-role">' + s.role + '</span></span>' +
+        '<span class="equip-gear">' + gearButtons(s) + '</span>' +
+        '</div>';
+    }
+
+    html += '<div class="modal-actions">' +
+      '<button type="button" class="btn btn-main" data-act="depart">确认出发</button>' +
+      '<button type="button" class="btn" data-act="close">返回</button>' +
+      '</div>';
+
+    openModal(html, 'modal-equip');
+  }
+
+  function depart() {
+    for (var i = 0; i < raidIds.length; i++) {
+      var s = SF.find(state, raidIds[i]);
+      if (s) s.ap = 0;
+    }
+    partyPick = {};
+    closeModal();
+    renderShelter();
+    startSearch(raidLoc, raidIds);
+  }
+
+  /* 浴室：选一个人洗澡 */
+  function openBath() {
+    var alive = SF.aliveAll(state);
+    var html = '<div class="modal-head">' +
+      '<span class="modal-title">浴室</span>' +
+      '<span class="modal-sub">消耗 1 水 · 心情 +20</span>' +
+      '</div>';
+
+    for (var i = 0; i < alive.length; i++) {
+      var s = alive[i];
+      var can = s.ap > 0 && (state.supplies.water || 0) >= 1;
+      html += '<button type="button" class="pick-row' + (can ? '' : ' is-off') + '"' +
+        (can ? '' : ' disabled') +
+        ' data-act="bath" data-id="' + s.id + '">' +
+        '<span class="pick-fig">' + portraitHtml(s, 30, 40) + '</span>' +
+        '<span class="pick-main"><b>' + s.name + '</b>' +
+        '<span class="pick-role">' + s.role + '</span></span>' +
+        '<span class="pick-mood">' + (s.ap > 0 ? '可以洗' : '没力气') + '</span>' +
+        '</button>';
+    }
+
+    if ((state.supplies.water || 0) < 1) {
+      html += '<div class="alert bad">物资不足：没有多余的水。</div>';
+    }
+
+    html += '<div class="modal-actions">' +
+      '<button type="button" class="btn" data-act="close">关闭</button></div>';
+
+    openModal(html, 'modal-bath');
+  }
+
   /* 组队：勾选几个人一起出门 */
   var partyPick = {};
 
@@ -559,7 +644,7 @@
 
     for (var i = 0; i < alive.length; i++) {
       var s = alive[i];
-      if (s.mad) continue;
+      if (s.mad || s.ap < 1) continue;
 
       var on = !!partyPick[s.id];
       var weak = s.mood < C.explore.refuseMoodBelow;
@@ -591,7 +676,7 @@
 
   function startSearch(locId, partyIds) {
     if (searching) return;
-    if (state.actionUsed) return;
+    if (!partyIds || !partyIds.length) return;
 
     var loc = SF.findLocation(locId);
     if (!loc) return;
@@ -683,7 +768,6 @@
   }
 
   function backHome() {
-    state.actionUsed = true;
     closeModal();
     renderShelter();
     showScreen('screen-shelter');
@@ -1190,6 +1274,20 @@
       openDetail(id);
     } else if (act === 'eat' || act === 'drink') {
       dinnerToggle(act, id);
+    } else if (act === 'equip') {
+      SF.toggleGear(state, id, el.getAttribute('data-gear'));
+      openEquipment(raidLoc, raidIds);
+    } else if (act === 'depart') {
+      depart();
+    } else if (act === 'bath') {
+      var br = SF.bath(state, id);
+      renderShelter();
+      openModal('<div class="modal-head">' +
+        '<span class="modal-title">' + (br.title || '浴室') + '</span>' +
+        '</div>' +
+        '<div class="res-text">' + br.text + '</div>' +
+        '<div class="modal-actions"><button type="button" class="btn" data-act="close">好</button></div>',
+        'modal-bath');
     } else if (act === 'use-med') {
       SF.useMedicine(state, id);
       renderShelter();
@@ -1216,10 +1314,7 @@
 
       var goLoc = el.getAttribute('data-loc');
       state.leaderId = ids[0];
-      partyPick = {};
-      closeModal();
-      renderShelter();
-      startSearch(goLoc, ids);
+      openEquipment(goLoc, ids);
     } else if (act === 'log-choice') {
       SF.applyExploreChoice(state, lastReport, el.getAttribute('data-key'));
       renderLog();
@@ -1297,7 +1392,7 @@
 
   function onExplore() {
     if (!SF.aliveAll(state).length) return;
-    if (state.actionUsed) return;
+    if (!SF.anyAp(state)) return;
 
     closeModal();
     renderMap();
@@ -1322,7 +1417,7 @@
     $('btn-status').addEventListener('click', openRoster);
     $('gear').addEventListener('click', onGearClick);
     $('btn-night').addEventListener('click', openDinner);
-    $('btn-clean').addEventListener('click', function () { onHomeAction('clean'); });
+    $('btn-clean').addEventListener('click', openBath);
     $('btn-repair').addEventListener('click', function () { onHomeAction('repair'); });
     $('btn-talk').addEventListener('click', function () { onHomeAction('talk'); });
     $('btn-log').addEventListener('click', openLog);

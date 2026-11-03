@@ -66,6 +66,9 @@ SF.SUPPLIES = [
       injured: !!stats.injured,
       mad: !!stats.mad,
       hasMask: false,
+      hasTorch: false,
+      hasWeapon: false,
+      ap: 1,
       hungerDays: 0,
       thirstDays: 0,
       alive: true,
@@ -107,7 +110,9 @@ SF.SUPPLIES = [
         radioBroken: false,
         pesticide: false,
         cards: false,
-        gasMask: false
+        gasMask: false,
+        flashlight: false,
+        weapon: false
       },
       rescueLeft: C.rescueDays,
       lastEvent: '',
@@ -233,6 +238,7 @@ SF.SUPPLIES = [
 
     if (s.sick && !s.hasMask) p += E.sickPenalty;
     if (s.mood < E.moodLowAt) p += E.moodLowPenalty;
+    if (s.hasTorch) p += 0.05;
 
     p = clamp(p, E.minChance, E.maxChance);
 
@@ -373,6 +379,12 @@ SF.SUPPLIES = [
     // 危险事件：受伤
     var riskChance = (loc.far ? C.explore.injuryChanceFar : (success ? 0 : C.explore.injuryChanceNear))
       + (party.length - 1) * C.party.riskPerExtra;
+
+    var hasWeapon = false;
+    for (i = 0; i < party.length; i++) {
+      if (party[i].hasWeapon) hasWeapon = true;
+    }
+    if (hasWeapon) riskChance = riskChance * 0.5;
 
     if (roll(riskChance)) {
       var victim = pickOne(party);
@@ -986,7 +998,7 @@ SF.SUPPLIES = [
     if (state.beggarReward) {
       state.beggarReward = false;
       if (roll(C.special.beggarReward)) {
-        var gift = pickOne(['cards', 'pesticide', 'medicine']);
+        var gift = pickOne(['cards', 'pesticide', 'medicine', 'flashlight', 'weapon']);
 
         if (gift === 'cards' && !state.items.cards) {
           state.items.cards = true;
@@ -994,6 +1006,12 @@ SF.SUPPLIES = [
         } else if (gift === 'pesticide' && !state.items.pesticide) {
           state.items.pesticide = true;
           SF.addLog(state, '老人在门口留下了半罐杀虫剂。');
+        } else if (gift === 'flashlight' && !state.items.flashlight) {
+          state.items.flashlight = true;
+          SF.addLog(state, '老人在门口留下了一只手电筒。');
+        } else if (gift === 'weapon' && !state.items.weapon) {
+          state.items.weapon = true;
+          SF.addLog(state, '老人在门口留下了一根铁棍。');
         } else {
           state.supplies.medicine = (state.supplies.medicine || 0) + 1;
           SF.addLog(state, '老人在门口留下了一盒药。');
@@ -1020,6 +1038,10 @@ SF.SUPPLIES = [
     state.day = state.day + 1;
     state.actionUsed = false;
     if (state.rescueLeft > 0) state.rescueLeft -= 1;
+
+    for (i = 0; i < alive.length; i++) {
+      if (alive[i].alive) alive[i].ap = 1;
+    }
 
     ensureLeader(state);
     report.allDead = checkOver(state, report.day);
@@ -1049,12 +1071,19 @@ SF.SUPPLIES = [
   }
 
   SF.homeAction = function (state, type) {
-    if (state.actionUsed) {
-      return { ok: false, text: '今天已经动过了，剩下的时间只够睡觉。' };
-    }
-
     var alive = SF.aliveAll(state);
     if (!alive.length) return { ok: false, text: '没有人能动了。' };
+
+    var worker = null;
+    for (var w = 0; w < alive.length; w++) {
+      if (alive[w].ap > 0 && !alive[w].mad) {
+        worker = alive[w];
+        break;
+      }
+    }
+    if (!worker) {
+      return { ok: false, text: '今天所有人的行动点都用完了。' };
+    }
 
     if (type === 'clean') {
       if ((state.supplies.water || 0) < 1) {
@@ -1062,7 +1091,7 @@ SF.SUPPLIES = [
       }
       state.supplies.water = Math.round(((state.supplies.water || 0) - 1) * 10) / 10;
       allMood(state, 10);
-      state.actionUsed = true;
+      worker.ap = 0;
       var line1 = '你们用一瓶水把地面和床铺擦了一遍，屋里的味道终于淡了点。全员心情 +10。';
       SF.addLog(state, '打扫房间：水 −1，全员心情 +10。');
       return { ok: true, title: '打扫房间', text: line1 };
@@ -1074,7 +1103,7 @@ SF.SUPPLIES = [
       }
       state.supplies.material -= 2;
       state.defense += 1;
-      state.actionUsed = true;
+      worker.ap = 0;
       allMood(state, 3);
       var line2 = '你们把木板钉在门后、把通风口堵严。避难所防御 +1，现在是 ' + state.defense + '。';
       SF.addLog(state, '修理避难所：材料 −2，防御 +1。');
@@ -1083,7 +1112,7 @@ SF.SUPPLIES = [
 
     if (type === 'talk') {
       allMood(state, 15);
-      state.actionUsed = true;
+      worker.ap = 0;
       var line3 = '没人出门。你们围着桌子聊了很久，从工作聊到想吃的东西。全员心情 +15。';
       SF.addLog(state, '围炉夜话：全员心情 +15。');
       return { ok: true, title: '围炉夜话', text: line3 };
@@ -1253,5 +1282,81 @@ SF.SUPPLIES = [
     report.eventText = lines.join(' ');
     report.event = null;
     return report;
+  };
+})();
+
+
+// ---------- 行动点数 / 洗澡 / 装备 ----------
+(function () {
+  var C = SF.CONFIG;
+
+  SF.anyAp = function (state) {
+    var alive = SF.aliveAll(state);
+    for (var i = 0; i < alive.length; i++) {
+      if (alive[i].ap > 0 && !alive[i].mad) return true;
+    }
+    return false;
+  };
+
+  SF.bath = function (state, id) {
+    var s = SF.find(state, id);
+    if (!s || !s.alive) return { ok: false, text: '没有这个人。' };
+    if (s.ap < 1) return { ok: false, text: s.name + ' 今天已经动过了。' };
+    if ((state.supplies.water || 0) < 1) return { ok: false, text: '物资不足：没有多余的水。' };
+
+    state.supplies.water = Math.round(((state.supplies.water || 0) - 1) * 10) / 10;
+    s.ap = 0;
+    s.mood = SF.clamp(s.mood + 20, 0, C.maxStat);
+    SF.addLog(state, s.name + '洗了个澡，心情 +20。');
+    return { ok: true, title: s.name + ' 洗澡', text: '用掉一瓶水，' + s.name + ' 洗了很久，出来时人明显松快了些。心情 +20。' };
+  };
+
+  SF.toggleGear = function (state, id, gear) {
+    var s = SF.find(state, id);
+    if (!s || !s.alive) return false;
+
+    if (gear === 'mask') {
+      if (s.hasMask) {
+        s.hasMask = false;
+        state.items.gasMask = true;
+        return true;
+      }
+      if (state.items.gasMask) {
+        s.hasMask = true;
+        state.items.gasMask = false;
+        return true;
+      }
+      return false;
+    }
+
+    if (gear === 'torch') {
+      if (s.hasTorch) {
+        s.hasTorch = false;
+        state.items.flashlight = true;
+        return true;
+      }
+      if (state.items.flashlight) {
+        s.hasTorch = true;
+        state.items.flashlight = false;
+        return true;
+      }
+      return false;
+    }
+
+    if (gear === 'weapon') {
+      if (s.hasWeapon) {
+        s.hasWeapon = false;
+        state.items.weapon = true;
+        return true;
+      }
+      if (state.items.weapon) {
+        s.hasWeapon = true;
+        state.items.weapon = false;
+        return true;
+      }
+      return false;
+    }
+
+    return false;
   };
 })();

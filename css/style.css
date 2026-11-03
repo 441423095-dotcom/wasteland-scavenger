@@ -2177,3 +2177,111 @@ body {
 .diary:active {
   background: linear-gradient(180deg, #8a4531, #5c2e20);
 }
+
+
+/* 行动点小圆点 */
+.mini-ap {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 4px;
+  border-radius: 50%;
+  background: #4a544a;
+  vertical-align: middle;
+}
+
+.mini-ap.is-on {
+  background: #7fbf67;
+  box-shadow: 0 0 5px rgba(127, 191, 103, 0.8);
+}
+
+/* 装备界面 */
+.equip-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.equip-fig {
+  line-height: 0;
+}
+
+.equip-main {
+  flex: 1;
+  font-size: 13px;
+  color: #e6d8a6;
+}
+
+.equip-role {
+  display: block;
+  font-size: 10px;
+  color: #8f9d86;
+}
+
+.equip-gear {
+  display: flex;
+  gap: 4px;
+}
+
+.gear-chip {
+  padding: 4px 7px;
+  font-family: inherit;
+  font-size: 10px;
+  color: #b7c4ac;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.gear-chip.is-on {
+  color: #10160f;
+  background: #7fb267;
+  border-color: #9cc97a;
+}
+
+.pick-row.is-off {
+  opacity: 0.45;
+}
+
+/* 物资面板放大 */
+.shelf {
+  width: 48%;
+  max-width: 216px;
+  top: 3%;
+  padding: 8px;
+}
+
+.shelf .tier {
+  height: 62px;
+  gap: 8px;
+}
+
+.shelf .piece svg,
+.piece img.item-img {
+  width: 40px;
+  height: 40px;
+}
+
+.shelf .piece-count {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.gear {
+  right: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 46%;
+}
+
+.gear-item {
+  padding: 3px 7px;
+  font-size: 10px;
+}
+
+.gear-item svg {
+  width: 26px;
+}
