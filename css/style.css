@@ -1986,3 +1986,31 @@ body {
 .mini-fill.thirst {
   background-image: linear-gradient(90deg, #245074, #6ab6f0);
 }
+
+
+/* 组队勾选 + 探险日志 */
+.pick-check {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  border: 2px solid #5a6b55;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.pick-check.is-on {
+  background: #7fb267;
+  border-color: #9cc97a;
+}
+
+.pick-row.is-on {
+  background: rgba(127, 178, 103, 0.12);
+  border-color: rgba(156, 201, 122, 0.5);
+}
+
+.log-line {
+  margin: 5px 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #d2dcc8;
+}

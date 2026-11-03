@@ -193,6 +193,19 @@ SF.CONFIG = {
     '阿武', '蓉姨', '赵四', '米粒', '铁牛', '苏晚'
   ],
 
+  // ---------- 组队与事件 ----------
+  party: {
+    lootPerExtra: 0.35,    // 每多一个人，物资收益 +35%
+    riskPerExtra: 0.06,    // 每多一个人，队伍受伤概率 +6%
+    maxMembers: 3          // 一次最多派几个人
+  },
+
+  events: {
+    nightChance: 0.55,     // 每晚触发事件的概率
+    nightFoodSteal: 2,     // 强盗/老鼠带走的食物
+    feverHpLoss: 15
+  },
+
   // ---------- 四个探索地点 ----------
   locations: [
     {

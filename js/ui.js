@@ -353,14 +353,21 @@
     var alive = SF.aliveAll(state);
     if (!alive.length) return '避难所里已经没有活人了。';
 
-    var food = alive.length * C.night.foodPerPerson;
-    var water = alive.length * C.night.waterPerPerson;
-    var need = '今夜的用量：食物 ' + food + ' · 水 ' + water;
+    var food = 0;
+    var water = 0;
+    var waterR = SF.waterRation(state);
+
+    for (var i = 0; i < alive.length; i++) {
+      food += SF.foodNeed(alive[i]);
+      water += waterR;
+    }
+
+    var need = '今夜的用量：食物 ' + food + ' · 水 ' + (Math.round(water * 10) / 10);
 
     if (state.exploredToday) {
       return '东西已经搬回来了，可以结束今天。' + need;
     }
-    return '点小人看状态，点下面的按钮出门。' + need;
+    return '点下面的按钮出门。' + need;
   }
 
   function renderShelter() {
@@ -430,24 +437,43 @@
     $('map-grid').innerHTML = html;
   }
 
-  /* 先选谁去 */
+  /* 组队：勾选几个人一起出门 */
+  var partyPick = {};
+
   function openExplorerPicker(locId) {
+    var loc = SF.findLocation(locId);
+    if (!loc) return;
+    partyPick = {};
+    renderPartyPicker(locId);
+  }
+
+  function partyCount() {
+    var n = 0;
+    for (var k in partyPick) {
+      if (partyPick.hasOwnProperty(k)) n += 1;
+    }
+    return n;
+  }
+
+  function renderPartyPicker(locId) {
     var loc = SF.findLocation(locId);
     if (!loc) return;
 
     var alive = SF.aliveAll(state);
     var html = '<div class="modal-head">' +
       '<span class="modal-title">' + loc.name + '</span>' +
-      '<span class="modal-sub">派谁去？</span>' +
+      '<span class="modal-sub">派谁去？（最多 ' + C.party.maxMembers + ' 人）</span>' +
       '</div>';
 
     for (var i = 0; i < alive.length; i++) {
       var s = alive[i];
+      var on = !!partyPick[s.id];
       var weak = s.mood < C.explore.refuseMoodBelow;
 
-      html += '<button type="button" class="pick-row' +
+      html += '<button type="button" class="pick-row' + (on ? ' is-on' : '') +
         (s.id === state.leaderId ? ' is-lead' : '') +
-        '" data-act="pick" data-id="' + s.id + '" data-loc="' + loc.id + '">' +
+        '" data-act="pick-toggle" data-id="' + s.id + '" data-loc="' + loc.id + '">' +
+        '<span class="pick-check' + (on ? ' is-on' : '') + '"></span>' +
         '<span class="pick-fig">' + portraitHtml(s, 30, 40) + '</span>' +
         '<span class="pick-main"><b>' + s.name + '</b>' +
         '<span class="pick-role">' + s.role + ' · ' + s.trait + '</span></span>' +
@@ -456,7 +482,11 @@
         '</button>';
     }
 
+    var count = partyCount();
+
     html += '<div class="modal-actions">' +
+      '<button type="button" class="btn btn-main"' + (count ? '' : ' disabled') +
+      ' data-act="party-go" data-loc="' + loc.id + '">出发（' + count + ' 人）</button>' +
       '<button type="button" class="btn" data-act="close">取消</button>' +
       '</div>';
 
@@ -465,13 +495,19 @@
 
   /* ---------------- 搜刮 ---------------- */
 
-  function startSearch(locId) {
+  function startSearch(locId, partyIds) {
     if (searching) return;
     if (state.exploredToday) return;
 
     var loc = SF.findLocation(locId);
-    var who = SF.find(state, state.leaderId);
-    if (!loc || !who || !who.alive) return;
+    if (!loc) return;
+
+    var names = [];
+    for (var i = 0; i < partyIds.length; i++) {
+      var m = SF.find(state, partyIds[i]);
+      if (m && m.alive) names.push(m.name);
+    }
+    if (!names.length) return;
 
     searching = true;
 
@@ -479,94 +515,77 @@
       '<span class="modal-title">' + loc.name + '</span>' +
       '<span class="modal-sub">搜寻中……</span>' +
       '</div>' +
-      '<div class="res-text">' + who.name + ' 正在里面翻找，别出声。</div>',
+      '<div class="res-text">' + names.join('、') + ' 正在里面翻找，别出声。</div>',
       'modal-search');
 
     timer = window.setTimeout(function () {
       timer = 0;
       searching = false;
-      lastReport = SF.explore(state, locId);
+      lastReport = SF.explore(state, locId, partyIds);
 
       if (!SF.aliveAll(state).length) {
         state.over = true;
         state.overDay = state.day;
       }
-      renderResult();
+      renderLog();
     }, C.explore.searchDelay);
   }
 
-  function renderResult() {
+  /* 探险日志 */
+  function renderLog() {
     var r = lastReport;
     if (!r || !r.location) return;
 
-    var tagCls = r.refused ? 'tag-bad' : (r.success ? 'tag-ok' : 'tag-bad');
-    var tagText = r.refused ? '没去' : (r.success ? '顺利' : '失手');
-
     var html = '<div class="modal-head">' +
-      '<span class="modal-title">' + r.location.name + '</span>' +
-      '<span class="tag ' + tagCls + '">' + tagText + '</span>' +
-      '</div>' +
-      '<div class="res-text">' + r.text + '</div>';
+      '<span class="modal-title">探险日志</span>' +
+      '<span class="modal-sub">' + r.location.name + '</span>' +
+      '</div>';
 
-    if (!r.refused) {
-      html += '<div class="res-label">搜到的东西</div>';
+    for (var i = 0; i < r.lines.length; i++) {
+      html += '<p class="log-line">' + r.lines[i] + '</p>';
+    }
 
-      if (r.loot.length) {
-        html += '<div class="loot-row">';
-        for (var i = 0; i < r.loot.length; i++) {
-          html += '<span class="loot-chip">' + SF.icon(r.loot[i].key, 15) +
-            '<span>' + r.loot[i].name + '</span>' +
-            '<span class="loot-qty">×' + r.loot[i].qty + '</span></span>';
-        }
-        html += '</div>';
-      } else {
-        html += '<div class="empty-text">两手空空，什么也没带回来。</div>';
+    html += '<div class="res-label">带回来的东西</div>';
+    if (r.loot.length) {
+      html += '<div class="loot-row">';
+      for (i = 0; i < r.loot.length; i++) {
+        html += '<span class="loot-chip">' + SF.icon(r.loot[i].key, 15) +
+          '<span>' + r.loot[i].name + '</span>' +
+          '<span class="loot-qty">×' + r.loot[i].qty + '</span></span>';
       }
+      html += '</div>';
+    } else {
+      html += '<div class="empty-text">什么也没带回来。</div>';
+    }
 
-      if (r.junkOnly) {
-        html += '<div class="res-line"><span>这次只翻到材料</span>' +
-          '<span class="res-bad">没有食物和水</span></div>';
+    if (r.item) {
+      html += '<div class="res-line"><span>特殊道具</span>' +
+        '<span class="res-val">' + r.item.name + '</span></div>';
+    }
+
+    for (i = 0; i < r.injured.length; i++) {
+      html += '<div class="res-line"><span>' + r.injured[i].name + '</span>' +
+        '<span class="res-bad">受伤，血量 −' + r.injured[i].hp + '</span></div>';
+    }
+
+    if (r.choice) {
+      html += '<div class="res-label">' + r.choice.title + '</div>' +
+        '<div class="res-text">' + r.choice.text + '</div>' +
+        '<div class="modal-actions">';
+
+      for (i = 0; i < r.choice.options.length; i++) {
+        html += '<button type="button" class="btn' + (i === 0 ? ' btn-main' : '') +
+          '" data-act="log-choice" data-key="' + r.choice.options[i].key + '">' +
+          r.choice.options[i].label + '</button>';
       }
-
-      if (r.item) {
-        html += '<div class="res-label">特殊道具</div>' +
-          '<div class="loot-row"><span class="loot-chip">' +
-          SF.icon(r.item.key, 15) + '<span>' + r.item.name + '</span></span></div>' +
-          '<div class="res-text">' + r.item.text + '</div>';
-      }
-    }
-
-    html += '<div class="res-label">' + r.whoName + '</div>';
-
-    if (!r.refused) {
-      html += '<div class="res-line"><span>出门消耗</span>' +
-        '<span class="res-bad">饥饿 +' + C.explore.hungerCost +
-        ' · 口渴 +' + C.explore.thirstCost + '</span></div>';
-    }
-
-    if (r.injured > 0) {
-      html += '<div class="res-line"><span>伤势</span>' +
-        '<span class="res-bad">血量 −' + r.injured + '</span></div>';
-    }
-
-    if (r.died) {
-      html += '<div class="res-line"><span>' + r.whoName + '</span>' +
-        '<span class="res-bad">没能回来</span></div>';
-    }
-
-    if (r.newcomer) {
-      html += '<div class="newcomer">' +
-        '<span class="newcomer-fig">' + portraitHtml(r.newcomer, 30, 40) + '</span>' +
-        '<span class="newcomer-text">角落里有个发抖的人。<br>' +
-        '<b>' + r.newcomer.name + '</b> 愿意跟你回避难所。</span>' +
+      html += '</div>';
+    } else {
+      html += '<div class="modal-actions">' +
+        '<button type="button" class="btn btn-main" data-act="back-home">带回避难所</button>' +
         '</div>';
     }
 
-    html += '<div class="modal-actions">' +
-      '<button type="button" class="btn btn-main" data-act="back-home">带回避难所</button>' +
-      '</div>';
-
-    openModal(html, 'modal-result');
+    openModal(html, 'modal-log');
   }
 
   function backHome() {
@@ -753,11 +772,31 @@
 
   /* ---------------- 夜晚结算 ---------------- */
 
-  function endToday(plan) {
-    if (!SF.aliveAll(state).length) return;
+  /* 夜晚：先结算吃饭，再处理随机事件，最后收尾 */
+  function openNightEvent() {
+    var ev = nightReport.event;
+    if (!ev) return;
 
-    nightReport = SF.endDay(state, plan);
-    closeModal();
+    var html = '<div class="modal-head">' +
+      '<span class="modal-title">' + ev.title + '</span>' +
+      '<span class="modal-sub">夜里</span>' +
+      '</div>' +
+      '<div class="res-text">' + ev.text + '</div>' +
+      '<div class="modal-actions">';
+
+    for (var i = 0; i < ev.options.length; i++) {
+      var op = ev.options[i];
+      html += '<button type="button" class="btn' + (i === 0 ? ' btn-main' : '') + '"' +
+        (op.disabled ? ' disabled' : '') +
+        ' data-act="night-choice" data-key="' + op.key + '">' + op.label + '</button>';
+    }
+
+    html += '</div>';
+    openModal(html, 'modal-night-event');
+  }
+
+  function finishNight() {
+    nightReport = SF.finishNight(state, nightReport);
     renderShelter();
     showScreen('screen-shelter');
 
@@ -846,7 +885,17 @@
 
     var plan = { eat: dinner.eat, drink: dinner.drink };
     dinner = null;
-    endToday(plan);
+
+    nightReport = SF.startNight(state, plan);
+    closeModal();
+    renderShelter();
+    showScreen('screen-shelter');
+
+    if (nightReport.event) {
+      openNightEvent();
+    } else {
+      finishNight();
+    }
   }
 
   function renderDinner() {
@@ -899,10 +948,14 @@
   function openNight() {
     var n = nightReport;
 
-    var html = '<div class="modal-head">' +
+    html += '<div class="modal-head">' +
       '<span class="modal-title">第 ' + n.day + ' 夜</span>' +
       '<span class="modal-sub">结算</span>' +
       '</div>';
+
+    if (n.eventText) {
+      html += '<div class="alert">' + n.eventText + '</div>';
+    }
 
     html += '<div class="need-row">' + SF.icon('food', 15) +
       '<span>食物</span><span class="need-num">−' + n.foodUsed + '</span>' +
@@ -1012,11 +1065,34 @@
       openDetail(id);
     } else if (act === 'eat' || act === 'drink') {
       dinnerToggle(act, id);
-    } else if (act === 'pick') {
-      state.leaderId = id;
+    } else if (act === 'pick-toggle') {
+      var locId = el.getAttribute('data-loc');
+
+      if (partyPick[id]) {
+        delete partyPick[id];
+      } else if (partyCount() < C.party.maxMembers) {
+        partyPick[id] = true;
+      }
+      renderPartyPicker(locId);
+    } else if (act === 'party-go') {
+      var ids = [];
+      for (var pk in partyPick) {
+        if (partyPick.hasOwnProperty(pk)) ids.push(pk);
+      }
+      if (!ids.length) return;
+
+      var goLoc = el.getAttribute('data-loc');
+      state.leaderId = ids[0];
+      partyPick = {};
       closeModal();
       renderShelter();
-      startSearch(el.getAttribute('data-loc'));
+      startSearch(goLoc, ids);
+    } else if (act === 'log-choice') {
+      SF.applyExploreChoice(state, lastReport, el.getAttribute('data-key'));
+      renderLog();
+    } else if (act === 'night-choice') {
+      SF.resolveNightEvent(state, nightReport, el.getAttribute('data-key'));
+      finishNight();
     } else if (act === 'dinner-auto') {
       dinnerAuto();
     } else if (act === 'dinner-go') {
