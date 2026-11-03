@@ -124,13 +124,32 @@
     var idx = 0;
 
     function nextPortrait() {
-      if (idx >= C.characters.length) return;
+      if (idx >= C.characters.length) {
+        nextItems();
+        return;
+      }
       var ch = C.characters[idx];
       idx += 1;
 
-      keyWhite(ch.portrait, function () {
+      keyWhite(ch.portrait, function (url) {
+        KEYED[ch.portrait] = url;
         renderShelter();
         nextPortrait();
+      });
+    }
+
+    var itemPaths = SF.itemImagePaths || [];
+    var itemIdx = 0;
+
+    function nextItems() {
+      if (itemIdx >= itemPaths.length) return;
+      var path = itemPaths[itemIdx];
+      itemIdx += 1;
+
+      keyWhite(path, function (url) {
+        SF.itemSrc[path] = url;
+        renderShelter();
+        nextItems();
       });
     }
 

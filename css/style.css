@@ -2072,3 +2072,14 @@ body {
 .btn-sub:disabled {
   opacity: 0.45;
 }
+
+
+/* 货架上的图片图标 */
+.piece img.item-img {
+  display: block;
+  width: 17px;
+  height: 17px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.5));
+}

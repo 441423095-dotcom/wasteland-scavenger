@@ -301,10 +301,31 @@ var ITEMS = {
   }
 };
 
+/* 支持用图片替换某个物资的图标（没有配图片就继续用代码画） */
+var ITEM_IMAGES = {
+  water: 'assets/item-water.png'
+};
+
+SF.itemSrc = {};
+
+SF.itemImagePaths = [];
+for (var _ik in ITEM_IMAGES) {
+  if (ITEM_IMAGES.hasOwnProperty(_ik)) SF.itemImagePaths.push(ITEM_IMAGES[_ik]);
+}
+
 SF.itemSvg = function (key, width) {
+  var w = width || 16;
+  var path = ITEM_IMAGES[key];
+
+  if (path) {
+    var real = SF.itemSrc[path] || path;
+    return '<img class="item-img" src="' + real + '" alt="" ' +
+      'style="width:' + w + 'px;height:' + w + 'px">';
+  }
+
   var def = ITEMS[key] || ITEMS.food;
   return composeSvg([{ rows: def.rows }], def.palette,
-    def.rows[0].length, def.rows.length, width || 16);
+    def.rows[0].length, def.rows.length, w);
 };
 
 /* ================= 四个室友：纯 CSS 像素小人 ================= */
