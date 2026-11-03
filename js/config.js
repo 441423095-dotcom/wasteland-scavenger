@@ -139,9 +139,12 @@ SF.CONFIG = {
     foodPerPerson: 1,
     waterPerPerson: 1,
 
-    shortfallHp: 20,          // 没分到食物：扣 20 血
-    waterShortfallHp: 12,     // 没分到水：扣 12 血
-    shortfallMood: 14,        // 并且心情下降
+    // 没分到吃的/喝的：先按 10 点掉血；连续 3 晚没吃上，惩罚才加重
+    starveHp: 10,
+    thirstHp: 10,
+    streakAt: 3,             // 连续挨饿/挨渴到第几晚开始加重
+    streakHp: 20,            // 连续挨饿/挨渴之后的每夜掉血
+    streakMood: 8,           // 连续挨饿/挨渴之后的心情下降
 
     hungerUp: 38,
     thirstUp: 44,
@@ -156,8 +159,8 @@ SF.CONFIG = {
 
     moodFed: 5,
     moodDrank: 4,
-    moodHungry: -12,
-    moodThirsty: -14,
+    moodHungry: 0,
+    moodThirsty: 0,
     moodSick: -10,
 
     medicineHeal: 35,
@@ -208,9 +211,9 @@ SF.CONFIG = {
 
   // 发疯与特殊事件
   madness: {
-    moodAt: 12,            // 心情低于这条线，当晚会发疯
-    thirstAt: 90,          // 渴到这条线也会发疯
-    recoverAt: 45,         // 心情回到这条线以上才恢复正常
+    moodAt: 20,            // 心情低于这条线才可能发疯
+    chance: 0.18,          // 每晚每个人发疯的概率（最多一个人）
+    recoverAt: 40,         // 心情回到这条线以上才恢复正常
     breakItems: true
   },
   special: {

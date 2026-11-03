@@ -2083,3 +2083,27 @@ body {
   image-rendering: pixelated;
   filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.5));
 }
+
+
+/* 日志面板 */
+.log-summary {
+  margin-bottom: 8px;
+  padding: 7px 9px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #f0e4b8;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid #6f8a63;
+}
+
+.log-entry {
+  padding: 6px 2px;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #c9d3bf;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-logbook {
+  max-height: 62%;
+}

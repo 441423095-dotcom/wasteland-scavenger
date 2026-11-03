@@ -66,6 +66,8 @@ SF.SUPPLIES = [
       injured: !!stats.injured,
       mad: !!stats.mad,
       hasMask: false,
+      hungerDays: 0,
+      thirstDays: 0,
       alive: true,
       isPlayer: !!ch.isPlayer
     };
@@ -627,15 +629,20 @@ SF.SUPPLIES = [
       s.thirst = clamp(s.thirst + N.thirstUp - (isDrank ? N.drankThirstDown : 0), 0, C.maxStat);
 
       var dmg = 0;
+
+      s.hungryDays = isFed ? 0 : (s.hungryDays || 0) + 1;
+      s.thirstDays = isDrank ? 0 : (s.thirstDays || 0) + 1;
+
       if (!isFed) {
-        dmg += N.shortfallHp;
-        s.mood = clamp(s.mood - N.shortfallMood, 0, C.maxStat);
+        dmg += (s.hungryDays >= N.streakAt) ? N.streakHp : N.starveHp;
         report.shortage = true;
       }
       if (!isDrank) {
-        dmg += N.waterShortfallHp;
-        s.mood = clamp(s.mood - N.shortfallMood, 0, C.maxStat);
+        dmg += (s.thirstDays >= N.streakAt) ? N.streakHp : N.thirstHp;
         report.shortage = true;
+      }
+      if (s.hungryDays >= N.streakAt || s.thirstDays >= N.streakAt) {
+        s.mood = clamp(s.mood - N.streakMood, 0, C.maxStat);
       }
       if (s.sick) dmg += N.sickDamage;
 
@@ -655,11 +662,8 @@ SF.SUPPLIES = [
       s.hp = clamp(s.hp + heal - dmg, 0, C.maxStat);
       s.mood = clamp(s.mood + moodDelta + (state.items.cards ? 4 : 0), 0, C.maxStat);
 
-      // 心情或口渴崩到底：第二天开始发疯
-      if (s.mood <= C.madness.moodAt || s.thirst >= C.madness.thirstAt) {
-        if (!s.mad) SF.addLog(state, s.name + ' 的眼神已经不对了，今晚开始发疯。');
-        s.mad = true;
-      } else if (s.mad && s.mood >= C.madness.recoverAt) {
+      // 心情缓过来就会停止发疯
+      if (s.mad && s.mood >= C.madness.recoverAt) {
         s.mad = false;
         SF.addLog(state, s.name + ' 终于缓过神来，不再发疯了。');
       }
@@ -689,29 +693,31 @@ SF.SUPPLIES = [
       });
     }
 
-    // 发疯的人会破坏物资
+    // 心情低于 20 的人里，每晚最多一个人发疯；发疯只抢走 1 份物资
+    var candidates = [];
     for (i = 0; i < alive.length; i++) {
-      var mf = alive[i];
-      if (!mf.mad || mf.hp <= 0) continue;
-
-      if (mf.charId === 'chen') {
-        if (state.items.radio) {
-          state.items.radio = false;
-          state.items.radioBroken = true;
-          SF.addLog(state, '陈默发疯，把收音机砸坏了。');
-        } else if ((state.supplies.material || 0) > 0) {
-          state.supplies.material -= 1;
-          SF.addLog(state, '陈默把一叠材料撕得稀烂。');
-        }
-      } else if (mf.charId === 'nana' || mf.charId === 'tie') {
-        var eaten = Math.min(state.supplies.food || 0, 2);
-        state.supplies.food -= eaten;
-        if (eaten > 0) SF.addLog(state, mf.name + ' 发疯，抢走了 ' + eaten + ' 份食物。');
-      } else if (mf.charId === 'lin') {
-        var spilled = Math.min(state.supplies.water || 0, 1);
-        state.supplies.water = Math.round(((state.supplies.water || 0) - spilled) * 10) / 10;
-        if (spilled > 0) SF.addLog(state, '林晓发疯，把一瓶水倒在了地上。');
+      if (alive[i].hp > 0 && !alive[i].mad && alive[i].mood <= C.madness.moodAt) {
+        candidates.push(alive[i]);
       }
+    }
+
+    if (candidates.length && roll(C.madness.chance)) {
+      var madOne = pickOne(candidates);
+      madOne.mad = true;
+
+      var taken = '';
+      if ((state.supplies.food || 0) >= 1) {
+        state.supplies.food -= 1;
+        taken = '食物';
+      } else if ((state.supplies.water || 0) >= 1) {
+        state.supplies.water = Math.round(((state.supplies.water || 0) - 1) * 10) / 10;
+        taken = '水';
+      } else if ((state.supplies.material || 0) >= 1) {
+        state.supplies.material -= 1;
+        taken = '材料';
+      }
+
+      SF.addLog(state, madOne.name + ' 半夜发起疯来' + (taken ? '，抢走了 1 份' + taken : '，在墙角撞了一夜'));
     }
 
     if ((state.supplies.material || 0) < C.material.guardCost && roll(C.material.theftChance)) {
@@ -1008,6 +1014,7 @@ SF.SUPPLIES = [
       var deadRow = findRow(report.rows, d.id);
       if (deadRow) deadRow.died = true;
       report.deaths.push(d.name);
+      SF.addLog(state, d.name + ' 没撑过去，走了。');
     }
 
     state.day = state.day + 1;

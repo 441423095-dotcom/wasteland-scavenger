@@ -402,6 +402,29 @@
     box.innerHTML = html;
   }
 
+  /* 日志按钮：半屏面板，看得清 */
+  function openLog() {
+    var lines = state.logs.slice().reverse();
+    var html = '<div class="modal-head">' +
+      '<span class="modal-title">避难所日志</span>' +
+      '<span class="modal-sub">第 ' + state.day + ' 天</span>' +
+      '</div>' +
+      '<div class="log-summary">' + summaryText() + '</div>';
+
+    if (!lines.length) {
+      html += '<div class="empty-text">还没有发生什么。</div>';
+    }
+
+    for (var i = 0; i < lines.length; i++) {
+      html += '<div class="log-entry">' + lines[i] + '</div>';
+    }
+
+    html += '<div class="modal-actions">' +
+      '<button type="button" class="btn" data-act="close">关闭</button></div>';
+
+    openModal(html, 'modal-logbook');
+  }
+
   function dayHint() {
     var alive = SF.aliveAll(state);
     if (!alive.length) return '避难所里已经没有活人了。';
@@ -431,7 +454,6 @@
     renderGear();
     renderTicker();
     renderPeople();
-    renderLogPanel();
 
     var alive = SF.aliveAll(state);
     var exploreBtn = $('btn-explore');
@@ -1060,8 +1082,7 @@
       '<span class="need-left">剩 ' + (state.supplies.water || 0) + '</span></div>';
 
     if (n.shortage) {
-      html += '<div class="alert bad">食物或水不够，全员掉了 ' +
-        C.night.shortfallHp + ' 点血，心情也垮了。</div>';
+      html += '<div class="alert bad">有人没分到吃的或喝的，饿着睡了。</div>';
     }
     if (n.theft) {
       html += '<div class="alert bad">门没堵牢，夜里被偷了：食物 −' +
@@ -1294,6 +1315,7 @@
     $('btn-clean').addEventListener('click', function () { onHomeAction('clean'); });
     $('btn-repair').addEventListener('click', function () { onHomeAction('repair'); });
     $('btn-talk').addEventListener('click', function () { onHomeAction('talk'); });
+    $('btn-log').addEventListener('click', openLog);
     $('btn-go-home').addEventListener('click', onGoHome);
     $('people').addEventListener('click', onPeopleClick);
     $('scene').addEventListener('click', openRoster);
