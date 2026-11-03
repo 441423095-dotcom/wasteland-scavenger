@@ -15,6 +15,128 @@
   var timer = 0;
   var searching = false;
 
+  // 去白底：把接近白色的像素判为透明，结果缓存起来
+  var KEYED = {};
+
+  function keyWhite(src, done) {
+    if (KEYED[src]) {
+      done(KEYED[src]);
+      return;
+    }
+
+    var img = new Image();
+
+    img.onload = function () {
+      var out = '';
+      try {
+        var w = img.naturalWidth || img.width;
+        var h = img.naturalHeight || img.height;
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+
+        var data = ctx.getImageData(0, 0, w, h);
+        var px = data.data;
+
+        for (var i = 0; i < px.length; i += 4) {
+          var r = px[i];
+          var g = px[i + 1];
+          var b = px[i + 2];
+          var lo = Math.min(r, g, b);
+          var hi = Math.max(r, g, b);
+
+          if (hi - lo <= 26) {
+            if (lo >= 234) {
+              px[i + 3] = 0;
+            } else if (lo >= 210) {
+              px[i + 3] = Math.round(px[i + 3] * (234 - lo) / 24);
+            }
+          }
+        }
+
+        ctx.putImageData(data, 0, 0);
+        out = canvas.toDataURL('image/png');
+      } catch (err) {
+        out = '';
+      }
+
+      KEYED[src] = out || src;
+      done(KEYED[src]);
+    };
+
+    img.onerror = function () {
+      KEYED[src] = src;
+      done(src);
+    };
+
+    img.src = src;
+  }
+
+  function hasTransparentCorner(src, done) {
+    var img = new Image();
+
+    img.onload = function () {
+      try {
+        var canvas = document.createElement('canvas');
+        canvas.width = 8;
+        canvas.height = 8;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, 8, 8);
+
+        var data = ctx.getImageData(0, 0, 8, 8).data;
+        var corners = [0, 7, 56, 63];
+        var clear = 0;
+
+        for (var i = 0; i < corners.length; i++) {
+          if (data[corners[i] * 4 + 3] < 30) clear += 1;
+        }
+
+        done(clear >= 2);
+      } catch (err) {
+        done(false);
+      }
+    };
+
+    img.onerror = function () { done(false); };
+    img.src = src;
+  }
+
+  function loadImages() {
+    var sceneImg = $('scene-img');
+    if (sceneImg) {
+      var src = sceneImg.getAttribute('src');
+
+      hasTransparentCorner(src, function (transparent) {
+        if (transparent) {
+          sceneImg.className = 'scene-img is-keyed';
+          return;
+        }
+        keyWhite(src, function (url) {
+          sceneImg.src = url;
+          sceneImg.className = 'scene-img is-keyed';
+        });
+      });
+    }
+
+    var idx = 0;
+
+    function nextPortrait() {
+      if (idx >= C.characters.length) return;
+      var ch = C.characters[idx];
+      idx += 1;
+
+      keyWhite(ch.portrait, function () {
+        renderShelter();
+        nextPortrait();
+      });
+    }
+
+    nextPortrait();
+  }
+
   function $(id) {
     return document.getElementById(id);
   }
@@ -142,8 +264,10 @@
     return false;
   }
 
-  function figureHtml(s, size) {
-    return SF.figureHtml(s.style, size);
+  function portraitHtml(s, w, h) {
+    var src = KEYED[s.portrait] || s.portrait;
+    return '<img class="portrait-img" src="' + src + '" alt="" ' +
+      'style="width:' + w + 'px;height:' + h + 'px">';
   }
 
   /* 头顶小图标：只给最重要的几个状态 */
@@ -169,19 +293,56 @@
     return html;
   }
 
+  /* 左侧名片：半身像 + 名字职业 + 四条状态条 */
+  function miniBar(value, invert) {
+    var v = Math.round(value);
+    var good = invert ? 100 - v : v;
+    if (good < 0) good = 0;
+    if (good > 100) good = 100;
+
+    var cls = 'ok';
+    if (good < 33) cls = 'bad';
+    else if (good < 66) cls = 'warn';
+
+    return '<span class="pbar"><i class="' + cls + '" style="width:' + good + '%"></i></span>';
+  }
+
   function renderPeople() {
     var alive = SF.aliveAll(state);
     var html = '';
 
     for (var i = 0; i < alive.length; i++) {
       var s = alive[i];
-      html += '<button type="button" class="person' +
+      var critical = s.hp <= 30 || s.hunger >= 85 || s.thirst >= 85;
+
+      var hpGood = s.hp;
+      var hungerGood = 100 - s.hunger;
+      var thirstGood = 100 - s.thirst;
+
+      var kind = 'hp';
+      var val = hpGood;
+      if (hungerGood < val) {
+        kind = 'hunger';
+        val = hungerGood;
+      }
+      if (thirstGood < val) {
+        kind = 'thirst';
+        val = thirstGood;
+      }
+
+      val = Math.max(0, Math.min(100, Math.round(val)));
+
+      html += '<button type="button" class="mini-card' +
         (s.id === state.leaderId ? ' is-lead' : '') +
+        (critical ? ' is-critical' : '') +
         '" data-id="' + s.id + '">' +
-        headBadgesHtml(s) +
-        '<span class="person-fig">' + figureHtml(s, 48) + '</span>' +
-        '<span class="person-name">' + s.name + '</span>' +
-        '<span class="person-role">' + s.role + '</span>' +
+        '<span class="mini-fig">' + portraitHtml(s, 22, 28) + '</span>' +
+        '<span class="mini-main">' +
+        '<span class="mini-name">' + s.name + '</span>' +
+        '<span class="mini-track">' +
+        '<i class="mini-fill ' + kind + '" style="width:' + val + '%"></i>' +
+        '</span>' +
+        '</span>' +
         '</button>';
     }
 
@@ -287,7 +448,7 @@
       html += '<button type="button" class="pick-row' +
         (s.id === state.leaderId ? ' is-lead' : '') +
         '" data-act="pick" data-id="' + s.id + '" data-loc="' + loc.id + '">' +
-        '<span class="pick-fig">' + figureHtml(s, 32) + '</span>' +
+        '<span class="pick-fig">' + portraitHtml(s, 30, 40) + '</span>' +
         '<span class="pick-main"><b>' + s.name + '</b>' +
         '<span class="pick-role">' + s.role + ' · ' + s.trait + '</span></span>' +
         '<span class="pick-mood' + (weak ? ' is-bad' : '') + '">心情 ' +
@@ -395,7 +556,7 @@
 
     if (r.newcomer) {
       html += '<div class="newcomer">' +
-        '<span class="newcomer-fig">' + figureHtml(r.newcomer, 30) + '</span>' +
+        '<span class="newcomer-fig">' + portraitHtml(r.newcomer, 30, 40) + '</span>' +
         '<span class="newcomer-text">角落里有个发抖的人。<br>' +
         '<b>' + r.newcomer.name + '</b> 愿意跟你回避难所。</span>' +
         '</div>';
@@ -440,7 +601,7 @@
       '<span class="modal-title">' + s.name + '</span>' +
       '<span class="modal-sub">' + s.role + '</span>' +
       '</div>' +
-      '<div class="stat-fig">' + figureHtml(s, 80) + '</div>' +
+      '<div class="stat-fig">' + portraitHtml(s, 96, 120) + '</div>' +
       '<div class="trait-box"><b>' + s.trait + '</b><span>' + s.traitText + '</span></div>' +
       chips +
       statsBlock(s);
@@ -483,7 +644,7 @@
     for (var i = 0; i < alive.length; i++) {
       var s = alive[i];
       html += '<button type="button" class="roster-row" data-act="detail" data-id="' + s.id + '">' +
-        '<span class="roster-fig">' + figureHtml(s, 32) + '</span>' +
+        '<span class="roster-fig">' + portraitHtml(s, 28, 38) + '</span>' +
         '<span class="roster-main">' +
         '<span class="roster-top"><b>' + s.name + '</b>' +
         '<span class="roster-role">' + s.role + '</span>' +
@@ -915,14 +1076,15 @@
   function boot() {
     state = SF.newGame();
     renderShelter();
+    loadImages();
 
     $('btn-explore').addEventListener('click', onExplore);
     $('btn-status').addEventListener('click', openRoster);
-    $('btn-craft').addEventListener('click', openCraft);
     $('gear').addEventListener('click', onGearClick);
     $('btn-night').addEventListener('click', openDinner);
     $('btn-go-home').addEventListener('click', onGoHome);
     $('people').addEventListener('click', onPeopleClick);
+    $('scene').addEventListener('click', openRoster);
     $('map-grid').addEventListener('click', onMapClick);
     $('modal').addEventListener('click', onModalClick);
 

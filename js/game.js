@@ -52,6 +52,7 @@ SF.SUPPLIES = [
       trait: ch.trait,
       traitText: ch.traitText,
       style: ch.style,
+      portrait: ch.portrait,
       emoji: ch.emoji,
       hp: clamp(stats.hp === undefined ? 100 : stats.hp, 0, C.maxStat),
       hunger: clamp(stats.hunger === undefined ? C.startStats.hunger : stats.hunger, 0, C.maxStat),
