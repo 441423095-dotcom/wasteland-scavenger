@@ -731,7 +731,7 @@ SF.SUPPLIES = [
       }
     }
 
-    report.event = makeRealNightEvent(state);
+    report.event = makePersonalEvent(state);
     return report;
   };
 
@@ -1090,5 +1090,168 @@ SF.SUPPLIES = [
     }
 
     return { ok: false, text: '不知道要做什么。' };
+  };
+})();
+
+
+// ---------- 针对个人的夜间事件 ----------
+(function () {
+  var C = SF.CONFIG;
+
+  function removeOne(state, key) {
+    if (key === 'water') {
+      if ((state.supplies.water || 0) < 1) return false;
+      state.supplies.water = Math.round(((state.supplies.water || 0) - 1) * 10) / 10;
+      return true;
+    }
+    if ((state.supplies[key] || 0) < 1) return false;
+    state.supplies[key] -= 1;
+    return true;
+  }
+
+  function allMood(state, delta) {
+    var alive = SF.aliveAll(state);
+    for (var i = 0; i < alive.length; i++) {
+      alive[i].mood = SF.clamp(alive[i].mood + delta, 0, C.maxStat);
+    }
+  }
+
+  function makePersonalEvent(state) {
+    if (!SF.roll(C.events.nightChance)) return null;
+
+    var alive = SF.aliveAll(state);
+    if (!alive.length) return null;
+
+    var kinds = ['fever', 'rat', 'rage', 'theft'];
+    if (!state.vaultUnlocked && SF.charAlive(state, 'chen')) kinds.push('dream');
+    kinds.push('beggar');
+
+    var kind = SF.pick
+      ? SF.pick(kinds)
+      : kinds[Math.floor(Math.random() * kinds.length)];
+    var t;
+
+    if (kind === 'fever') {
+      t = alive[Math.floor(Math.random() * alive.length)];
+      return {
+        id: 'fever',
+        targetId: t.id,
+        title: t.name + ' 发烧了',
+        text: '半夜，' + t.name + ' 因为口渴难耐，开始发烧咳嗽。',
+        options: [
+          { key: 'med', label: '用药品救治', disabled: (state.supplies.medicine || 0) < 1 },
+          { key: 'endure', label: '让她硬扛' }
+        ]
+      };
+    }
+
+    if (kind === 'rat') {
+      t = alive[Math.floor(Math.random() * alive.length)];
+      return {
+        id: 'rat',
+        targetId: t.id,
+        title: t.name + ' 被咬了',
+        text: '一只变异老鼠爬到了' + t.name + ' 的床上，咬伤了他。',
+        options: [{ key: 'ok', label: '只能忍着' }]
+      };
+    }
+
+    if (kind === 'rage') {
+      t = SF.findChar(state, 'tie') || alive[Math.floor(Math.random() * alive.length)];
+      return {
+        id: 'rage',
+        targetId: t.id,
+        title: t.name + ' 发脾气',
+        text: t.name + ' 因为今天没吃饱，脾气暴躁，砸坏了桌子。',
+        options: [{ key: 'ok', label: '随他去吧' }]
+      };
+    }
+
+    if (kind === 'beggar') {
+      return {
+        id: 'beggar',
+        targetId: null,
+        title: '门外的老人',
+        text: '门外有个绝望的老人，隔着铁门讨一口水喝。',
+        options: [
+          { key: 'give', label: '给 1 瓶水', disabled: (state.supplies.water || 0) < 1 },
+          { key: 'refuse', label: '不给' }
+        ]
+      };
+    }
+
+    if (kind === 'dream') {
+      return {
+        id: 'dream',
+        targetId: null,
+        title: '陈默的一个梦',
+        text: '陈默梦见城郊仓库里有一道暗门，醒来时路线还清清楚楚。',
+        options: [{ key: 'ok', label: '记下来' }]
+      };
+    }
+
+    return {
+      id: 'theft',
+      targetId: null,
+      title: '门口的异响',
+      text: '半夜门口有金属摩擦的声响，一直持续到天快亮。',
+      options: [{ key: 'ok', label: '等到天亮' }]
+    };
+  }
+
+  SF.resolvePersonalEvent = function (state, report, key) {
+    if (!report || !report.event) return report;
+
+    var ev = report.event;
+    var target = ev.targetId ? SF.find(state, ev.targetId) : null;
+    var lines = [];
+
+    if (ev.id === 'fever' && target) {
+      if (key === 'med' && (state.supplies.medicine || 0) >= 1) {
+        state.supplies.medicine -= 1;
+        target.sick = false;
+        target.hp = SF.clamp(target.hp + 15, 0, C.maxStat);
+        lines.push('你给' + target.name + '喂了药，天快亮时她终于退了烧。');
+      } else {
+        target.sick = true;
+        target.hp = SF.clamp(target.hp - 10, 0, C.maxStat);
+        target.mood = SF.clamp(target.mood - 10, 0, C.maxStat);
+        lines.push(target.name + '烧了一整夜，血量 −10，心情 −10。');
+      }
+    } else if (ev.id === 'rat' && target) {
+      target.hp = SF.clamp(target.hp - 15, 0, C.maxStat);
+      target.mood = SF.clamp(target.mood - 6, 0, C.maxStat);
+      lines.push(target.name + '被咬伤，血量 −15。');
+    } else if (ev.id === 'rage' && target) {
+      if (!removeOne(state, 'material')) removeOne(state, 'food');
+      allMood(state, -5);
+      lines.push(target.name + '砸了一通东西，物资少了一份，所有人都被吵得心情 −5。');
+    } else if (ev.id === 'theft') {
+      if (state.defense > 0 || (state.supplies.material || 0) >= C.material.guardCost * 2) {
+        lines.push('门被顶得死死的，盗贼转了两圈就走了。');
+      } else {
+        var lost = Math.min(state.supplies.food || 0, C.events.nightFoodSteal);
+        state.supplies.food -= lost;
+        lines.push('早上清点时，食物少了 ' + lost + ' 份。');
+      }
+    } else if (ev.id === 'beggar') {
+      if (key === 'give' && (state.supplies.water || 0) >= 1) {
+        state.supplies.water = Math.round(((state.supplies.water || 0) - 1) * 10) / 10;
+        state.beggarReward = true;
+        allMood(state, 6);
+        lines.push('你递出一瓶水，老人一直道谢。');
+      } else {
+        allMood(state, -10);
+        lines.push('你没有开门。听着外面的脚步声，所有人都低下了头。');
+      }
+    } else if (ev.id === 'dream') {
+      state.vaultUnlocked = true;
+      lines.push('地图上多了一个地方：城郊仓库的暗门。');
+    }
+
+    if (lines.length) SF.addLog(state, lines.join(' '));
+    report.eventText = lines.join(' ');
+    report.event = null;
+    return report;
   };
 })();

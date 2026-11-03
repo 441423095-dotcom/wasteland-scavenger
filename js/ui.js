@@ -353,11 +353,15 @@
 
       val = Math.max(0, Math.min(100, Math.round(val)));
 
+      var moodTag = '';
+      if (s.mad) moodTag = '<span class="mini-mood is-mad">!</span>';
+      else if (s.mood <= 30) moodTag = '<span class="mini-mood">' + SF.icon('cloud', 12) + '</span>';
+
       html += '<button type="button" class="mini-card' +
         (s.id === state.leaderId ? ' is-lead' : '') +
         (critical ? ' is-critical' : '') +
         '" data-id="' + s.id + '">' +
-        '<span class="mini-fig">' + portraitHtml(s, 40, 40) + '</span>' +
+        '<span class="mini-fig">' + portraitHtml(s, 40, 40) + moodTag + '</span>' +
         '<span class="mini-main">' +
         '<span class="mini-name">' + s.name + '</span>' +
         '<span class="mini-track">' +
@@ -439,6 +443,12 @@
     }
 
     var need = '今夜的用量：食物 ' + food + ' · 水 ' + (Math.round(water * 10) / 10);
+    var have = '存货：食物 ' + (state.supplies.food || 0) + ' · 水 ' +
+      (state.supplies.water || 0);
+
+    if ((state.supplies.food || 0) < food || (state.supplies.water || 0) < water) {
+      need = '物资不够！' + need + '，' + have + '。';
+    }
 
     if (state.actionUsed) {
       return '今天已经动过了，可以结束今天。' + need;
@@ -1216,7 +1226,7 @@
     } else if (act === 'night-choice') {
       var choice = el.getAttribute('data-key');
       try {
-        SF.resolveHardNightEvent(state, nightReport, choice);
+        SF.resolvePersonalEvent(state, nightReport, choice);
       } catch (e) {
         nightReport.event = null;
       }

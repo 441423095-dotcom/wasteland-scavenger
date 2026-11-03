@@ -2098,7 +2098,7 @@ body {
 
 .log-entry {
   padding: 6px 2px;
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.55;
   color: #c9d3bf;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -2106,4 +2106,74 @@ body {
 
 .modal-logbook {
   max-height: 62%;
+}
+
+
+/* 心情低落 / 发疯的小标记 */
+.mini-fig {
+  position: relative;
+}
+
+.mini-mood {
+  position: absolute;
+  right: -4px;
+  top: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 50%;
+}
+
+.mini-mood.is-mad {
+  color: #ff6b5e;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* 墙上的日记本 */
+.diary {
+  position: absolute;
+  right: 10px;
+  top: 44%;
+  width: 74px;
+  height: 92px;
+  z-index: 5;
+  padding: 0;
+  background: linear-gradient(180deg, #7a3b2a, #52281c);
+  border: 3px solid #2e1610;
+  border-radius: 3px 7px 7px 3px;
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.45),
+    inset -7px 0 0 rgba(255, 255, 255, 0.07);
+  cursor: pointer;
+}
+
+.diary::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: #3a1c12;
+}
+
+.diary-lines {
+  position: absolute;
+  left: 19px;
+  right: 9px;
+  top: 16px;
+  bottom: 16px;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 240, 200, 0.55) 0 2px,
+    rgba(0, 0, 0, 0) 2px 9px
+  );
+}
+
+.diary:active {
+  background: linear-gradient(180deg, #8a4531, #5c2e20);
 }
