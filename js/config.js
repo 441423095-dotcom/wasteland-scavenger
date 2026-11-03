@@ -41,7 +41,7 @@ SF.CONFIG = {
       trait: '电子达人',
       traitText: '捡到收音机时，他修好的概率极高。',
       style: 'chen',
-      portrait: 'assets/portrait-chen.png',
+      portrait: 'assets/portrait-tie.png',
       isPlayer: true
     },
     {
@@ -60,7 +60,7 @@ SF.CONFIG = {
       trait: '体力充沛',
       traitText: '派他出门带回的物资翻倍；但他每天要吃 2 份食物。',
       style: 'tie',
-      portrait: 'assets/portrait-tie.png'
+      portrait: 'assets/portrait-chen.png'
     },
     {
       id: 'nana',
