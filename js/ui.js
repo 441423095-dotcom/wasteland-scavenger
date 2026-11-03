@@ -1072,6 +1072,7 @@
   /* 先点物资，再点人 */
   function dinnerPick(item) {
     if (!dinner) return;
+    if (!item) return;
 
     if (item === 'food' && dinner.foodLeft < 1) {
       dinner.msg = '食物已经没有了。';
@@ -1199,11 +1200,11 @@
     html += '<div class="dinner-picks">' +
       '<button type="button" class="ditem' + (dinner.sel === 'food' ? ' is-on' : '') +
       (dinner.foodLeft < 1 ? ' is-off' : '') +
-      '" data-item="food">' +
+      '" data-item="food" onclick="SF.pickDinner(\'food\')">' +
       SF.icon('food', 30) + '<span>食物</span><b>' + r2(dinner.foodLeft) + '</b></button>' +
       '<button type="button" class="ditem' + (dinner.sel === 'water' ? ' is-on' : '') +
       (dinner.waterLeft < waterR ? ' is-off' : '') +
-      ' data-item="water">' +
+      '" data-item="water" onclick="SF.pickDinner(\'water\')">' +
       (typeof SF.itemSvg === 'function'
         ? SF.itemSvg('water', 30)
         : SF.icon('water', 30)) +
@@ -1227,7 +1228,7 @@
       var done = fGot >= fNeed - 0.001 && wGot >= waterR - 0.001;
 
       html += '<button type="button" class="dinner-person' + (done ? ' is-done' : '') + '"' +
-        ' data-id="' + s.id + '">' +
+        ' data-id="' + s.id + '" onclick="SF.pickDinnerPerson(\'' + s.id + '\')">' +
         '<span class="dp-fig">' + portraitHtml(s, 30, 30) + '</span>' +
         '<span class="dp-main">' + s.name +
         '<span class="dp-role">' + s.role + '</span></span>' +
@@ -1249,27 +1250,39 @@
       '</div>';
 
     openModal(html, 'modal-dinner');
-    bindDinner();
   }
+
+  SF.pickDinner = function (item) {
+    dinnerPick(item);
+  };
+
+  SF.pickDinnerPerson = function (id) {
+    dinnerPerson(id);
+  };
 
   /* 直接给分配界面的元素绑事件，避免任何委托问题 */
   function bindDinner() {
     var chips = document.querySelectorAll('.ditem');
-    for (var i = 0; i < chips.length; i++) {
+    var i;
+
+    for (i = 0; i < chips.length; i++) {
       (function (el) {
-        el.addEventListener('click', function () {
+        var fire = function (ev) {
+          if (ev) ev.preventDefault();
           dinnerPick(el.getAttribute('data-item'));
-        });
+        };
+        el.addEventListener('pointerdown', fire);
+        el.addEventListener('click', fire);
       })(chips[i]);
     }
 
     var rows = document.querySelectorAll('.dinner-person');
-    for (var j = 0; j < rows.length; j++) {
+    for (i = 0; i < rows.length; i++) {
       (function (el) {
         el.addEventListener('click', function () {
           dinnerPerson(el.getAttribute('data-id'));
         });
-      })(rows[j]);
+      })(rows[i]);
     }
   }
 
