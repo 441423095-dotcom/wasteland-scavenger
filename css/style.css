@@ -2287,63 +2287,12 @@ body {
 }
 
 
-/* 先选物资，再选人 */
-.dinner-picks {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.ditem {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 8px 6px;
-  font-family: inherit;
-  background: rgba(0, 0, 0, 0.5);
-  border: 2px solid rgba(255, 255, 255, 0.16);
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.ditem.is-on {
-  border-color: #9cc97a;
-  background: rgba(127, 178, 103, 0.16);
-  box-shadow: 0 0 10px rgba(127, 178, 103, 0.35);
-}
-
-.ditem:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
-.ditem svg,
-.ditem img {
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
-}
-
-.ditem span {
-  font-size: 11px;
-  color: #cfd8c6;
-}
-
-.ditem b {
-  font-size: 18px;
-  color: #f6e9b4;
-}
-
+/* 晚餐：每行两个按钮，点一下就发一份 */
 .dinner-tip {
   margin-bottom: 6px;
   font-size: 11px;
+  line-height: 1.5;
   color: #8f9d86;
-}
-
-.dinner-tip.is-on {
-  color: #e6d8a6;
 }
 
 .dinner-msg {
@@ -2364,7 +2313,6 @@ body {
   background: rgba(0, 0, 0, 0.45);
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 8px;
-  cursor: pointer;
 }
 
 .dinner-person.is-done {
@@ -2387,17 +2335,26 @@ body {
   color: #8f9d86;
 }
 
-.dp-tags {
-  display: flex;
-  gap: 4px;
+.dp-tag {
+  min-width: 56px;
+  min-height: 38px;
+  padding: 4px 8px;
+  font-family: inherit;
+  font-size: 11px;
+  color: #a9b5a0;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-.dp-tag {
-  padding: 1px 5px;
-  font-size: 10px;
-  color: #a9b5a0;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 3px;
+/* 还没分够：亮黄色，提示可以点 */
+.dp-tag.need {
+  color: #ffe9a8;
+  border-color: #f5c451;
+  background: rgba(245, 196, 81, 0.16);
 }
 
 .dp-tag.ok {
@@ -2406,20 +2363,8 @@ body {
   border-color: #9cc97a;
 }
 
-
-.ditem {
-  pointer-events: auto;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-}
-
-.ditem.is-off {
-  opacity: 0.35;
-}
-
-.ditem.is-on svg,
-.ditem.is-on img {
-  filter: drop-shadow(0 0 6px rgba(156, 201, 122, 0.9));
+.dp-tag:active {
+  opacity: 0.72;
 }
 
 
@@ -2533,30 +2478,4 @@ body {
 .inv-empty {
   font-size: 10px;
   color: #6f7b69;
-}
-
-/* 选中的物资：明显的高亮 */
-.ditem.is-on {
-  border: 3px solid #f5c451;
-  background: rgba(245, 196, 81, 0.18);
-  box-shadow: 0 0 14px rgba(245, 196, 81, 0.75);
-}
-
-.ditem.is-on span {
-  color: #ffe9a8;
-}
-
-
-.dinner-sel {
-  margin: 4px 0 6px;
-  font-size: 12px;
-  color: #f5c451;
-}
-
-.ditem {
-  min-height: 68px;
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
 }

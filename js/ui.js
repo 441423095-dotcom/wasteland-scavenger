@@ -965,7 +965,7 @@
   }
 
   function onGearClick(ev) {
-    var el = elementFrom(ev.target, $('gear'), 'data-item');
+    var el = elementFrom(ev.target, $('shelf'), 'data-item');
     if (!el) return;
 
     var key = el.getAttribute('data-item');
@@ -1062,69 +1062,44 @@
       drink: {},
       foodLeft: state.supplies.food || 0,
       waterLeft: state.supplies.water || 0,
-      sel: null,
       msg: ''
     };
 
     renderDinner();
   }
 
-  /* 先点物资，再点人 */
-  function dinnerPick(item) {
+  /* 一键发放：点某个人旁边的「食物」或「水」，直接给他一份 */
+  function dinnerGive(id, kind) {
     if (!dinner) return;
-    if (!item) return;
-
-    if (item === 'food' && dinner.foodLeft < 1) {
-      dinner.msg = '食物已经没有了。';
-      renderDinner();
-      return;
-    }
-    if (item === 'water' && dinner.waterLeft < SF.waterRation(state)) {
-      dinner.msg = '物资不足：水不够分。';
-      renderDinner();
-      return;
-    }
-
-    dinner.sel = item;
-    dinner.msg = '';
-    renderDinner();
-  }
-
-  function dinnerPerson(id) {
-    if (!dinner) return;
-
-    if (!dinner.sel) {
-      dinner.msg = '请先在上方选择物资。';
-      renderDinner();
-      return;
-    }
 
     var s = SF.find(state, id);
     if (!s || !s.alive) return;
 
-    var isFood = dinner.sel === 'food';
-    var cost = isFood ? 1 : SF.waterRation(state);
+    var isFood = kind === 'food';
+    var name = isFood ? '食物' : '水';
     var need = isFood ? SF.foodNeed(s) : SF.waterRation(state);
+    var portion = isFood ? 1 : SF.waterRation(state);
     var store = isFood ? dinner.eat : dinner.drink;
     var leftKey = isFood ? 'foodLeft' : 'waterLeft';
     var cur = store[id] || 0;
 
     if (cur >= need - 0.001) {
-      dinner.msg = s.name + ' 已经够了，留给别人吧。';
+      dinner.msg = s.name + ' 已经' + (isFood ? '吃饱' : '喝够') + '了，留给别人吧。';
       renderDinner();
       return;
     }
 
-    if (dinner[leftKey] < cost) {
-      dinner.msg = '物资不足：不够' + (isFood ? '喂食' : '喂水') + '了。';
+    var add = Math.min(portion, need - cur);
+
+    if (dinner[leftKey] < add - 0.001) {
+      dinner.msg = '物资不足：' + name + '不够分了。';
       renderDinner();
       return;
     }
 
-    store[id] = Math.round((cur + cost) * 10) / 10;
-    dinner[leftKey] = r2(dinner[leftKey] - cost);
-    dinner.msg = s.name + ' 拿了一份' + (isFood ? '食物' : '水') + '。';
-    dinner.sel = null;
+    store[id] = r2(cur + add);
+    dinner[leftKey] = r2(dinner[leftKey] - add);
+    dinner.msg = s.name + ' 拿到了一份' + name + '。';
     renderDinner();
   }
 
@@ -1197,30 +1172,11 @@
       '<span class="modal-sub">第 ' + state.day + ' 天</span>' +
       '</div>';
 
-    html += '<div class="dinner-picks">' +
-      '<div class="ditem' + (dinner.sel === 'food' ? ' is-on' : '') +
-      (dinner.foodLeft < 1 ? ' is-off' : '') +
-      '" role="button" tapindex="0" data-item="food" onclick="SF.pickDinner(\'food\')">' +
-      SF.icon('food', 30) + '<span>食物</span><b>' + r2(dinner.foodLeft) + '</b></div>' +
-      '<div class="ditem' + (dinner.sel === 'water' ? ' is-on' : '') +
-      (dinner.waterLeft < waterR ? ' is-off' : '') +
-      '" role="button" tapindex="0" data-item="water" onclick="SF.pickDinner(\'water\')">' +
-      (typeof SF.itemSvg === 'function'
-        ? SF.itemSvg('water', 30)
-        : SF.icon('water', 30)) +
-      '<span>水</span><b>' + r2(dinner.waterLeft) + '</b></div>' +
-      '</div>';
+    html += '<div class="dinner-left">食物剩 ' + r2(dinner.foodLeft) +
+      ' · 水剩 ' + r2(dinner.waterLeft) + '</div>';
 
-    html += '<div class="dinner-sel">' +
-      (dinner.sel ? '已选中：' + (dinner.sel === 'food' ? '食物' : '水') : '未选择物资') +
-      '</div>';
-
-    html += '<div class="dinner-tip' +
-      (dinner.sel ? ' is-on' : '') + '">' +
-      (dinner.sel
-        ? '点下方的人发放' + (dinner.sel === 'food' ? '食物' : '水')
-        : '先点上面的物资，再点要分给谁') +
-      '</div>';
+    html += '<div class="dinner-tip">点某个人旁边的「食」或「水」，' +
+      '就给他一份。每人每天：1 份食物、' + waterText + ' 份水。</div>';
 
     if (dinner.msg) html += '<div class="dinner-msg">' + dinner.msg + '</div>';
 
@@ -1231,18 +1187,18 @@
       var wGot = dinner.drink[s.id] || 0;
       var done = fGot >= fNeed - 0.001 && wGot >= waterR - 0.001;
 
-      html += '<div class="dinner-person' + (done ? ' is-done' : '') + '"' +
-        ' role="button" data-id="' + s.id + '"' +
-        ' onclick="SF.pickDinnerPerson(\'' + s.id + '\')">' +
+      html += '<div class="dinner-person' + (done ? ' is-done' : '') + '">' +
         '<span class="dp-fig">' + portraitHtml(s, 30, 30) + '</span>' +
         '<span class="dp-main">' + s.name +
         '<span class="dp-role">' + s.role + '</span></span>' +
-        '<span class="dp-tags">' +
-        '<span class="dp-tag' + (fGot >= fNeed - 0.001 ? ' ok' : '') + '">食 ' +
-        r2(fGot) + '/' + fNeed + '</span>' +
-        '<span class="dp-tag' + (wGot >= waterR - 0.001 ? ' ok' : '') + '">水 ' +
-        r2(wGot) + '/' + waterText + '</span>' +
-        '</span>' +
+        '<button type="button" class="dp-tag' +
+        (fGot >= fNeed - 0.001 ? ' ok' : ' need') + '"' +
+        ' data-act="dinner-food" data-id="' + s.id + '">食 ' +
+        r2(fGot) + '/' + fNeed + '</button>' +
+        '<button type="button" class="dp-tag' +
+        (wGot >= waterR - 0.001 ? ' ok' : ' need') + '"' +
+        ' data-act="dinner-water" data-id="' + s.id + '">水 ' +
+        r2(wGot) + '/' + waterText + '</button>' +
         '</div>';
     }
 
@@ -1255,40 +1211,6 @@
       '</div>';
 
     openModal(html, 'modal-dinner');
-  }
-
-  SF.pickDinner = function (item) {
-    dinnerPick(item);
-  };
-
-  SF.pickDinnerPerson = function (id) {
-    dinnerPerson(id);
-  };
-
-  /* 直接给分配界面的元素绑事件，避免任何委托问题 */
-  function bindDinner() {
-    var chips = document.querySelectorAll('.ditem');
-    var i;
-
-    for (i = 0; i < chips.length; i++) {
-      (function (el) {
-        var fire = function (ev) {
-          if (ev) ev.preventDefault();
-          dinnerPick(el.getAttribute('data-item'));
-        };
-        el.addEventListener('pointerdown', fire);
-        el.addEventListener('click', fire);
-      })(chips[i]);
-    }
-
-    var rows = document.querySelectorAll('.dinner-person');
-    for (i = 0; i < rows.length; i++) {
-      (function (el) {
-        el.addEventListener('click', function () {
-          dinnerPerson(el.getAttribute('data-id'));
-        });
-      })(rows[i]);
-    }
   }
 
   function openNight() {
@@ -1408,10 +1330,10 @@
       renderShelter();
     } else if (act === 'detail') {
       openDetail(id);
-    } else if (act === 'dinner-pick') {
-      dinnerPick(el.getAttribute('data-item'));
-    } else if (act === 'dinner-person') {
-      dinnerPerson(id);
+    } else if (act === 'dinner-food') {
+      dinnerGive(id, 'food');
+    } else if (act === 'dinner-water') {
+      dinnerGive(id, 'water');
     } else if (act === 'equip') {
       SF.toggleGear(state, id, el.getAttribute('data-gear'));
       openEquipment(raidLoc, raidIds);
@@ -1553,7 +1475,7 @@
 
     $('btn-explore').addEventListener('click', onExplore);
     $('btn-status').addEventListener('click', openRoster);
-    $('gear').addEventListener('click', onGearClick);
+    $('shelf').addEventListener('click', onGearClick);
     $('btn-night').addEventListener('click', openDinner);
     $('btn-clean').addEventListener('click', openBath);
     $('btn-repair').addEventListener('click', function () { onHomeAction('repair'); });
@@ -1564,10 +1486,6 @@
     $('scene').addEventListener('click', openRoster);
     $('map-grid').addEventListener('click', onMapClick);
     $('modal').addEventListener('click', onModalClick);
-    $('modal').addEventListener('click', function (ev) {
-      var chip = elementFrom(ev.target, $('modal'), 'data-item');
-      if (chip && dinner) dinnerPick(chip.getAttribute('data-item'));
-    });
 
     showScreen('screen-shelter');
   }
