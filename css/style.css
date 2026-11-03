@@ -2545,3 +2545,18 @@ body {
 .ditem.is-on span {
   color: #ffe9a8;
 }
+
+
+.dinner-sel {
+  margin: 4px 0 6px;
+  font-size: 12px;
+  color: #f5c451;
+}
+
+.ditem {
+  min-height: 68px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}

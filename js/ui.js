@@ -1198,17 +1198,21 @@
       '</div>';
 
     html += '<div class="dinner-picks">' +
-      '<button type="button" class="ditem' + (dinner.sel === 'food' ? ' is-on' : '') +
+      '<div class="ditem' + (dinner.sel === 'food' ? ' is-on' : '') +
       (dinner.foodLeft < 1 ? ' is-off' : '') +
-      '" data-item="food" onclick="SF.pickDinner(\'food\')">' +
-      SF.icon('food', 30) + '<span>食物</span><b>' + r2(dinner.foodLeft) + '</b></button>' +
-      '<button type="button" class="ditem' + (dinner.sel === 'water' ? ' is-on' : '') +
+      '" role="button" tapindex="0" data-item="food" onclick="SF.pickDinner(\'food\')">' +
+      SF.icon('food', 30) + '<span>食物</span><b>' + r2(dinner.foodLeft) + '</b></div>' +
+      '<div class="ditem' + (dinner.sel === 'water' ? ' is-on' : '') +
       (dinner.waterLeft < waterR ? ' is-off' : '') +
-      '" data-item="water" onclick="SF.pickDinner(\'water\')">' +
+      '" role="button" tapindex="0" data-item="water" onclick="SF.pickDinner(\'water\')">' +
       (typeof SF.itemSvg === 'function'
         ? SF.itemSvg('water', 30)
         : SF.icon('water', 30)) +
-      '<span>水</span><b>' + r2(dinner.waterLeft) + '</b></button>' +
+      '<span>水</span><b>' + r2(dinner.waterLeft) + '</b></div>' +
+      '</div>';
+
+    html += '<div class="dinner-sel">' +
+      (dinner.sel ? '已选中：' + (dinner.sel === 'food' ? '食物' : '水') : '未选择物资') +
       '</div>';
 
     html += '<div class="dinner-tip' +
@@ -1227,8 +1231,9 @@
       var wGot = dinner.drink[s.id] || 0;
       var done = fGot >= fNeed - 0.001 && wGot >= waterR - 0.001;
 
-      html += '<button type="button" class="dinner-person' + (done ? ' is-done' : '') + '"' +
-        ' data-id="' + s.id + '" onclick="SF.pickDinnerPerson(\'' + s.id + '\')">' +
+      html += '<div class="dinner-person' + (done ? ' is-done' : '') + '"' +
+        ' role="button" data-id="' + s.id + '"' +
+        ' onclick="SF.pickDinnerPerson(\'' + s.id + '\')">' +
         '<span class="dp-fig">' + portraitHtml(s, 30, 30) + '</span>' +
         '<span class="dp-main">' + s.name +
         '<span class="dp-role">' + s.role + '</span></span>' +
@@ -1238,7 +1243,7 @@
         '<span class="dp-tag' + (wGot >= waterR - 0.001 ? ' ok' : '') + '">水 ' +
         r2(wGot) + '/' + waterText + '</span>' +
         '</span>' +
-        '</button>';
+        '</div>';
     }
 
     html += '<div class="modal-actions">' +
@@ -1559,6 +1564,10 @@
     $('scene').addEventListener('click', openRoster);
     $('map-grid').addEventListener('click', onMapClick);
     $('modal').addEventListener('click', onModalClick);
+    $('modal').addEventListener('click', function (ev) {
+      var chip = elementFrom(ev.target, $('modal'), 'data-item');
+      if (chip && dinner) dinnerPick(chip.getAttribute('data-item'));
+    });
 
     showScreen('screen-shelter');
   }
