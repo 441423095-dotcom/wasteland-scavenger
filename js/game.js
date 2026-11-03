@@ -112,6 +112,8 @@ SF.SUPPLIES = [
       logs: [],
       vaultUnlocked: false,
       morningNews: '',
+      defense: 0,
+      actionUsed: false,
       survivors: survivors,
       leaderId: player.id,
       exploredToday: false,
@@ -795,7 +797,10 @@ SF.SUPPLIES = [
     var i;
 
     if (ev.id === 'theft') {
-      if ((state.supplies.material || 0) >= C.material.guardCost * 2) {
+      if (state.defense > 0) {
+        report.eventText = '门被加固过的木板顶得死死的，盗贼转了两圈，骂了一句就走了。';
+        SF.addLog(state, '避难所防御生效，盗贼什么都没拿到。');
+      } else if ((state.supplies.material || 0) >= C.material.guardCost * 2) {
         report.eventText = '门被材料顶得死死的，盗贼转了两圈，骂了一句就走了。';
         SF.addLog(state, '盗贼被堵在门外，什么都没丢。');
       } else {
@@ -1006,7 +1011,7 @@ SF.SUPPLIES = [
     }
 
     state.day = state.day + 1;
-    state.exploredToday = false;
+    state.actionUsed = false;
     if (state.rescueLeft > 0) state.rescueLeft -= 1;
 
     ensureLeader(state);
@@ -1021,4 +1026,62 @@ SF.SUPPLIES = [
     return SF.finishNight(state, report);
   };
 
+})();
+
+
+// ---------- 日常行动 ----------
+(function () {
+  var C = SF.CONFIG;
+
+  function allMood(state, delta) {
+    var alive = SF.aliveAll(state);
+    for (var i = 0; i < alive.length; i++) {
+      alive[i].mood = SF.clamp(alive[i].mood + delta, 0, C.maxStat);
+    }
+    return alive.length;
+  }
+
+  SF.homeAction = function (state, type) {
+    if (state.actionUsed) {
+      return { ok: false, text: '今天已经动过了，剩下的时间只够睡觉。' };
+    }
+
+    var alive = SF.aliveAll(state);
+    if (!alive.length) return { ok: false, text: '没有人能动了。' };
+
+    if (type === 'clean') {
+      if ((state.supplies.water || 0) < 1) {
+        return { ok: false, text: '没有多余的水，擦不了地。' };
+      }
+      state.supplies.water = Math.round(((state.supplies.water || 0) - 1) * 10) / 10;
+      allMood(state, 10);
+      state.actionUsed = true;
+      var line1 = '你们用一瓶水把地面和床铺擦了一遍，屋里的味道终于淡了点。全员心情 +10。';
+      SF.addLog(state, '打扫房间：水 −1，全员心情 +10。');
+      return { ok: true, title: '打扫房间', text: line1 };
+    }
+
+    if (type === 'repair') {
+      if ((state.supplies.material || 0) < 2) {
+        return { ok: false, text: '材料不够，连门框都补不上（需要 2 份材料）。' };
+      }
+      state.supplies.material -= 2;
+      state.defense += 1;
+      state.actionUsed = true;
+      allMood(state, 3);
+      var line2 = '你们把木板钉在门后、把通风口堵严。避难所防御 +1，现在是 ' + state.defense + '。';
+      SF.addLog(state, '修理避难所：材料 −2，防御 +1。');
+      return { ok: true, title: '修理避难所', text: line2 };
+    }
+
+    if (type === 'talk') {
+      allMood(state, 15);
+      state.actionUsed = true;
+      var line3 = '没人出门。你们围着桌子聊了很久，从工作聊到想吃的东西。全员心情 +15。';
+      SF.addLog(state, '围炉夜话：全员心情 +15。');
+      return { ok: true, title: '围炉夜话', text: line3 };
+    }
+
+    return { ok: false, text: '不知道要做什么。' };
+  };
 })();

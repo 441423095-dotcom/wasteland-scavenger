@@ -2053,3 +2053,22 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+
+/* 第二排日常按钮 */
+.actions-sub {
+  margin-top: 4px;
+}
+
+.btn-sub {
+  padding: 6px 2px;
+  font-size: 10px;
+  color: #c4cfb6;
+  background: rgba(26, 32, 26, 0.85);
+  border-width: 1px;
+  box-shadow: none;
+}
+
+.btn-sub:disabled {
+  opacity: 0.45;
+}

@@ -398,10 +398,10 @@
 
     var need = '今夜的用量：食物 ' + food + ' · 水 ' + (Math.round(water * 10) / 10);
 
-    if (state.exploredToday) {
-      return '东西已经搬回来了，可以结束今天。' + need;
+    if (state.actionUsed) {
+      return '今天已经动过了，可以结束今天。' + need;
     }
-    return '点下面的按钮出门。' + need;
+    return '每天只能做一件事：出门，或者留在家里干活。' + need;
   }
 
   function renderShelter() {
@@ -416,6 +416,7 @@
 
     var alive = SF.aliveAll(state);
     var exploreBtn = $('btn-explore');
+    var locked = state.actionUsed || !alive.length;
 
     if (!alive.length) {
       exploreBtn.disabled = true;
@@ -426,14 +427,18 @@
       $('btn-status').disabled = false;
       $('btn-night').disabled = false;
 
-      if (state.exploredToday) {
+      if (state.actionUsed) {
         exploreBtn.disabled = true;
-        exploreBtn.textContent = '今天已出门';
+        exploreBtn.textContent = '今天已行动';
       } else {
         exploreBtn.disabled = false;
         exploreBtn.textContent = '出门探索';
       }
     }
+
+    $('btn-clean').disabled = locked;
+    $('btn-repair').disabled = locked;
+    $('btn-talk').disabled = locked;
 
     $('hintbar').textContent = dayHint();
   }
@@ -535,7 +540,7 @@
 
   function startSearch(locId, partyIds) {
     if (searching) return;
-    if (state.exploredToday) return;
+    if (state.actionUsed) return;
 
     var loc = SF.findLocation(locId);
     if (!loc) return;
@@ -627,7 +632,7 @@
   }
 
   function backHome() {
-    state.exploredToday = true;
+    state.actionUsed = true;
     closeModal();
     renderShelter();
     showScreen('screen-shelter');
@@ -1190,9 +1195,35 @@
     openExplorerPicker(el.getAttribute('data-id'));
   }
 
+  /* ---------------- 日常行动 ---------------- */
+
+  function onHomeAction(type) {
+    var r = SF.homeAction(state, type);
+
+    renderShelter();
+
+    if (!r.ok) {
+      openModal('<div class="modal-head">' +
+        '<span class="modal-title">不行</span>' +
+        '</div>' +
+        '<div class="res-text">' + r.text + '</div>' +
+        '<div class="modal-actions"><button type="button" class="btn" data-act="close">知道了</button></div>',
+        'modal-action');
+      return;
+    }
+
+    openModal('<div class="modal-head">' +
+      '<span class="modal-title">' + r.title + '</span>' +
+      '<span class="modal-sub">今天的行动</span>' +
+      '</div>' +
+      '<div class="res-text">' + r.text + '</div>' +
+      '<div class="modal-actions"><button type="button" class="btn btn-main" data-act="close">好</button></div>',
+      'modal-action');
+  }
+
   function onExplore() {
     if (!SF.aliveAll(state).length) return;
-    if (state.exploredToday) return;
+    if (state.actionUsed) return;
 
     closeModal();
     renderMap();
@@ -1217,6 +1248,9 @@
     $('btn-status').addEventListener('click', openRoster);
     $('gear').addEventListener('click', onGearClick);
     $('btn-night').addEventListener('click', openDinner);
+    $('btn-clean').addEventListener('click', function () { onHomeAction('clean'); });
+    $('btn-repair').addEventListener('click', function () { onHomeAction('repair'); });
+    $('btn-talk').addEventListener('click', function () { onHomeAction('talk'); });
     $('btn-go-home').addEventListener('click', onGoHome);
     $('people').addEventListener('click', onPeopleClick);
     $('scene').addEventListener('click', openRoster);
