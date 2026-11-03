@@ -1167,13 +1167,13 @@
       '</div>';
 
     html += '<div class="dinner-picks">' +
-      '<button type="button" class="ditem' + (dinner.sel === 'food' ? ' is-on' : '') + '"' +
-      (dinner.foodLeft < 1 ? ' disabled' : '') +
-      ' data-act="dinner-pick" data-item="food">' +
+      '<button type="button" class="ditem' + (dinner.sel === 'food' ? ' is-on' : '') +
+      (dinner.foodLeft < 1 ? ' is-off' : '') +
+      '" data-item="food">' +
       SF.icon('food', 30) + '<span>食物</span><b>' + r2(dinner.foodLeft) + '</b></button>' +
-      '<button type="button" class="ditem' + (dinner.sel === 'water' ? ' is-on' : '') + '"' +
-      (dinner.waterLeft < waterR ? ' disabled' : '') +
-      ' data-act="dinner-pick" data-item="water">' +
+      '<button type="button" class="ditem' + (dinner.sel === 'water' ? ' is-on' : '') +
+      (dinner.waterLeft < waterR ? ' is-off' : '') +
+      ' data-item="water">' +
       (typeof SF.itemSvg === 'function'
         ? SF.itemSvg('water', 30)
         : SF.icon('water', 30)) +
@@ -1197,7 +1197,7 @@
       var done = fGot >= fNeed - 0.001 && wGot >= waterR - 0.001;
 
       html += '<button type="button" class="dinner-person' + (done ? ' is-done' : '') + '"' +
-        ' data-act="dinner-person" data-id="' + s.id + '">' +
+        ' data-id="' + s.id + '">' +
         '<span class="dp-fig">' + portraitHtml(s, 30, 30) + '</span>' +
         '<span class="dp-main">' + s.name +
         '<span class="dp-role">' + s.role + '</span></span>' +
@@ -1219,6 +1219,28 @@
       '</div>';
 
     openModal(html, 'modal-dinner');
+    bindDinner();
+  }
+
+  /* 直接给分配界面的元素绑事件，避免任何委托问题 */
+  function bindDinner() {
+    var chips = document.querySelectorAll('.ditem');
+    for (var i = 0; i < chips.length; i++) {
+      (function (el) {
+        el.addEventListener('click', function () {
+          dinnerPick(el.getAttribute('data-item'));
+        });
+      })(chips[i]);
+    }
+
+    var rows = document.querySelectorAll('.dinner-person');
+    for (var j = 0; j < rows.length; j++) {
+      (function (el) {
+        el.addEventListener('click', function () {
+          dinnerPerson(el.getAttribute('data-id'));
+        });
+      })(rows[j]);
+    }
   }
 
   function openNight() {

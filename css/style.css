@@ -2405,3 +2405,19 @@ body {
   background: #7fb267;
   border-color: #9cc97a;
 }
+
+
+.ditem {
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+.ditem.is-off {
+  opacity: 0.35;
+}
+
+.ditem.is-on svg,
+.ditem.is-on img {
+  filter: drop-shadow(0 0 6px rgba(156, 201, 122, 0.9));
+}
