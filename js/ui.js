@@ -1023,7 +1023,7 @@
   function openNight() {
     var n = nightReport;
 
-    html += '<div class="modal-head">' +
+    var html = '<div class="modal-head">' +
       '<span class="modal-title">第 ' + n.day + ' 夜</span>' +
       '<span class="modal-sub">结算</span>' +
       '</div>';
