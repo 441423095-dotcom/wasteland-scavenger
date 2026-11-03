@@ -1032,31 +1032,68 @@
       eat: {},
       drink: {},
       foodLeft: state.supplies.food || 0,
-      waterLeft: state.supplies.water || 0
+      waterLeft: state.supplies.water || 0,
+      sel: null,
+      msg: ''
     };
 
     renderDinner();
   }
 
-  function dinnerToggle(act, id) {
+  /* 先点物资，再点人 */
+  function dinnerPick(item) {
     if (!dinner) return;
 
-    var s = SF.find(state, id);
-    if (!s) return;
-
-    var isEat = act === 'eat';
-    var need = isEat ? SF.foodNeed(s) : SF.waterRation(state);
-    var store = isEat ? dinner.eat : dinner.drink;
-    var leftKey = isEat ? 'foodLeft' : 'waterLeft';
-
-    if (store[id]) {
-      delete store[id];
-      dinner[leftKey] = r2(dinner[leftKey] + need);
-    } else if (dinner[leftKey] >= need) {
-      store[id] = true;
-      dinner[leftKey] = r2(dinner[leftKey] - need);
+    if (item === 'food' && dinner.foodLeft < 1) {
+      dinner.msg = '食物已经没有了。';
+      renderDinner();
+      return;
+    }
+    if (item === 'water' && dinner.waterLeft < SF.waterRation(state)) {
+      dinner.msg = '物资不足：水不够分。';
+      renderDinner();
+      return;
     }
 
+    dinner.sel = item;
+    dinner.msg = '';
+    renderDinner();
+  }
+
+  function dinnerPerson(id) {
+    if (!dinner) return;
+
+    if (!dinner.sel) {
+      dinner.msg = '请先在上方选择物资。';
+      renderDinner();
+      return;
+    }
+
+    var s = SF.find(state, id);
+    if (!s || !s.alive) return;
+
+    var isFood = dinner.sel === 'food';
+    var cost = isFood ? 1 : SF.waterRation(state);
+    var need = isFood ? SF.foodNeed(s) : SF.waterRation(state);
+    var store = isFood ? dinner.eat : dinner.drink;
+    var leftKey = isFood ? 'foodLeft' : 'waterLeft';
+    var cur = store[id] || 0;
+
+    if (cur >= need - 0.001) {
+      dinner.msg = s.name + ' 已经够了，留给别人吧。';
+      renderDinner();
+      return;
+    }
+
+    if (dinner[leftKey] < cost) {
+      dinner.msg = '物资不足：不够' + (isFood ? '喂食' : '喂水') + '了。';
+      renderDinner();
+      return;
+    }
+
+    store[id] = Math.round((cur + cost) * 10) / 10;
+    dinner[leftKey] = r2(dinner[leftKey] - cost);
+    dinner.msg = '';
     renderDinner();
   }
 
@@ -1071,18 +1108,19 @@
     dinner.drink = {};
     dinner.foodLeft = state.supplies.food || 0;
     dinner.waterLeft = state.supplies.water || 0;
+    dinner.msg = '';
 
     for (i = 0; i < alive.length; i++) {
       var n = SF.foodNeed(alive[i]);
       if (dinner.foodLeft >= n) {
-        dinner.eat[alive[i].id] = true;
+        dinner.eat[alive[i].id] = n;
         dinner.foodLeft = r2(dinner.foodLeft - n);
       }
     }
 
     for (i = 0; i < alive.length; i++) {
       if (dinner.waterLeft >= waterR) {
-        dinner.drink[alive[i].id] = true;
+        dinner.drink[alive[i].id] = waterR;
         dinner.waterLeft = r2(dinner.waterLeft - waterR);
       }
     }
@@ -1093,7 +1131,17 @@
   function dinnerGo() {
     if (!dinner) return;
 
-    var plan = { eat: dinner.eat, drink: dinner.drink };
+    var alive = SF.aliveAll(state);
+    var waterR = SF.waterRation(state);
+    var plan = { eat: {}, drink: {} };
+    var i;
+
+    for (i = 0; i < alive.length; i++) {
+      var s = alive[i];
+      if ((dinner.eat[s.id] || 0) >= SF.foodNeed(s) - 0.001) plan.eat[s.id] = true;
+      if ((dinner.drink[s.id] || 0) >= waterR - 0.001) plan.drink[s.id] = true;
+    }
+
     dinner = null;
 
     nightReport = SF.startNight(state, plan);
@@ -1114,34 +1162,52 @@
     var waterText = waterR === 0.5 ? '½' : String(waterR);
 
     var html = '<div class="modal-head">' +
-      '<span class="modal-title">晚餐分配</span>' +
+      '<span class="modal-title">分配口粮</span>' +
       '<span class="modal-sub">第 ' + state.day + ' 天</span>' +
-      '</div>' +
-      '<div class="dinner-left">食物 ' + r2(dinner.foodLeft) +
-      ' · 水 ' + r2(dinner.waterLeft) + '</div>';
+      '</div>';
+
+    html += '<div class="dinner-picks">' +
+      '<button type="button" class="ditem' + (dinner.sel === 'food' ? ' is-on' : '') + '"' +
+      (dinner.foodLeft < 1 ? ' disabled' : '') +
+      ' data-act="dinner-pick" data-item="food">' +
+      SF.icon('food', 30) + '<span>食物</span><b>' + r2(dinner.foodLeft) + '</b></button>' +
+      '<button type="button" class="ditem' + (dinner.sel === 'water' ? ' is-on' : '') + '"' +
+      (dinner.waterLeft < waterR ? ' disabled' : '') +
+      ' data-act="dinner-pick" data-item="water">' +
+      (typeof SF.itemSvg === 'function'
+        ? SF.itemSvg('water', 30)
+        : SF.icon('water', 30)) +
+      '<span>水</span><b>' + r2(dinner.waterLeft) + '</b></button>' +
+      '</div>';
+
+    html += '<div class="dinner-tip' +
+      (dinner.sel ? ' is-on' : '') + '">' +
+      (dinner.sel
+        ? '点下方的人发放' + (dinner.sel === 'food' ? '食物' : '水')
+        : '先点上面的物资，再点要分给谁') +
+      '</div>';
+
+    if (dinner.msg) html += '<div class="dinner-msg">' + dinner.msg + '</div>';
 
     for (var i = 0; i < alive.length; i++) {
       var s = alive[i];
-      var foodNeed = SF.foodNeed(s);
-      var isEat = !!dinner.eat[s.id];
-      var isDrink = !!dinner.drink[s.id];
+      var fNeed = SF.foodNeed(s);
+      var fGot = dinner.eat[s.id] || 0;
+      var wGot = dinner.drink[s.id] || 0;
+      var done = fGot >= fNeed - 0.001 && wGot >= waterR - 0.001;
 
-      var eatLabel = foodNeed > 1 ? '喂食(需' + foodNeed + '份)' : '喂食';
-      var drinkLabel = waterR < 1 ? '喂水(½份)' : '喂水';
-
-      var eatDisabled = !isEat && dinner.foodLeft < foodNeed;
-      var drinkDisabled = !isDrink && dinner.waterLeft < waterR;
-
-      html += '<div class="dinner-row">' +
-        '<span class="dinner-name">' + s.name +
-        '<span class="dinner-role">' + s.role + '</span></span>' +
-        '<button type="button" class="dinner-btn' + (isEat ? ' is-on' : '') + '"' +
-        (eatDisabled ? ' disabled' : '') +
-        ' data-act="eat" data-id="' + s.id + '">' + eatLabel + '</button>' +
-        '<button type="button" class="dinner-btn' + (isDrink ? ' is-on' : '') + '"' +
-        (drinkDisabled ? ' disabled' : '') +
-        ' data-act="drink" data-id="' + s.id + '">' + drinkLabel + '</button>' +
-        '</div>';
+      html += '<button type="button" class="dinner-person' + (done ? ' is-done' : '') + '"' +
+        ' data-act="dinner-person" data-id="' + s.id + '">' +
+        '<span class="dp-fig">' + portraitHtml(s, 30, 30) + '</span>' +
+        '<span class="dp-main">' + s.name +
+        '<span class="dp-role">' + s.role + '</span></span>' +
+        '<span class="dp-tags">' +
+        '<span class="dp-tag' + (fGot >= fNeed - 0.001 ? ' ok' : '') + '">食 ' +
+        r2(fGot) + '/' + fNeed + '</span>' +
+        '<span class="dp-tag' + (wGot >= waterR - 0.001 ? ' ok' : '') + '">水 ' +
+        r2(wGot) + '/' + waterText + '</span>' +
+        '</span>' +
+        '</button>';
     }
 
     html += '<div class="modal-actions">' +
@@ -1272,8 +1338,10 @@
       renderShelter();
     } else if (act === 'detail') {
       openDetail(id);
-    } else if (act === 'eat' || act === 'drink') {
-      dinnerToggle(act, id);
+    } else if (act === 'dinner-pick') {
+      dinnerPick(el.getAttribute('data-item'));
+    } else if (act === 'dinner-person') {
+      dinnerPerson(id);
     } else if (act === 'equip') {
       SF.toggleGear(state, id, el.getAttribute('data-gear'));
       openEquipment(raidLoc, raidIds);

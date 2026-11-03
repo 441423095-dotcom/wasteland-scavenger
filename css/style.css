@@ -2285,3 +2285,123 @@ body {
 .gear-item svg {
   width: 26px;
 }
+
+
+/* 先选物资，再选人 */
+.dinner-picks {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ditem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 6px;
+  font-family: inherit;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.ditem.is-on {
+  border-color: #9cc97a;
+  background: rgba(127, 178, 103, 0.16);
+  box-shadow: 0 0 10px rgba(127, 178, 103, 0.35);
+}
+
+.ditem:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.ditem svg,
+.ditem img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+}
+
+.ditem span {
+  font-size: 11px;
+  color: #cfd8c6;
+}
+
+.ditem b {
+  font-size: 18px;
+  color: #f6e9b4;
+}
+
+.dinner-tip {
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: #8f9d86;
+}
+
+.dinner-tip.is-on {
+  color: #e6d8a6;
+}
+
+.dinner-msg {
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #cf705c;
+}
+
+.dinner-person {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 6px 8px;
+  text-align: left;
+  font-family: inherit;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.dinner-person.is-done {
+  border-color: rgba(156, 201, 122, 0.65);
+}
+
+.dp-fig {
+  line-height: 0;
+}
+
+.dp-main {
+  flex: 1;
+  font-size: 13px;
+  color: #e6d8a6;
+}
+
+.dp-role {
+  display: block;
+  font-size: 10px;
+  color: #8f9d86;
+}
+
+.dp-tags {
+  display: flex;
+  gap: 4px;
+}
+
+.dp-tag {
+  padding: 1px 5px;
+  font-size: 10px;
+  color: #a9b5a0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 3px;
+}
+
+.dp-tag.ok {
+  color: #10160f;
+  background: #7fb267;
+  border-color: #9cc97a;
+}
