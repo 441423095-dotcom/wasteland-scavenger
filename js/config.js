@@ -41,7 +41,7 @@ SF.CONFIG = {
       trait: '电子达人',
       traitText: '捡到收音机时，他修好的概率极高。',
       style: 'chen',
-      portrait: 'assets/p-tie.png',
+      portrait: 'assets/portrait-chen.png',
       isPlayer: true
     },
     {
@@ -51,7 +51,7 @@ SF.CONFIG = {
       trait: '囤积癖',
       traitText: '只要她在避难所，全队每天的水消耗减半。',
       style: 'lin',
-      portrait: 'assets/p-nana.png'
+      portrait: 'assets/portrait-lin.png'
     },
     {
       id: 'tie',
@@ -60,7 +60,7 @@ SF.CONFIG = {
       trait: '体力充沛',
       traitText: '派他出门带回的物资翻倍；但他每天要吃 2 份食物。',
       style: 'tie',
-      portrait: 'assets/p-chen.png'
+      portrait: 'assets/portrait-tie.png'
     },
     {
       id: 'nana',
@@ -69,7 +69,7 @@ SF.CONFIG = {
       trait: '交涉能力',
       traitText: '遇到掠夺者时，她大概率能毫发无伤地保住物资，甚至多拿一些。',
       style: 'nana',
-      portrait: 'assets/p-lin.png'
+      portrait: 'assets/portrait-nana.png'
     }
   ],
 

@@ -336,7 +336,7 @@
         (s.id === state.leaderId ? ' is-lead' : '') +
         (critical ? ' is-critical' : '') +
         '" data-id="' + s.id + '">' +
-        '<span class="mini-fig">' + portraitHtml(s, 22, 28) + '</span>' +
+        '<span class="mini-fig">' + portraitHtml(s, 40, 40) + '</span>' +
         '<span class="mini-main">' +
         '<span class="mini-name">' + s.name + '</span>' +
         '<span class="mini-track">' +

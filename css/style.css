@@ -1890,3 +1890,99 @@ body {
   border-radius: 2px;
   overflow: hidden;
 }
+
+
+/* 战术小卡片（最终版） */
+.people-panel {
+  left: 0;
+  top: 60px;
+  bottom: auto;
+  width: 30%;
+  min-width: 122px;
+  max-width: 140px;
+  gap: 6px;
+  padding-left: 8px;
+  overflow: visible;
+}
+
+.mini-card {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 5px 6px;
+  text-align: left;
+  font-family: inherit;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+}
+
+.mini-card.is-lead {
+  border-color: rgba(230, 216, 166, 0.55);
+}
+
+.mini-fig {
+  display: block;
+  flex: 0 0 auto;
+  line-height: 0;
+}
+
+.mini-fig .portrait-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  object-position: center top;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+
+.mini-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mini-name {
+  width: auto;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mini-track {
+  height: 5px;
+  background: #1c1f1c;
+  border: 0;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.9);
+  overflow: hidden;
+}
+
+.mini-fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background-image: none;
+}
+
+.mini-fill.hp {
+  background-image: linear-gradient(90deg, #7a2b22, #e0553f);
+}
+
+.mini-fill.hunger {
+  background-image: linear-gradient(90deg, #8a6a1e, #e8b74a);
+}
+
+.mini-fill.thirst {
+  background-image: linear-gradient(90deg, #245074, #6ab6f0);
+}
