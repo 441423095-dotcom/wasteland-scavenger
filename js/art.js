@@ -227,6 +227,58 @@ var ICONS = {
       '.BBBBBBBBBB.'
     ],
     palette: { A: '#8a908a', B: '#5a625a', C: '#2a2a24' }
+  },
+  cards: {
+    rows: [
+      '........',
+      '.AA..BB.',
+      '.AA..BB.',
+      '.AA..BB.',
+      '.AA..BB.',
+      '.AA..BB.',
+      '.AA..BB.',
+      '........'
+    ],
+    palette: { A: '#e8e4d8', B: '#c8403a' }
+  },
+  flashlight: {
+    rows: [
+      '........',
+      '..AAAA..',
+      '..ABBA..',
+      '..AAAA..',
+      '.AAAAAA.',
+      '.AAAAAA.',
+      '..FFFF..',
+      '...FF...'
+    ],
+    palette: { A: '#8a9090', B: '#d8c46a', F: '#f0dc8c' }
+  },
+  weapon: {
+    rows: [
+      '........',
+      '......AA',
+      '.....AA.',
+      '....AA..',
+      '...AA...',
+      '..AA....',
+      '.AA.....',
+      'A.......'
+    ],
+    palette: { A: '#a08060' }
+  },
+  mask: {
+    rows: [
+      '........',
+      '.AAAAAA.',
+      '.ABBBBA.',
+      '.ABBBBA.',
+      '.ABBBBA.',
+      '..AAAA..',
+      '...AA...',
+      '........'
+    ],
+    palette: { A: '#6f7f6a', B: '#3a4438' }
   }
 };
 

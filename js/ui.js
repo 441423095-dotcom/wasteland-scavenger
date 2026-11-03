@@ -211,18 +211,21 @@
   /* ---------------- 避难所渲染 ---------------- */
 
   function renderShelf() {
-    var html = '';
+    var html = '<div class="inv-title">库存</div><div class="inv-grid">';
 
-    for (var i = 0; i < SHELF_ITEMS.length; i++) {
-      var key = SHELF_ITEMS[i];
+    for (var i = 0; i < SF.SUPPLIES.length; i++) {
+      var key = SF.SUPPLIES[i].key;
       var n = state.supplies[key] || 0;
 
-      html += '<div class="tier">' +
-        '<span class="piece">' + SF.itemSvg(key, 26) + '</span>' +
-        '<span class="piece-count">' + (n === 0 ? '空' : '×' + (Math.round(n * 10) / 10)) + '</span>' +
-        '</div>';
+      html += '<div class="inv-cell' + (n === 0 ? ' is-empty' : '') + '">' +
+        '<span class="inv-ico">' + SF.itemSvg(key, 40) + '</span>' +
+        '<span class="inv-meta">' +
+        '<span class="inv-num">' + (Math.round(n * 10) / 10) + '</span>' +
+        '<span class="inv-name">' + SF.SUPPLIES[i].name + '</span>' +
+        '</span></div>';
     }
 
+    html += '</div><div class="inv-gear" id="gear"></div>';
     $('shelf').innerHTML = html;
   }
 
@@ -232,30 +235,45 @@
       : '救援没来';
   }
 
-  /* 货架下方：特殊道具 */
+  /* 面板下方：特殊道具 */
   function renderGear() {
-    var html = '';
+    var row = '';
 
     if (state.items.radioBroken) {
-      html += '<button type="button" class="gear-item" data-item="radioBroken">' +
-        SF.icon('radio', 20) + '<span>坏收音机</span></button>';
+      row += '<button type="button" class="gear-item" data-item="radioBroken">' +
+        SF.icon('radio', 22) + '<span>坏收音机</span></button>';
     } else if (state.items.radio) {
-      html += '<button type="button" class="gear-item" data-item="radio">' +
-        SF.icon('radio', 20) + '<span>收音机</span></button>';
+      row += '<button type="button" class="gear-item" data-item="radio">' +
+        SF.icon('radio', 22) + '<span>收音机</span></button>';
     }
     if (state.items.pesticide) {
-      html += '<button type="button" class="gear-item" data-item="pesticide">' +
-        SF.icon('pesticide', 20) + '<span>杀虫剂</span></button>';
+      row += '<button type="button" class="gear-item" data-item="pesticide">' +
+        SF.icon('pesticide', 22) + '<span>杀虫剂</span></button>';
+    }
+    if (state.items.cards) {
+      row += '<button type="button" class="gear-item" data-item="cards">' +
+        SF.icon('cards', 22) + '<span>扑克牌</span></button>';
+    }
+    if (state.items.flashlight) {
+      row += '<span class="gear-item is-static">' + SF.icon('flashlight', 22) +
+        '<span>手电</span></span>';
+    }
+    if (state.items.weapon) {
+      row += '<span class="gear-item is-static">' + SF.icon('weapon', 22) +
+        '<span>武器</span></span>';
+    }
+    if (state.items.gasMask) {
+      row += '<button type="button" class="gear-item" data-item="mask">' +
+        SF.icon('mask', 22) + '<span>面具</span></button>';
     }
 
     var gear = $('gear');
-    gear.innerHTML = html;
-    gear.style.display = html ? 'flex' : 'none';
+    if (!gear) return;
 
-    var shelf = $('shelf');
-    if (shelf) {
-      gear.style.top = (shelf.offsetTop + shelf.offsetHeight + 6) + 'px';
-    }
+    gear.innerHTML = '<div class="inv-sub">特殊道具</div>' +
+      '<div class="inv-gear-row">' +
+      (row || '<span class="inv-empty">还没有特殊道具</span>') +
+      '</div>';
   }
 
   /* 顶部滚动播报 */
@@ -937,6 +955,15 @@
     }
   }
 
+  function openGearInfo(title, text) {
+    openModal('<div class="modal-head">' +
+      '<span class="modal-title">' + title + '</span>' +
+      '</div>' +
+      '<div class="res-text">' + text + '</div>' +
+      '<div class="modal-actions"><button type="button" class="btn" data-act="close">关闭</button></div>',
+      'modal-gear');
+  }
+
   function onGearClick(ev) {
     var el = elementFrom(ev.target, $('gear'), 'data-item');
     if (!el) return;
@@ -945,6 +972,8 @@
     if (key === 'radio') openBroadcast();
     else if (key === 'radioBroken') tryRepair();
     else if (key === 'pesticide') openPesticide();
+    else if (key === 'cards') openGearInfo('扑克牌', '只要它在避难所里，所有人每天的心情恢复都会更快。');
+    else if (key === 'mask') openGearInfo('防毒面具', '出发前在装备界面把它分给某个人，他生病也不会影响探索成功率。');
   }
 
   /* ---------------- 物资兑换（占位） ---------------- */
@@ -1093,7 +1122,8 @@
 
     store[id] = Math.round((cur + cost) * 10) / 10;
     dinner[leftKey] = r2(dinner[leftKey] - cost);
-    dinner.msg = '';
+    dinner.msg = s.name + ' 拿了一份' + (isFood ? '食物' : '水') + '。';
+    dinner.sel = null;
     renderDinner();
   }
 

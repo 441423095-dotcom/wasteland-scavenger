@@ -2421,3 +2421,127 @@ body {
 .ditem.is-on img {
   filter: drop-shadow(0 0 6px rgba(156, 201, 122, 0.9));
 }
+
+
+/* 战术库存面板 */
+.inv {
+  position: absolute;
+  right: 10px;
+  top: 38px;
+  width: 212px;
+  z-index: 5;
+  padding: 8px;
+  background: rgba(8, 12, 8, 0.78);
+  border: 2px solid rgba(190, 205, 180, 0.3);
+  border-radius: 8px;
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.inv-title {
+  margin-bottom: 5px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #8f9d86;
+}
+
+.inv-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.inv-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+}
+
+.inv-cell.is-empty {
+  opacity: 0.5;
+}
+
+.inv-ico {
+  line-height: 0;
+}
+
+.inv-ico svg,
+.inv-ico img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.inv-meta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.inv-num {
+  font-size: 20px;
+  font-weight: 700;
+  color: #f0e4b8;
+}
+
+.inv-name {
+  font-size: 9px;
+  color: #8f9d86;
+}
+
+.inv-sub {
+  margin: 8px 0 4px;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #8f9d86;
+}
+
+.inv-gear-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.gear-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  font-family: inherit;
+  font-size: 10px;
+  color: #d8e2cc;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(210, 220, 200, 0.25);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.gear-item.is-static {
+  cursor: default;
+}
+
+.gear-item svg {
+  width: 22px;
+  height: auto;
+}
+
+.inv-empty {
+  font-size: 10px;
+  color: #6f7b69;
+}
+
+/* 选中的物资：明显的高亮 */
+.ditem.is-on {
+  border: 3px solid #f5c451;
+  background: rgba(245, 196, 81, 0.18);
+  box-shadow: 0 0 14px rgba(245, 196, 81, 0.75);
+}
+
+.ditem.is-on span {
+  color: #ffe9a8;
+}
