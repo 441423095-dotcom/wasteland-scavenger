@@ -51,7 +51,7 @@ SF.CONFIG = {
       trait: '囤积癖',
       traitText: '只要她在避难所，全队每天的水消耗减半。',
       style: 'lin',
-      portrait: 'assets/portrait-lin.png'
+      portrait: 'assets/portrait-chen.png'
     },
     {
       id: 'tie',
@@ -60,7 +60,7 @@ SF.CONFIG = {
       trait: '体力充沛',
       traitText: '派他出门带回的物资翻倍；但他每天要吃 2 份食物。',
       style: 'tie',
-      portrait: 'assets/portrait-chen.png'
+      portrait: 'assets/portrait-lin.png'
     },
     {
       id: 'nana',
