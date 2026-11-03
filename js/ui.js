@@ -833,6 +833,20 @@
     var ev = nightReport.event;
     if (!ev) return;
 
+    var available = 0;
+    var i;
+
+    for (i = 0; i < ev.options.length; i++) {
+      if (!ev.options[i].disabled) available += 1;
+    }
+
+    // 万一所有选项都点不了，直接按最保守的结果推进，绝不卡死
+    if (!available) {
+      SF.resolveHardNightEvent(state, nightReport, 'skip');
+      finishNight();
+      return;
+    }
+
     var html = '<div class="modal-head">' +
       '<span class="modal-title">' + ev.title + '</span>' +
       '<span class="modal-sub">夜里</span>' +
@@ -840,14 +854,19 @@
       '<div class="res-text">' + ev.text + '</div>' +
       '<div class="modal-actions">';
 
-    for (var i = 0; i < ev.options.length; i++) {
+    for (i = 0; i < ev.options.length; i++) {
       var op = ev.options[i];
       html += '<button type="button" class="btn' + (i === 0 ? ' btn-main' : '') + '"' +
         (op.disabled ? ' disabled' : '') +
-        ' data-act="night-choice" data-key="' + op.key + '">' + op.label + '</button>';
+        ' data-act="night-choice" data-key="' + op.key + '">' +
+        op.label + (op.disabled ? '（物资不足）' : '') + '</button>';
     }
 
-    html += '</div>';
+    html += '</div>' +
+      '<div class="modal-actions">' +
+      '<button type="button" class="btn" data-act="night-choice" data-key="skip">什么也不做</button>' +
+      '</div>';
+
     openModal(html, 'modal-night-event');
   }
 
@@ -1155,7 +1174,12 @@
       SF.applyExploreChoice(state, lastReport, el.getAttribute('data-key'));
       renderLog();
     } else if (act === 'night-choice') {
-      SF.resolveHardNightEvent(state, nightReport, el.getAttribute('data-key'));
+      var choice = el.getAttribute('data-key');
+      try {
+        SF.resolveHardNightEvent(state, nightReport, choice);
+      } catch (e) {
+        nightReport.event = null;
+      }
       finishNight();
     } else if (act === 'dinner-auto') {
       dinnerAuto();
