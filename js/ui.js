@@ -273,8 +273,10 @@
   /* 头顶小图标：只给最重要的几个状态 */
   function statusBadges(s) {
     var out = [];
+    if (s.mad) out.push({ icon: 'cloud', text: '发疯' });
     if (s.sick) out.push({ icon: 'medicine', text: '生病' });
     if (s.injured) out.push({ icon: 'medicine', text: '受伤' });
+    if (s.hasMask) out.push({ icon: 'pesticide', text: '面具' });
     if (s.thirst >= C.pose.crouchAtThirst) out.push({ icon: 'drop', text: '口渴' });
     if (s.hunger >= C.pose.crouchAtHunger) out.push({ icon: 'bowl', text: '饥饿' });
     if (s.mood <= C.pose.crouchWhenMoodBelow) out.push({ icon: 'cloud', text: '低落' });
@@ -349,6 +351,38 @@
     $('people').innerHTML = html;
   }
 
+  function summaryText() {
+    var alive = SF.aliveAll(state);
+    var parts = [];
+
+    for (var i = 0; i < alive.length; i++) {
+      var s = alive[i];
+      if (s.mad) parts.push(s.name + ' 发疯');
+      else if (s.hp <= 30) parts.push(s.name + ' 快不行了');
+      else if (s.hunger >= 80) parts.push(s.name + ' 快饿死');
+      else if (s.thirst >= 80) parts.push(s.name + ' 快渴死');
+      else if (s.mood <= 25) parts.push(s.name + ' 情绪崩溃');
+    }
+
+    if (!parts.length) return '暂时都还撑得住。';
+    return parts.join(' · ');
+  }
+
+  function renderLogPanel() {
+    var box = $('wall-log');
+    if (!box) return;
+
+    var lines = state.logs.slice(-4).reverse();
+    var html = '<div class="wl-title">避难所日志</div>' +
+      '<div class="wl-sum">' + summaryText() + '</div>';
+
+    for (var i = 0; i < lines.length; i++) {
+      html += '<div class="wl-item">' + lines[i] + '</div>';
+    }
+
+    box.innerHTML = html;
+  }
+
   function dayHint() {
     var alive = SF.aliveAll(state);
     if (!alive.length) return '避难所里已经没有活人了。';
@@ -378,6 +412,7 @@
     renderGear();
     renderTicker();
     renderPeople();
+    renderLogPanel();
 
     var alive = SF.aliveAll(state);
     var exploreBtn = $('btn-explore');
@@ -415,6 +450,7 @@
 
     for (var i = 0; i < C.locations.length; i++) {
       var loc = C.locations[i];
+      if (loc.hidden && !state.vaultUnlocked) continue;
 
       paths += '<line x1="50" y1="82" x2="' + loc.mapX + '" y2="' + loc.mapY +
         '" stroke="rgba(200,210,190,0.32)" stroke-width="0.45" stroke-dasharray="2 2"/>';
@@ -467,6 +503,8 @@
 
     for (var i = 0; i < alive.length; i++) {
       var s = alive[i];
+      if (s.mad) continue;
+
       var on = !!partyPick[s.id];
       var weak = s.mood < C.explore.refuseMoodBelow;
 
@@ -626,13 +664,26 @@
       statsBlock(s);
 
     if (s.sick) {
-      html += '<div class="alert bad">正在生病。夜里会掉血，货架上有药品就会自动用上。</div>';
+      html += '<div class="alert bad">正在生病。每晚会掉血，点下面的「用药品」可以治疗。</div>';
     }
     if (s.hunger >= C.night.hungerHurtAt) {
       html += '<div class="alert">饿得厉害，再吃不上东西就要掉血了。</div>';
     }
     if (s.thirst >= C.night.thirstHurtAt) {
       html += '<div class="alert">渴得厉害，再喝不上水就要掉血了。</div>';
+    }
+
+    var specials = '';
+    if (s.sick && (state.supplies.medicine || 0) >= 1) {
+      specials += '<button type="button" class="btn btn-main" data-act="use-med"' +
+        ' data-id="' + s.id + '">用药品</button>';
+    }
+    if (state.items.gasMask && !s.hasMask) {
+      specials += '<button type="button" class="btn" data-act="mask"' +
+        ' data-id="' + s.id + '">戴防毒面具</button>';
+    }
+    if (specials) {
+      html += '<div class="modal-actions">' + specials + '</div>';
     }
 
     if (s.id === state.leaderId) {
@@ -1065,6 +1116,14 @@
       openDetail(id);
     } else if (act === 'eat' || act === 'drink') {
       dinnerToggle(act, id);
+    } else if (act === 'use-med') {
+      SF.useMedicine(state, id);
+      renderShelter();
+      openDetail(id);
+    } else if (act === 'mask') {
+      SF.equipMask(state, id);
+      renderShelter();
+      openDetail(id);
     } else if (act === 'pick-toggle') {
       var locId = el.getAttribute('data-loc');
 
@@ -1091,7 +1150,7 @@
       SF.applyExploreChoice(state, lastReport, el.getAttribute('data-key'));
       renderLog();
     } else if (act === 'night-choice') {
-      SF.resolveNightEvent(state, nightReport, el.getAttribute('data-key'));
+      SF.resolveHardNightEvent(state, nightReport, el.getAttribute('data-key'));
       finishNight();
     } else if (act === 'dinner-auto') {
       dinnerAuto();

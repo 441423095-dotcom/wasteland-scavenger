@@ -64,6 +64,8 @@ SF.SUPPLIES = [
       mood: clamp(stats.mood === undefined ? 70 : stats.mood, 0, C.maxStat),
       sick: !!stats.sick,
       injured: !!stats.injured,
+      mad: !!stats.mad,
+      hasMask: false,
       alive: true,
       isPlayer: !!ch.isPlayer
     };
@@ -98,15 +100,31 @@ SF.SUPPLIES = [
     return {
       day: 1,
       supplies: supplies,
-      items: { radio: false, radioBroken: false, pesticide: false },
+      items: {
+        radio: false,
+        radioBroken: false,
+        pesticide: false,
+        cards: false,
+        gasMask: false
+      },
       rescueLeft: C.rescueDays,
       lastEvent: '',
+      logs: [],
+      vaultUnlocked: false,
+      morningNews: '',
       survivors: survivors,
       leaderId: player.id,
       exploredToday: false,
       over: false,
       overDay: 0
     };
+  };
+
+  SF.addLog = function (state, text) {
+    if (!text) return;
+    state.logs.push(text);
+    if (state.logs.length > 12) state.logs.shift();
+    state.lastEvent = text;
   };
 
   SF.aliveAll = function (state) {
@@ -209,7 +227,7 @@ SF.SUPPLIES = [
     if (s.thirst > E.thirstHighAt) p += E.thirstHighPenalty;
     else if (s.thirst > E.thirstMidAt) p += E.thirstMidPenalty;
 
-    if (s.sick) p += E.sickPenalty;
+    if (s.sick && !s.hasMask) p += E.sickPenalty;
     if (s.mood < E.moodLowAt) p += E.moodLowPenalty;
 
     p = clamp(p, E.minChance, E.maxChance);
@@ -243,12 +261,21 @@ SF.SUPPLIES = [
     if (partyIds && partyIds.length) {
       for (i = 0; i < partyIds.length; i++) {
         var m = SF.find(state, partyIds[i]);
-        if (m && m.alive) party.push(m);
+        if (m && m.alive && !m.mad) party.push(m);
       }
     }
     if (!party.length) {
       var lead = SF.find(state, state.leaderId);
-      if (!lead || !lead.alive) lead = SF.aliveAll(state)[0];
+      if (!lead || !lead.alive || lead.mad) {
+        lead = null;
+        var all = SF.aliveAll(state);
+        for (i = 0; i < all.length; i++) {
+          if (!all[i].mad) {
+            lead = all[i];
+            break;
+          }
+        }
+      }
       if (lead) party.push(lead);
     }
 
@@ -390,16 +417,40 @@ SF.SUPPLIES = [
 
     applyHaul(state, haul, result);
 
-    // 特殊道具
-    if (roll(C.explore.specialChance)) {
-      if (!state.items.radio && !state.items.radioBroken) {
-        state.items.radioBroken = true;
-        result.item = { key: 'radio', name: '损坏的收音机', text: '一台摔坏的收音机。也许还能修。' };
-        result.lines.push('墙角有台摔坏的收音机，你顺手拎了回来。');
-      } else if (!state.items.pesticide) {
-        state.items.pesticide = true;
-        result.item = { key: 'pesticide', name: '杀虫剂', text: '半罐杀虫剂，喷头还能用。' };
-        result.lines.push('货架底层还压着半罐杀虫剂。');
+    // 特殊事件：只在特定地点出现，特殊物品只能靠它拿到
+    if (!result.choice && roll(C.special.chance)) {
+      var far = loc.far;
+
+      if (far && !state.items.gasMask) {
+        result.choice = {
+          id: 'backpacker',
+          title: '死去的背包客',
+          text: '货架后面靠着一个已经凉透的背包客，背包还挂在他身上。',
+          options: [
+            { key: 'loot', label: '搜刮他的背包' },
+            { key: 'bury', label: '安葬他' }
+          ]
+        };
+      } else if (far && !state.items.radio && !state.items.radioBroken) {
+        result.choice = {
+          id: 'radio',
+          title: '角落里的收音机',
+          text: '值班室的抽屉里塞着一台摔过的收音机，后盖已经裂了。',
+          options: [
+            { key: 'takeRadio', label: '拆下来带走' },
+            { key: 'leaveRadio', label: '别费力气' }
+          ]
+        };
+      } else if (!far && !state.items.cards) {
+        result.choice = {
+          id: 'cards',
+          title: '一副扑克牌',
+          text: '休息室的桌上还摊着一副扑克牌，牌角被汗水泡软了。',
+          options: [
+            { key: 'takeCards', label: '收进口袋' },
+            { key: 'leaveCards', label: '留下' }
+          ]
+        };
       }
     }
 
@@ -425,6 +476,7 @@ SF.SUPPLIES = [
 
   SF.applyExploreChoice = function (state, result, key) {
     if (!result || !result.choice) return;
+    var i;
 
     if (result.choice.id === 'stranger') {
       if (key === 'take') {
@@ -434,22 +486,75 @@ SF.SUPPLIES = [
         } else {
           result.lines.push('你们实在拿不出吃的，只能看着她走远。');
         }
-        for (var i = 0; i < state.survivors.length; i++) {
+        for (i = 0; i < state.survivors.length; i++) {
           if (state.survivors[i].alive) {
             state.survivors[i].mood = clamp(state.survivors[i].mood + 8, 0, C.maxStat);
           }
         }
       } else {
-        for (var j = 0; j < state.survivors.length; j++) {
-          if (state.survivors[j].alive) {
-            state.survivors[j].mood = clamp(state.survivors[j].mood - 8, 0, C.maxStat);
+        for (i = 0; i < state.survivors.length; i++) {
+          if (state.survivors[i].alive) {
+            state.survivors[i].mood = clamp(state.survivors[i].mood - 8, 0, C.maxStat);
           }
         }
         result.lines.push('你们没有回头。回去的路上谁都没说话。');
       }
+    } else if (result.choice.id === 'backpacker') {
+      if (key === 'bury') {
+        state.items.gasMask = true;
+        result.lines.push('你们把他埋在了后墙下，背包里翻出一副防毒面具，还能用。');
+      } else {
+        var bonus = rnd(1, 2);
+        state.supplies.food = (state.supplies.food || 0) + bonus;
+        state.supplies.medicine = (state.supplies.medicine || 0) + 1;
+        result.lines.push('你们把他的背包翻了个底朝天，拿走 ' + bonus + ' 份食物和一点药品，人留在了原地。');
+        for (i = 0; i < state.survivors.length; i++) {
+          if (state.survivors[i].alive) {
+            state.survivors[i].mood = clamp(state.survivors[i].mood - 9, 0, C.maxStat);
+          }
+        }
+      }
+    } else if (result.choice.id === 'radio') {
+      if (key === 'takeRadio') {
+        state.items.radioBroken = true;
+        result.lines.push('你把收音机拆了下来，能不能修好得看陈默的手艺。');
+      } else {
+        result.lines.push('你把它放回抽屉，没那个力气了。');
+      }
+    } else if (result.choice.id === 'cards') {
+      if (key === 'takeCards') {
+        state.items.cards = true;
+        result.lines.push('你们把这副扑克牌收了回去，总算有点能打发时间的东西。');
+      } else {
+        result.lines.push('牌留在了桌上，反正也没人有心情玩。');
+      }
     }
 
     result.choice = null;
+  };
+
+  // ---------- 用药 / 装备防毒面具 ----------
+
+  SF.useMedicine = function (state, id) {
+    var s = SF.find(state, id);
+    if (!s || !s.alive || !s.sick) return false;
+    if ((state.supplies.medicine || 0) < 1) return false;
+
+    state.supplies.medicine -= 1;
+    s.sick = false;
+    s.hp = clamp(s.hp + C.night.medicineHeal, 0, C.maxStat);
+    SF.addLog(state, '给 ' + s.name + ' 用了药，烧终于退了一点。');
+    return true;
+  };
+
+  SF.equipMask = function (state, id) {
+    var s = SF.find(state, id);
+    if (!s || !s.alive || s.hasMask) return false;
+    if (!state.items.gasMask) return false;
+
+    s.hasMask = true;
+    SF.addLog(state, s.name + ' 戴上了防毒面具，出去不再受病痛影响。');
+    return true;
   };
 
   // ---------- 晚间结算（前半段） ----------
@@ -546,7 +651,16 @@ SF.SUPPLIES = [
       if (s.sick) moodDelta += N.moodSick;
 
       s.hp = clamp(s.hp + heal - dmg, 0, C.maxStat);
-      s.mood = clamp(s.mood + moodDelta, 0, C.maxStat);
+      s.mood = clamp(s.mood + moodDelta + (state.items.cards ? 4 : 0), 0, C.maxStat);
+
+      // 心情或口渴崩到底：第二天开始发疯
+      if (s.mood <= C.madness.moodAt || s.thirst >= C.madness.thirstAt) {
+        if (!s.mad) SF.addLog(state, s.name + ' 的眼神已经不对了，今晚开始发疯。');
+        s.mad = true;
+      } else if (s.mad && s.mood >= C.madness.recoverAt) {
+        s.mad = false;
+        SF.addLog(state, s.name + ' 终于缓过神来，不再发疯了。');
+      }
 
       if (s.injured && s.hp >= N.injuredRecoverHp && isFed && isDrank) {
         s.injured = false;
@@ -573,22 +687,29 @@ SF.SUPPLIES = [
       });
     }
 
+    // 发疯的人会破坏物资
     for (i = 0; i < alive.length; i++) {
-      var p = alive[i];
-      if (!p.sick) continue;
-      if ((state.supplies.medicine || 0) < 1) continue;
+      var mf = alive[i];
+      if (!mf.mad || mf.hp <= 0) continue;
 
-      state.supplies.medicine -= 1;
-      p.sick = false;
-      p.hp = clamp(p.hp + N.medicineHeal, 0, C.maxStat);
-
-      var medRow = findRow(report.rows, p.id);
-      if (medRow) {
-        medRow.med = true;
-        medRow.sick = false;
-        medRow.hpAfter = p.hp;
+      if (mf.charId === 'chen') {
+        if (state.items.radio) {
+          state.items.radio = false;
+          state.items.radioBroken = true;
+          SF.addLog(state, '陈默发疯，把收音机砸坏了。');
+        } else if ((state.supplies.material || 0) > 0) {
+          state.supplies.material -= 1;
+          SF.addLog(state, '陈默把一叠材料撕得稀烂。');
+        }
+      } else if (mf.charId === 'nana' || mf.charId === 'tie') {
+        var eaten = Math.min(state.supplies.food || 0, 2);
+        state.supplies.food -= eaten;
+        if (eaten > 0) SF.addLog(state, mf.name + ' 发疯，抢走了 ' + eaten + ' 份食物。');
+      } else if (mf.charId === 'lin') {
+        var spilled = Math.min(state.supplies.water || 0, 1);
+        state.supplies.water = Math.round(((state.supplies.water || 0) - spilled) * 10) / 10;
+        if (spilled > 0) SF.addLog(state, '林晓发疯，把一瓶水倒在了地上。');
       }
-      report.meds.push({ name: p.name });
     }
 
     if ((state.supplies.material || 0) < C.material.guardCost && roll(C.material.theftChance)) {
@@ -602,7 +723,121 @@ SF.SUPPLIES = [
       }
     }
 
-    report.event = makeNightEvent(state);
+    report.event = makeRealNightEvent(state);
+    return report;
+  };
+
+  /* 硬核版夜间事件：盗窃 / 传染 / 乞丐 / 梦境 */
+  function makeRealNightEvent(state) {
+    if (!roll(C.events.nightChance)) return null;
+
+    var alive = SF.aliveAll(state);
+    var pool = ['theft', 'infection', 'beggar'];
+
+    if (!state.vaultUnlocked && SF.charAlive(state, 'chen')) pool.push('dream');
+
+    var sick = null;
+    for (var i = 0; i < alive.length; i++) {
+      if (alive[i].sick) {
+        sick = alive[i];
+        break;
+      }
+    }
+    if (!sick) pool = pool.filter(function (k) { return k !== 'infection'; });
+
+    var kind = pickOne(pool);
+
+    if (kind === 'infection') {
+      return {
+        id: 'infection',
+        targetId: sick.id,
+        title: '半夜咳嗽',
+        text: sick.name + ' 半夜开始剧烈咳嗽，同屋的人谁都没睡好。',
+        options: [{ key: 'ok', label: '熬到天亮' }]
+      };
+    }
+
+    if (kind === 'beggar') {
+      return {
+        id: 'beggar',
+        title: '门外的老人',
+        text: '门外有个绝望的老人，隔着铁门讨一口水喝。',
+        options: [
+          { key: 'give', label: '给 1 瓶水', disabled: (state.supplies.water || 0) < 1 },
+          { key: 'refuse', label: '不给' }
+        ]
+      };
+    }
+
+    if (kind === 'dream') {
+      return {
+        id: 'dream',
+        targetId: null,
+        title: '一个梦',
+        text: '陈默梦见城郊仓库里有一道暗门，醒来时路线还清清楚楚。',
+        options: [{ key: 'ok', label: '记下来' }]
+      };
+    }
+
+    return {
+      id: 'theft',
+      targetId: null,
+      title: '门口的异响',
+      text: '半夜门口有金属摩擦的声响，一直持续到天快亮。',
+      options: [{ key: 'ok', label: '等到天亮' }]
+    };
+  }
+
+  SF.resolveHardNightEvent = function (state, report, key) {
+    if (!report || !report.event) return report;
+
+    var ev = report.event;
+    var i;
+
+    if (ev.id === 'theft') {
+      if ((state.supplies.material || 0) >= C.material.guardCost * 2) {
+        report.eventText = '门被材料顶得死死的，盗贼转了两圈，骂了一句就走了。';
+        SF.addLog(state, '盗贼被堵在门外，什么都没丢。');
+      } else {
+        var lost = Math.min(state.supplies.food || 0, C.events.nightFoodSteal);
+        state.supplies.food -= lost;
+        report.eventText = '早上清点时，食物少了 ' + lost + ' 份。';
+        SF.addLog(state, '夜里遭了贼，食物 −' + lost + '。');
+      }
+    } else if (ev.id === 'infection') {
+      for (i = 0; i < state.survivors.length; i++) {
+        var s = state.survivors[i];
+        if (!s.alive || s.id === ev.targetId) continue;
+        s.mood = clamp(s.mood - 8, 0, C.maxStat);
+      }
+      report.eventText = '听着那阵咳嗽，谁都没再睡着。其他人的心情下降了。';
+      SF.addLog(state, '夜里的咳嗽声让所有人心情 −8。');
+    } else if (ev.id === 'beggar') {
+      if (key === 'give' && (state.supplies.water || 0) >= 1) {
+        state.supplies.water = Math.round(((state.supplies.water || 0) - 1) * 10) / 10;
+        state.beggarReward = true;
+        for (i = 0; i < state.survivors.length; i++) {
+          if (state.survivors[i].alive) {
+            state.survivors[i].mood = clamp(state.survivors[i].mood + 6, 0, C.maxStat);
+          }
+        }
+        report.eventText = '你把一瓶水从门缝递了出去，老人一直道谢。';
+      } else {
+        for (i = 0; i < state.survivors.length; i++) {
+          if (state.survivors[i].alive) {
+            state.survivors[i].mood = clamp(state.survivors[i].mood - 10, 0, C.maxStat);
+          }
+        }
+        report.eventText = '门外安静了下去。你们谁都没说话。';
+        SF.addLog(state, '你们没有给老人水，所有人的心情 −10。');
+      }
+    } else if (ev.id === 'dream') {
+      state.vaultUnlocked = true;
+      report.eventText = '地图上多了一个地方：城郊仓库的暗门。';
+      SF.addLog(state, '解锁了隐藏地点：仓库暗门。');
+    }
+
+    report.event = null;
     return report;
   };
 
@@ -735,6 +970,31 @@ SF.SUPPLIES = [
   SF.finishNight = function (state, report) {
     var alive = SF.aliveAll(state);
     var i;
+
+    // 乞丐的回礼
+    if (state.beggarReward) {
+      state.beggarReward = false;
+      if (roll(C.special.beggarReward)) {
+        var gift = pickOne(['cards', 'pesticide', 'medicine']);
+
+        if (gift === 'cards' && !state.items.cards) {
+          state.items.cards = true;
+          SF.addLog(state, '老人在门口留下了一副扑克牌。');
+        } else if (gift === 'pesticide' && !state.items.pesticide) {
+          state.items.pesticide = true;
+          SF.addLog(state, '老人在门口留下了半罐杀虫剂。');
+        } else {
+          state.supplies.medicine = (state.supplies.medicine || 0) + 1;
+          SF.addLog(state, '老人在门口留下了一盒药。');
+        }
+      }
+    }
+
+    // 收音机的早晨播报
+    if (state.items.radio) {
+      state.morningNews = pickOne(C.broadcasts);
+      SF.addLog(state, '收音机：' + state.morningNews);
+    }
 
     for (i = 0; i < alive.length; i++) {
       var d = alive[i];

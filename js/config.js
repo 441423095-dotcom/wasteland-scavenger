@@ -206,6 +206,18 @@ SF.CONFIG = {
     feverHpLoss: 15
   },
 
+  // 发疯与特殊事件
+  madness: {
+    moodAt: 12,            // 心情低于这条线，当晚会发疯
+    thirstAt: 90,          // 渴到这条线也会发疯
+    recoverAt: 45,         // 心情回到这条线以上才恢复正常
+    breakItems: true
+  },
+  special: {
+    chance: 0.22,          // 特定地点触发特殊事件的概率
+    beggarReward: 0.6      // 给乞丐水之后，第二天送东西的概率
+  },
+
   // ---------- 四个探索地点 ----------
   locations: [
     {
@@ -291,6 +303,28 @@ SF.CONFIG = {
       },
       okText: '你撬开仓库侧门，里面是成堆的木料和没拆封的箱子。你搬了两趟，才在天黑前回去。',
       badText: '铁皮棚深处有东西在动。你只摸到门口的几个破箱子，就被逼着退了出来。'
+    },
+    {
+      id: 'vault',
+      name: '仓库暗门',
+      icon: 'material',
+      mapX: 52,
+      mapY: 42,
+      hidden: true,
+      risk: '高风险',
+      riskLevel: 'high',
+      hint: '隐藏地点',
+      far: true,
+      chance: 0.7,
+      newcomerBonus: 0,
+      loot: {
+        food: [1, 3],
+        water: [1, 2],
+        medicine: [1, 2],
+        material: [2, 4]
+      },
+      okText: '暗门后面是间被封起来的小仓库，铁架上还压着没拆封的箱子。',
+      badText: '暗门后面塌了一半，你只来得及抓了几样东西就退了出来。'
     }
   ]
 };
