@@ -4259,3 +4259,93 @@ body {
 .mini-mood {
   transform: scale(0.85);
 }
+
+
+
+/* ============ v61：柔和磨砂暗绿名片 + 明显状态光环 ============ */
+
+.mini-card {
+  background:
+    linear-gradient(180deg, rgba(24, 40, 28, 0.62), rgba(8, 16, 10, 0.66));
+  -webkit-backdrop-filter: blur(7px) saturate(1.15);
+  backdrop-filter: blur(7px) saturate(1.15);
+  border: 1px solid rgba(150, 220, 160, 0.32);
+  border-radius: 9px;
+  box-shadow:
+    0 0 10px rgba(110, 230, 140, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    inset 0 0 14px rgba(0, 0, 0, 0.45),
+    0 3px 10px rgba(0, 0, 0, 0.55);
+}
+
+.mini-card.is-lead {
+  border-color: #ffd75e;
+  background:
+    linear-gradient(180deg, rgba(56, 48, 20, 0.66), rgba(18, 16, 8, 0.7));
+  box-shadow:
+    0 0 16px rgba(255, 215, 94, 0.85),
+    0 0 30px rgba(255, 190, 60, 0.35),
+    inset 0 0 14px rgba(255, 210, 90, 0.18),
+    0 3px 12px rgba(0, 0, 0, 0.55);
+  filter: brightness(1.08);
+}
+
+/* 头像状态环：更粗、更亮、更明显 */
+.mini-fig .portrait-img {
+  border: 3px solid #4fe06a;
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.6),
+    0 0 10px 2px rgba(79, 224, 106, 0.9),
+    0 0 20px 6px rgba(79, 224, 106, 0.35);
+}
+
+.mini-card.is-starving .mini-fig .portrait-img {
+  border-color: #ffcc33;
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.6),
+    0 0 10px 2px rgba(255, 204, 51, 0.95),
+    0 0 20px 6px rgba(255, 190, 40, 0.4);
+}
+
+.mini-card.is-deadly .mini-fig .portrait-img {
+  border-color: #ff3f2e;
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.6),
+    0 0 11px 3px rgba(255, 63, 46, 1),
+    0 0 22px 7px rgba(255, 60, 40, 0.45);
+  filter: grayscale(100%) brightness(0.85);
+}
+
+/* 进度条：再宽一点、色块更饱满 */
+.mrow {
+  height: 12px;
+}
+
+.mtrack {
+  height: 7px;
+  border-radius: 4px;
+  background: #060a07;
+  border: 1px solid rgba(0, 0, 0, 0.95);
+}
+
+.mfill.hp {
+  background: linear-gradient(180deg, #ff5b4a, #d92015);
+}
+
+.mfill.thirst {
+  background: linear-gradient(180deg, #63c8ff, #1477e0);
+}
+
+.mfill.hunger {
+  background: linear-gradient(180deg, #ffb347, #e27400);
+}
+
+.mfill.mood {
+  background: linear-gradient(180deg, #82f59a, #12b843);
+}
+
+.mini-name {
+  color: #ffffff;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 1), 0 0 6px rgba(0, 0, 0, 0.9);
+}
