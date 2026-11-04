@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v27';
+  var BUILD = 'v28';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -776,16 +776,16 @@
   /* 选人面板展示的被动文案（与底层逻辑保持一致） */
   function traitTextFor(s) {
     if (s.charId === 'chen') {
-      return '黑科技破解：必带 1 份药品，且不会触发陷阱。';
+      return '有几率带回稀有零件，但不擅长搬运基础物资。';
     }
     if (s.charId === 'lin') {
-      return '药理知识：带回的药品翻倍；全队生病掉血减半。';
+      return '必定多带回 1 个药品，免疫生化污染。';
     }
     if (s.charId === 'tie') {
-      return '体力充沛：食物/水/材料额外 +1~2。';
+      return '带回的食物和材料 +2，但吃得也多。';
     }
     if (s.charId === 'nana') {
-      return '交涉能力：危险事件 100% 免伤，50% 概率反抢物资。';
+      return '遇敌无伤，大概率反抢物资。';
     }
     return s.traitText;
   }

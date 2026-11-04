@@ -542,14 +542,17 @@ SF.SUPPLIES = [
     // 掠夺者
     if (!junkOnly && roll(T.raiderChance + (party.length - 1) * 0.03)) {
       if (hasNana) {
-        // 娜娜：危险事件 100% 免伤，50% 概率反抢
-        if (roll(0.5)) {
+        // 娜娜：100% 免伤，70% 概率反抢，全员心情 +10
+        for (i = 0; i < alive.length; i++) {
+          alive[i].mood = clamp(alive[i].mood + 10, 0, C.maxStat);
+        }
+        if (roll(0.7)) {
           giveHaul(haul, roll(0.5) ? 'food' : 'water', 1);
-          result.lines.push('路上被三个掠夺者拦住。娜娜笑着递了根烟，聊了几句，' +
-            '东西一样没少，还反手拿走了他们一份补给。');
+          result.lines.push('路上被三个掠夺者拦住。娜娜几句话把大家逗笑了，' +
+            '对方愣神的时候还被她顺走一份补给。全员心情 +10。');
         } else {
-          result.lines.push('路上被三个掠夺者拦住。娜娜挡在前面交涉了几句，' +
-            '最后谁也没动手，东西一样没少。');
+          result.lines.push('路上被三个掠夺者拦住。娜娜挡在前面把话圆了回去，' +
+            '谁也没动手，东西一样没少。全员心情 +10。');
         }
       } else {
         haul.food = Math.floor((haul.food || 0) / 2);
@@ -572,31 +575,34 @@ SF.SUPPLIES = [
       }
     }
 
-    // ===== 职业被动：一定要真的生效 =====
+    // ===== 职业被动：严格按设定执行 =====
     if (hasChen) {
-      // 陈默：破解电子锁/售货机，必带 1 份药品，且不会踩到陷阱
-      giveHaul(haul, 'medicine', 1);
-      result.trapSafe = true;
-      result.lines.push('陈默撬开一台自动售货机的电子锁，顺手拿走一盒药。');
+      // 陈默：50% 带回 1 个电子零件（该地点有稀有道具时概率翻倍）
+      var chenChance = (loc.id === 'police' || loc.id === 'warehouse' || loc.id === 'pharmacy') ? 1 : 0.5;
+      if (roll(chenChance)) {
+        giveHaul(haul, 'medicine', 1);
+        result.lines.push('陈默撬开一台电子锁，摸出一份能用的零件和药。');
+      } else {
+        result.lines.push('陈默摆弄了半天电子锁，这次没打开。');
+      }
+
+      // 但他不擅长搬运：食物和水的携带量固定为 1
+      if ((haul.food || 0) > 1) haul.food = 1;
+      if ((haul.water || 0) > 1) haul.water = 1;
     }
 
     if (hasLin) {
-      // 林晓：任何地点的药品收益翻倍
-      if (haul.medicine) {
-        haul.medicine = haul.medicine * 2;
-        result.lines.push('林晓认出了草药和化学试剂，药品翻倍。');
-      }
+      // 林晓：必定额外 +1 药品
+      giveHaul(haul, 'medicine', 1);
+      result.lines.push('林晓认出了草药和化学试剂，多带回一份药品。');
     }
 
     if (hasTie) {
-      // 铁柱：基础物资（食物/水/材料）额外 +1~2
-      var extra = rnd(1, 2);
-      if (haul.food) giveHaul(haul, 'food', extra);
-      if (haul.water) giveHaul(haul, 'water', extra);
-      if (haul.material) giveHaul(haul, 'material', extra);
-      if (!haul.food && !haul.water && !haul.material) giveHaul(haul, 'material', extra);
-
-      result.lines.push('铁柱把能扛的都扛上了，基础物资额外 +' + extra + '。');
+      // 铁柱：食物和材料额外 +2
+      if (haul.food) giveHaul(haul, 'food', 2);
+      if (haul.material) giveHaul(haul, 'material', 2);
+      if (!haul.food && !haul.material) giveHaul(haul, 'material', 2);
+      result.lines.push('铁柱把能扛的都扛上了，食物和材料额外 +2。');
     }
 
     // 组队加成：2 人 1.5 倍，3 人 2 倍
@@ -618,6 +624,9 @@ SF.SUPPLIES = [
       riskChance = 0;
     }
     if (hasWeapon) riskChance = riskChance * 0.5;
+
+    // 娜娜在队里：流浪狗这类危险事件也不会受伤
+    if (hasNana) riskChance = 0;
 
     if (loc.far && depth === 2) riskChance += 0.06;
 
