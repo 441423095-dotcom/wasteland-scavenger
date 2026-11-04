@@ -813,6 +813,55 @@ SF.SUPPLIES = [
     if ((haul.medicine || 0) > 1) haul.medicine = 1;
     if ((haul.material || 0) > 4) haul.material = 4;
 
+    // 第二层起：可能遇到必须消耗物资才能通过的关卡
+    if (depth >= 2 && roll(0.35)) {
+      var gateKind = pickOne(['fence', 'mother', 'generator']);
+
+      if (gateKind === 'fence') {
+        if ((state.supplies.material || 0) >= 2) {
+          state.supplies.material = Math.max(0, Math.round(state.supplies.material - 2));
+          giveHaul(haul, 'medicine', 1);
+          result.lines.push('前面被倒塌的铁栅栏挡住了，你们用 2 块木板做了踏板过去，' +
+            '顺手摸到一份药。（木板 -2，药品 +1）');
+        } else {
+          result.lines.push('前面被倒塌的铁栅栏挡住了，木板不够，只能强行撤退。（木板不足）');
+        }
+      } else if (gateKind === 'mother') {
+        if ((state.supplies.food || 0) >= 1) {
+          state.supplies.food = Math.max(0, Math.round(state.supplies.food - 1));
+          for (i = 0; i < alive.length; i++) {
+            alive[i].mood = clamp(alive[i].mood + 10, 0, C.maxStat);
+          }
+          result.lines.push('一个抱着孩子的女人在路边乞求，你给了她 1 份食物。' +
+            '她低着头走开，你们的心情反而好了一点。（食物 -1，全员心情 +10）');
+        } else {
+          for (i = 0; i < alive.length; i++) {
+            alive[i].mood = clamp(alive[i].mood - 10, 0, C.maxStat);
+          }
+          var chased = pickOne(party);
+          chased.hp = clamp(chased.hp - 20, 0, C.maxStat);
+          chased.injured = true;
+          result.injured.push({ name: chased.name, hp: 20 });
+          result.lines.push('你们没有东西给她，她的哭声引来了丧尸，' + chased.name +
+            '被追着咬伤。（全员心情 -10，' + chased.name + ' 血量 -20）');
+        }
+      } else {
+        var armed = null;
+        for (i = 0; i < party.length; i++) {
+          if (party[i].hasWeapon) armed = party[i];
+        }
+
+        if (armed) {
+          armed.hasWeapon = false;
+          giveHaul(haul, 'medicine', 1);
+          result.lines.push('拆开老式发电机需要撬棍，' + armed.name +
+            '把武器用断了，换出一块稀有电子元件。（武器损毁，药品 +1）');
+        } else {
+          result.lines.push('一台老式发电机躺在墙角，没有武器撬不开，只能绕过。');
+        }
+      }
+    }
+
     applyHaul(state, haul, result);
 
     // 特殊事件：只在特定地点出现，特殊物品只能靠它拿到
@@ -1176,7 +1225,8 @@ SF.SUPPLIES = [
       }
     }
 
-    var pool = ['sick', 'scare', 'shelter', 'cold'];
+    var pool = ['sick', 'scare', 'shelter', 'cold',
+      'acidRain', 'rats', 'zombieDoor', 'gift', 'radioMood', 'rainWater', 'guest'];
     if (madCand) pool.push('mad', 'mad');
     if (alive.length >= 2) pool.push('fight');
 
@@ -1250,6 +1300,54 @@ SF.SUPPLIES = [
           id: 'scare',
           text: '一只变异老鼠窜过脚边，把所有人吓得一夜没敢合眼。全员心情 −5。'
         });
+      } else if (kind === 'acidRain') {
+        if ((state.supplies.material || 0) >= 2) {
+          state.supplies.material = Math.max(0, Math.round(state.supplies.material - 2));
+          list.push({ id: 'acidRain', text: '半夜下起酸雨，窗框被腐蚀，你们用 2 块木板修补好。（木板 -2）' });
+        } else {
+          for (i = 0; i < alive.length; i++) alive[i].hp = clamp(alive[i].hp - 20, 0, C.maxStat);
+          list.push({ id: 'acidRain', text: '半夜下起酸雨，窗框被腐蚀，没有木板可修，雨水浇了进来。（全员血量 -20）' });
+        }
+      } else if (kind === 'rats') {
+        if ((state.supplies.material || 0) >= 1) {
+          state.supplies.material = Math.max(0, Math.round(state.supplies.material - 1));
+          list.push({ id: 'rats', text: '老鼠啃坏了床脚，你们用 1 块木板把床重新钉住。（木板 -1）' });
+        } else {
+          for (i = 0; i < alive.length; i++) alive[i].mood = clamp(alive[i].mood - 15, 0, C.maxStat);
+          list.push({ id: 'rats', text: '老鼠啃坏了床脚，没有木板可修，四个人挤在一张破床上。（全员心情 -15）' });
+        }
+      } else if (kind === 'zombieDoor') {
+        if ((state.supplies.material || 0) >= 3) {
+          state.supplies.material = Math.max(0, Math.round(state.supplies.material - 3));
+          list.push({ id: 'zombieDoor', text: '门外传来沉重的脚步声，你们用 3 块木板把门死死钉住，一直撑到天亮。（木板 -3）' });
+        } else {
+          for (i = 0; i < alive.length; i++) {
+            alive[i].hp = clamp(alive[i].hp - 30, 0, C.maxStat);
+            if (roll(0.5)) alive[i].sick = true;
+          }
+          list.push({ id: 'zombieDoor', text: '门外传来沉重的脚步声，木板不够，门被撞开一条缝。（全员血量 -30，可能生病）' });
+        }
+      } else if (kind === 'gift') {
+        state.supplies.food = Math.max(0, Math.round((state.supplies.food || 0) + 2));
+        list.push({ id: 'gift', text: '陈默在墙角的暗格里，意外翻出两份没有过期的罐头！（食物 +2）' });
+      } else if (kind === 'radioMood') {
+        if (state.items.radio) {
+          for (i = 0; i < alive.length; i++) alive[i].mood = clamp(alive[i].mood + 15, 0, C.maxStat);
+          list.push({ id: 'radioMood', text: '收音机突然收到一段信号，大家听得入神，像是有人还活着。（全员心情 +15）' });
+        } else {
+          list.push({ id: 'radioMood', text: '夜里只有杂音。没有收音机，谁也不知道外面还有没有人。' });
+        }
+      } else if (kind === 'rainWater') {
+        state.supplies.water = Math.max(0, Math.round((state.supplies.water || 0) + 3));
+        list.push({ id: 'rainWater', text: '半夜下了一场大雨，你们用盆接了不少干净水。（水 +3）' });
+      } else if (kind === 'guest') {
+        if ((state.supplies.material || 0) >= 1) {
+          state.supplies.material = Math.max(0, Math.round(state.supplies.material - 1));
+          state.supplies.water = Math.max(0, Math.round((state.supplies.water || 0) + 1));
+          list.push({ id: 'guest', text: '一个流浪汉敲门想借宿，用 1 块木板修补漏风的地板作为交换。（木板 -1，水 +1）' });
+        } else {
+          list.push({ id: 'guest', text: '一个流浪汉敲门想借宿，你们连一块木板都拿不出来，只能让他走。' });
+        }
       } else if (kind === 'shelter') {
         state.supplies.medicine = Math.max(0, Math.round((state.supplies.medicine || 0) + 1));
         list.push({

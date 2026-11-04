@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v37';
+  var BUILD = 'v38';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
