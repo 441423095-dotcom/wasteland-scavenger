@@ -5114,3 +5114,118 @@ button.inv-ghost {
 .diary {
   top: 370px;
 }
+
+
+
+/* ============ v72：散落式木板货架 ============ */
+
+.inv {
+  right: 12px;
+  top: 22px;
+  width: 268px;
+  max-width: 70vw;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.inv-panel {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.shelf-sec {
+  margin-bottom: 7px;
+  padding: 5px 7px 7px;
+  background: rgba(10, 16, 11, 0.5);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  border: 1px solid rgba(160, 130, 90, 0.28);
+  border-radius: 5px;
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, 0.55),
+    0 3px 8px rgba(0, 0, 0, 0.45);
+}
+
+.shelf-label {
+  display: inline-block;
+  margin-bottom: 4px;
+  padding: 1px 7px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #d9e6cd;
+  background: rgba(6, 10, 7, 0.7);
+  border: 1px solid rgba(160, 175, 150, 0.28);
+  border-radius: 8px;
+}
+
+.shelf-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 6px;
+  padding: 2px 2px 0;
+}
+
+.inv-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 2px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
+.inv-cell:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.inv-cell .inv-ico img,
+.inv-cell .inv-ico svg {
+  width: 42px !important;
+  height: 42px !important;
+  display: block;
+}
+
+.inv-num {
+  font-size: 16px !important;
+  font-weight: 700;
+  color: #fff8dd;
+  text-shadow: 0 1px 3px #000;
+}
+
+/* 手里拿着的那一件才亮金框 */
+.inv-cell.is-held {
+  border-color: #ffd700;
+  background: rgba(255, 215, 0, 0.12);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.85);
+}
+
+.inv-cell.is-empty {
+  opacity: 0.45;
+}
+
+button.inv-ghost {
+  background: rgba(0, 0, 0, 0.18) !important;
+  border: 1px dashed rgba(140, 155, 140, 0.35) !important;
+}
+
+.hold-tip {
+  margin-top: 2px;
+  padding: 3px 6px;
+  font-size: 9px;
+  line-height: 1.4;
+  color: #ffe9a8;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: 4px;
+}

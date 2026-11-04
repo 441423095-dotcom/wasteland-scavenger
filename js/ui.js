@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v68';
+  var BUILD = 'v72';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -238,38 +238,52 @@
       var key = SF.SUPPLIES[i].key;
       var n = state.supplies[key] || 0;
       var canFeed = key === 'food' || key === 'water' || key === 'medicine';
-      var ico = '<span class="inv-ico" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center">' +
-        SF.itemSvg(key, 40) + '</span>';
+      var ico = '<span class="inv-ico">' + SF.itemSvg(key, 42) + '</span>';
       var num = '<span class="inv-num">' + Math.round(n) + '</span>';
+      var held = heldItem === key ? ' is-held' : '';
 
       if (canFeed) {
         supplyCells += '<button type="button" id="hold-' + key + '" class="inv-cell' +
-          (n <= 0 ? ' is-empty' : '') + '" data-hold="' + key + '" title="' +
+          (n <= 0 ? ' is-empty' : '') + held + '" data-hold="' + key + '" title="' +
           SF.SUPPLIES[i].name + '">' + ico + num + '</button>';
       } else {
-        supplyCells += '<span class="inv-cell' + (n <= 0 ? ' is-empty' : '') + '">' +
-          ico + num + '</span>';
+        supplyCells += '<button type="button" class="inv-cell' +
+          (n <= 0 ? ' is-empty' : '') +
+          '" data-item="material" title="木板">' + ico + num + '</button>';
       }
     }
 
     var slots = [
-      { key: 'radio', label: '收音机', tip: '收音机 - 修好后能收到军方救援情报。', has: state.items.radio, worn: false, group: 'special' },
-      { key: 'mask', label: '面具', tip: '防毒面具 - 进入废弃医院的必需品。', has: state.items.gasMask, worn: gearWorn('mask'), group: 'special' },
-      { key: 'flashlight', label: '手电', tip: '手电筒 - 可在城郊仓库大幅增加收益。', has: state.items.flashlight, worn: gearWorn('torch'), group: 'gear' },
-      { key: 'weapon', label: '武器', tip: '武器 - 警局必备，也可在探索中当撬棍。', has: state.items.weapon, worn: gearWorn('weapon'), group: 'gear' }
+      { key: 'radio', label: '收音机', tip: '【收音机】：修好后能收到军方救援情报，也是进入警局的前提。', has: state.items.radio, worn: false },
+      { key: 'mask', label: '面具', tip: '【防毒面具】：进入废弃医院的必需品，也能减少探索时染病。', has: state.items.gasMask, worn: gearWorn('mask') },
+      { key: 'flashlight', label: '手电', tip: '【手电筒】：装备后探索仓库等暗处，物资收益增加。', has: state.items.flashlight, worn: gearWorn('torch') },
+      { key: 'weapon', label: '武器', tip: '【武器】：警局必备，也能在探索里当撬棍换零件。', has: state.items.weapon, worn: gearWorn('weapon') }
     ];
 
     var toolCells = '';
-    for (var si = 0; si < slots.length; si++) {
-      toolCells += shelfSlot(slots[si]);
-    }
+    for (var si = 0; si < slots.length; si++) toolCells += shelfSlot(slots[si]);
 
-    html += '<div class="inv-panel">' +
-      '<div class="inv-title">储物柜</div>' +
-      '<div class="inv-grid">' + supplyCells + '</div>' +
-      '<div class="inv-caption">装备</div>' +
-      '<div class="inv-grid">' + toolCells + '</div>' +
+    html += '<div class="shelf-sec">' +
+      '<span class="shelf-label">物资</span>' +
+      '<div class="shelf-row">' + supplyCells + '</div>' +
       '</div>';
+
+    html += '<div class="shelf-sec">' +
+      '<span class="shelf-label">特殊道具</span>' +
+      '<div class="shelf-row">' + shelfSlot(slots[0]) + shelfSlot(slots[1]) + '</div>' +
+      '</div>';
+
+    html += '<div class="shelf-sec">' +
+      '<span class="shelf-label">武器装备</span>' +
+      '<div class="shelf-row">' + shelfSlot(slots[2]) + shelfSlot(slots[3]) + '</div>' +
+      '</div>';
+
+    if (heldItem) {
+      var label = heldItem === 'food' ? '食物：恢复 50 点饥饿，铁柱需要两份。'
+        : (heldItem === 'water' ? '水：恢复 50 点口渴。'
+          : '药品：治好生病并恢复 30 点血量。');
+      html += '<div class="hold-tip">' + label + '</div>';
+    }
 
     $('shelf').innerHTML = html;
   }
@@ -1267,7 +1281,8 @@
     else if (key === 'radioBroken') tryRepair();
     else if (key === 'pesticide') openPesticide();
     else if (key === 'cards') openGearInfo('扑克牌', '只要它在避难所里，所有人每天的心情恢复都会更快。');
-    else if (key === 'flashlight') openGearInfo('手电筒', '可在城郊仓库大幅增加收益。出发前给队员穿上。');
+    else if (key === 'material') openGearInfo('木板', '重要的建筑材料，夜里可以用来修补漏风的窗户、钉死大门，探索时也能搭桥或当撬棍。');
+    else if (key === 'flashlight') openGearInfo('手电筒', '装备后探索仓库等暗处，物资收益增加。出发前给队员穿上。');
     else if (key === 'gasMask') openGearInfo('防毒面具', '进入废弃医院的必需品，也能防止探索时染病。');
     else if (key === 'weapon') openGearInfo('武器', '警局必备；也可以在探索里当撬棍换零件。');
     else if (key === 'mask') openGearInfo('防毒面具', '出发前给队员戴上，医院里不会被毒气伤到。');
