@@ -236,12 +236,12 @@
         html += '<button type="button" id="hold-' + key + '" class="inv-cell' +
           (n <= 0 ? ' is-empty' : '') + '" data-hold="' + key + '" title="' +
           SF.SUPPLIES[i].name + '">' +
-          '<span class="inv-ico">' + SF.itemSvg(key, 30) + '</span>' +
+          '<span class="inv-ico">' + SF.itemSvg(key, 40) + '</span>' +
           '<span class="inv-num">' + Math.round(n) + '</span>' +
           '</button>';
       } else {
         html += '<span class="inv-cell' + (n <= 0 ? ' is-empty' : '') + '">' +
-          '<span class="inv-ico">' + SF.itemSvg(key, 30) + '</span>' +
+          '<span class="inv-ico">' + SF.itemSvg(key, 40) + '</span>' +
           '<span class="inv-num">' + Math.round(n) + '</span>' +
           '</span>';
       }
@@ -271,7 +271,7 @@
   /* 没拿到就是灰色虚线空槽，拿到了才是彩色图标 */
   function shelfSlot(sl) {
     var hasImg = SF.itemHasImage && SF.itemHasImage(sl.key);
-    var iconHtml = SF.itemSvg(sl.key, 30);
+    var iconHtml = SF.itemSvg(sl.key, 40);
 
     if (!sl.has) {
       if (hasImg) {
