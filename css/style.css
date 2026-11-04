@@ -4557,3 +4557,82 @@ body {
   filter: grayscale(100%) brightness(0.5);
   opacity: 0.35;
 }
+
+
+
+/* ============ v63：放大右侧货架，拉开图标 ============ */
+
+.inv {
+  right: 6px;
+  top: 26px;
+  width: 336px;
+  max-width: 76vw;
+  padding: 9px 10px 11px;
+  border-radius: 5px;
+}
+
+.inv-title {
+  font-size: 11px;
+  letter-spacing: 5px;
+}
+
+.shelf-line {
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.shelf-tag {
+  flex: 0 0 54px;
+  font-size: 11px;
+  min-height: 58px;
+}
+
+.shelf-line .inv-grid {
+  gap: 6px;
+}
+
+.shelf-line .inv-cell {
+  min-height: 58px;
+  padding: 4px 3px;
+  border-radius: 4px;
+}
+
+.shelf-line .inv-ico svg,
+.shelf-line .inv-ico img,
+.inv-tool.is-on .inv-ico svg,
+.inv-tool.is-on .inv-ico img {
+  width: 42px;
+  height: 42px;
+}
+
+.shelf-line .inv-num {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff6d6;
+  text-shadow: 0 1px 3px #000;
+}
+
+/* 空槽位：暗、细、虚线、几乎不写字 */
+.inv-ghost {
+  min-height: 58px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px dashed rgba(160, 175, 160, 0.28) !important;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+.inv-ghost .ghost-label {
+  font-size: 7px;
+  letter-spacing: 0;
+  color: rgba(170, 185, 170, 0.28);
+}
+
+.inv-ghost .inv-ico svg,
+.inv-ghost .inv-ico img {
+  filter: grayscale(100%) brightness(0.45);
+  opacity: 0.28;
+}
+
+.inv-tool.is-on .inv-dot {
+  width: 7px;
+  height: 7px;
+}
