@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v75';
+  var BUILD = 'v76';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -238,30 +238,28 @@
     function cell(key, n, kind) {
       var rot = tilts[tIdx % tilts.length];
       tIdx += 1;
-      var showNum = kind === 'hold' || kind === 'count';
-      var ghost = '';
-      var showNum = kind === 'hold' || kind === 'count';
+      var showNum = n > 0;
       var cls = 'inv-cell' +
         (kind === 'hold' && n <= 0 ? ' is-empty' : '') +
         (kind === 'info' && n <= 0 ? ' is-ghost' : '') +
         (heldItem === key ? ' is-held' : '');
-      var inner = '<span class="inv-ico">' + SF.itemSvg(key, 40) + '</span>' +
+      var inner = '<span class="inv-ico" style="transform:rotate(' + rot + 'deg)">' +
+        SF.itemSvg(key, 40) + '</span>' +
         (showNum ? '<span class="inv-num">' + Math.round(n) + '</span>' : '');
 
       if (kind === 'info' && n <= 0) {
         // 没获得：只留一个很小的虚线空槽，没有图标、没有数字、没有文字
         return '<button type="button" class="inv-cell is-empty-slot" data-item="' + key +
-          '" style="transform:rotate(' + rot + 'deg)"></button>';
+          '"></button>';
       }
 
       if (kind === 'hold') {
         return '<button type="button" id="hold-' + key + '" class="' + cls +
-          '" data-hold="' + key + '" style="transform:rotate(' + rot + 'deg)">' +
-          inner + '</button>';
+          '" data-hold="' + key + '">' + inner + '</button>';
       }
 
-      return '<button type="button" class="' + cls + '" data-item="' + key +
-        '" style="transform:rotate(' + rot + 'deg)">' + inner + '</button>';
+      return '<button type="button" class="' + cls + '" data-item="' + key + '">' +
+        inner + '</button>';
     }
 
     var basics = '';

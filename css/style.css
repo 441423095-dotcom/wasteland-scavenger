@@ -5486,3 +5486,73 @@ button.inv-ghost {
 .center-tip.is-on {
   opacity: 1;
 }
+
+
+
+/* ============ v76：物资区下移让开广播栏 ============ */
+
+.inv {
+  right: 34px;
+  top: 72px;
+  width: 216px;
+  max-width: 58vw;
+  padding: 0;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.shelf-sec {
+  padding-top: 13px;
+  margin-bottom: 10px;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.shelf-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0;
+  min-height: 50px;
+}
+
+.inv-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 46px;
+  padding: 0;
+  background: none !important;
+  border: 1px solid transparent;
+  box-shadow: none !important;
+}
+
+.inv-cell .inv-ico {
+  display: block;
+  line-height: 0;
+}
+
+.inv-cell .inv-ico img,
+.inv-cell .inv-ico svg {
+  width: 38px !important;
+  height: 38px !important;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.75));
+}
+
+.inv-num {
+  font-size: 12px !important;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+.inv-cell.is-empty-slot {
+  width: 32px;
+  height: 32px;
+  min-height: 32px;
+  align-self: flex-end;
+  border: 1px dashed rgba(150, 165, 150, 0.35) !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+}
