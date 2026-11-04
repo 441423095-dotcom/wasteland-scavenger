@@ -5820,3 +5820,32 @@ button.inv-ghost {
   padding: 1px 8px;
   margin-bottom: 2px;
 }
+
+
+
+/* ============ v85：底部四键居中放大 ============ */
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.actions .btn {
+  width: 100%;
+  padding: 12px 6px;
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+.actions .btn-main {
+  grid-column: 1 / -1;
+  padding: 14px 6px;
+  font-size: 15px;
+}
+
+.actions-sub {
+  display: none;
+}

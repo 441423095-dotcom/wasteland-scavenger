@@ -628,10 +628,8 @@
     if (!alive.length) {
       exploreBtn.disabled = true;
       exploreBtn.textContent = '没有人了';
-      $('btn-status').disabled = true;
       $('btn-night').disabled = true;
     } else {
-      $('btn-status').disabled = false;
       $('btn-night').disabled = false;
 
       // 只有血量低于 20 才算虚弱；饿、渴、心情差都不锁按钮
@@ -1087,6 +1085,8 @@
 
   function backHome() {
     closeModal();
+    var alive = SF.aliveAll(state);
+    if (alive.length) state.leaderId = alive[0].id;
     renderShelter();
     showScreen('screen-shelter');
 
@@ -2376,16 +2376,13 @@
     $('overlay').style.zIndex = '100';
 
     $('btn-explore').addEventListener('click', onExplore);
-    $('btn-status').addEventListener('click', openRoster);
     $('shelf').addEventListener('click', onShelfClick);
     $('btn-night').addEventListener('click', endDay);
     $('btn-clean').addEventListener('click', openBath);
     $('btn-repair').addEventListener('click', function () { homeFortify('door'); });
-    $('btn-bed').addEventListener('click', function () { homeFortify('bed'); });
     $('btn-log').addEventListener('click', openLog);
     $('btn-go-home').addEventListener('click', onGoHome);
     $('people').addEventListener('click', onPeopleClick);
-    $('scene').addEventListener('click', openRoster);
     $('map-grid').addEventListener('click', onMapClick);
     $('modal').addEventListener('click', onModalClick);
 
