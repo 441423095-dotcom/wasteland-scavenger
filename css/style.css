@@ -4796,3 +4796,81 @@ button.inv-ghost {
   border: 1px dashed rgba(120, 135, 120, 0.4) !important;
   box-shadow: none !important;
 }
+
+
+
+/* ============ v67：标签 + 3 列壁龛分组 ============ */
+
+.inv {
+  right: 12px;
+  top: 22px;
+  width: 300px;
+  max-width: 74vw;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.shelf-sec {
+  margin-bottom: 8px;
+}
+
+.shelf-label {
+  display: inline-block;
+  margin: 0 0 4px 2px;
+  padding: 2px 8px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: #d5e6cc;
+  background: rgba(12, 20, 14, 0.72);
+  border: 1px solid rgba(140, 175, 140, 0.35);
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 1px 2px #000;
+}
+
+.shelf-sec .inv-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.shelf-sec .inv-cell {
+  min-height: 58px;
+  padding: 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background: rgba(6, 12, 8, 0.5);
+  border: 1px solid rgba(120, 140, 120, 0.32);
+  border-radius: 5px;
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.85),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.shelf-sec .inv-ico img,
+.shelf-sec .inv-ico svg {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.shelf-sec .inv-num {
+  margin-top: 1px;
+  font-size: 18px !important;
+  font-weight: 700;
+  color: #fff8dd;
+  text-shadow: 0 1px 3px #000;
+}
+
+button.inv-ghost {
+  background: rgba(6, 12, 8, 0.32) !important;
+  border: 1px dashed rgba(120, 135, 120, 0.35) !important;
+  box-shadow: none !important;
+}

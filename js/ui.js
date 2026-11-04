@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v66';
+  var BUILD = 'v67';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -224,47 +224,51 @@
   /* ---------------- 避难所渲染 ---------------- */
 
   function renderShelf() {
-    var html = '<div class="inv-title">避难所货架</div>';
+    var html = '';
 
-    html += '<div class="shelf-line"><span class="shelf-tag">物资</span><span class="inv-grid">';
+    var supplyCells = '';
     for (var i = 0; i < SF.SUPPLIES.length; i++) {
       var key = SF.SUPPLIES[i].key;
       var n = state.supplies[key] || 0;
       var canFeed = key === 'food' || key === 'water' || key === 'medicine';
+      var ico = '<span class="inv-ico" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center">' +
+        SF.itemSvg(key, 40) + '</span>';
+      var num = '<span class="inv-num">' + Math.round(n) + '</span>';
 
       if (canFeed) {
-        html += '<button type="button" id="hold-' + key + '" class="inv-cell' +
+        supplyCells += '<button type="button" id="hold-' + key + '" class="inv-cell' +
           (n <= 0 ? ' is-empty' : '') + '" data-hold="' + key + '" title="' +
-          SF.SUPPLIES[i].name + '">' +
-          '<span class="inv-ico" style="width:48px;height:48px;display:flex;align-items:center;justify-content:center">' +
-          SF.itemSvg(key, 48) + '</span>' +
-          '<span class="inv-num" style="font-size:26px;font-weight:700;line-height:1">' +
-          Math.round(n) + '</span>' +
-          '</button>';
+          SF.SUPPLIES[i].name + '">' + ico + num + '</button>';
       } else {
-        html += '<span class="inv-cell' + (n <= 0 ? ' is-empty' : '') + '">' +
-          '<span class="inv-ico" style="width:48px;height:48px;display:flex;align-items:center;justify-content:center">' +
-          SF.itemSvg(key, 48) + '</span>' +
-          '<span class="inv-num" style="font-size:26px;font-weight:700;line-height:1">' +
-          Math.round(n) + '</span>' +
-          '</span>';
+        supplyCells += '<span class="inv-cell' + (n <= 0 ? ' is-empty' : '') + '">' +
+          ico + num + '</span>';
       }
     }
-    html += '</span></div>';
 
     var slots = [
-      { key: 'radio', label: '收音机', tip: '收音机 - 修好后能收到军方救援情报。', has: state.items.radio, worn: false },
-      { key: 'mask', label: '面具', tip: '防毒面具 - 进入废弃医院的必需品。', has: state.items.gasMask, worn: gearWorn('mask') },
-      { key: 'flashlight', label: '手电', tip: '手电筒 - 可在城郊仓库大幅增加收益。', has: state.items.flashlight, worn: gearWorn('torch') },
-      { key: 'weapon', label: '武器', tip: '武器 - 警局必备，也可在探索中当撬棍。', has: state.items.weapon, worn: gearWorn('weapon') }
+      { key: 'radio', label: '收音机', tip: '收音机 - 修好后能收到军方救援情报。', has: state.items.radio, worn: false, group: 'special' },
+      { key: 'mask', label: '面具', tip: '防毒面具 - 进入废弃医院的必需品。', has: state.items.gasMask, worn: gearWorn('mask'), group: 'special' },
+      { key: 'flashlight', label: '手电', tip: '手电筒 - 可在城郊仓库大幅增加收益。', has: state.items.flashlight, worn: gearWorn('torch'), group: 'gear' },
+      { key: 'weapon', label: '武器', tip: '武器 - 警局必备，也可在探索中当撬棍。', has: state.items.weapon, worn: gearWorn('weapon'), group: 'gear' }
     ];
 
-    html += '<div class="shelf-line"><span class="shelf-tag">装备</span><span class="inv-grid">';
-    html += shelfSlot(slots[0]);
-    html += shelfSlot(slots[1]);
-    html += shelfSlot(slots[2]);
-    html += shelfSlot(slots[3]);
-    html += '</span></div>';
+    var specialCells = '';
+    var gearCells = '';
+    for (var si = 0; si < slots.length; si++) {
+      if (slots[si].group === 'special') specialCells += shelfSlot(slots[si]);
+      else gearCells += shelfSlot(slots[si]);
+    }
+
+    function section(label, cells) {
+      return '<div class="shelf-sec">' +
+        '<span class="shelf-label">' + label + '</span>' +
+        '<div class="inv-grid">' + cells + '</div>' +
+        '</div>';
+    }
+
+    html += section('物资', supplyCells);
+    html += section('特殊道具', specialCells);
+    html += section('武器装备', gearCells);
 
     $('shelf').innerHTML = html;
   }
