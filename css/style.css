@@ -4187,3 +4187,75 @@ body {
 .mini-mood {
   transform: scale(0.75);
 }
+
+
+
+/* ============ v60：恢复宽大厚实的名片，紧凑排到左上 ============ */
+
+.people-panel {
+  left: 6px;
+  top: 32px;
+  bottom: auto;
+  width: 158px;
+  min-width: 0;
+  max-width: 166px;
+  gap: 4px;
+  padding-left: 0;
+}
+
+.mini-card {
+  padding: 6px 7px;
+  gap: 7px;
+  border-radius: 6px;
+}
+
+.mini-fig .portrait-img {
+  width: 46px !important;
+  height: 46px !important;
+  border-width: 2px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 6px rgba(90, 208, 106, 0.7),
+    0 0 0 2px rgba(0, 0, 0, 0.55);
+}
+
+.mini-name {
+  font-size: 12px;
+  letter-spacing: 0.4px;
+  line-height: 1.15;
+}
+
+.mini-main {
+  gap: 1px;
+}
+
+.mrow {
+  height: 11px;
+  gap: 3px;
+}
+
+.mtrack {
+  height: 6px;
+  border-radius: 3px;
+}
+
+.mkey {
+  width: 10px;
+  font-size: 8.5px;
+}
+
+.mini-ap {
+  width: 6px;
+  height: 6px;
+  margin-right: 3px;
+}
+
+.mini-fed {
+  padding: 0 2px;
+  font-size: 8px;
+  line-height: 1.1;
+}
+
+.mini-mood {
+  transform: scale(0.85);
+}
