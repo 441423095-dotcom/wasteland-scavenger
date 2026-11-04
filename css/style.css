@@ -5556,3 +5556,70 @@ button.inv-ghost {
   border: 1px dashed rgba(150, 165, 150, 0.35) !important;
   background: rgba(0, 0, 0, 0.2) !important;
 }
+
+
+
+/* ============ v77：图标裸挂墙面，物资区右移 ============ */
+
+.inv {
+  right: 12px;
+  top: 72px;
+  width: 226px;
+  max-width: 60vw;
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.inv .shelf-sec,
+.inv .shelf-row {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* 所有图标裸挂在墙上：没有底色、没有边框、没有阴影方块 */
+.inv .inv-cell {
+  background: transparent !important;
+  background-color: transparent !important;
+  border: 0 !important;
+  border-radius: 0;
+  box-shadow: none !important;
+  padding: 0;
+}
+
+.inv .inv-cell .inv-ico img,
+.inv .inv-cell .inv-ico svg {
+  width: 42px !important;
+  height: 42px !important;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.8));
+}
+
+/* 只保留未获得装备那个很小的虚线空槽 */
+.inv .inv-cell.is-empty-slot {
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
+  border: 1px dashed rgba(150, 165, 150, 0.35) !important;
+  background: rgba(0, 0, 0, 0.18) !important;
+}
+
+/* 手里拿着的那件仍然亮金框 */
+.inv-cell.is-held {
+  border: 1px solid #ffd700 !important;
+  background: rgba(255, 215, 0, 0.1) !important;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.9) !important;
+  border-radius: 4px;
+}
+
+/* 标签贴到物品正上方 */
+.shelf-sec {
+  padding-top: 9px;
+  margin-bottom: 6px;
+}
+
+.shelf-label {
+  top: 0;
+  font-size: 8.5px;
+  letter-spacing: 0.8px;
+}
