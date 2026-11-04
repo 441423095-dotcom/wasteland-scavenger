@@ -103,7 +103,7 @@ SF.CONFIG = {
 
     injuryChanceFar: 0.3,     // 远点（药店/仓库）受伤概率
     injuryChanceNear: 0.15,   // 近点失手受伤概率
-    injuryHp: 20,
+    injuryHp: 30,             // 被流浪狗 / 强盗伤到：直接掉 30 血
     injuredPenalty: 0.5,      // 受伤的人成功率减半
 
     refuseMoodBelow: 30,      // 心情低于这条线拒绝出门
@@ -146,18 +146,16 @@ SF.CONFIG = {
     foodPerPerson: 1,
     waterPerPerson: 1,
 
-    // 没吃 / 没喝：对应的食 / 水各掉 30
-    missLoss: 30,
-    // 一晚既没吃又没喝：额外扣血和心情
-    missBothHp: 15,
-    missBothMood: 15,
-    // 连续第 2 晚起继续没吃没喝，再加罚
-    streakAt: 2,
-    streakHp: 10,
-    streakMood: 10,
-
-    sickChance: 0.4,
-    sickDamage: 8,
+    // 没吃 / 没喝：对应的食 / 水各掉 35（满 100 就死）
+    missLoss: 35,
+    // 饿或渴超过这条线：心情每天额外掉 20
+    painAt: 70,
+    painMood: 20,
+    // 连着两天没喝到水（口渴 > 70）：50% 概率生病
+    sickThirstDays: 2,
+    sickChance: 0.5,
+    // 生病每晚掉血
+    sickDamage: 20,
 
     recoverHp: 6,
     recoverBelow: 40,
@@ -168,7 +166,7 @@ SF.CONFIG = {
     moodThirsty: 0,
     moodSick: -10,
 
-    medicineHeal: 35,
+    medicineHeal: 30,
     injuredRecoverHp: 55     // 吃饱喝足、血量回到这条线以上，伤就好了
   },
 
@@ -216,8 +214,8 @@ SF.CONFIG = {
 
   // 发疯与特殊事件
   madness: {
-    moodAt: 10,            // 心情低于 10 才有可能彻底发疯
-    chance: 0.12,          // 每晚每个人发疯的概率（最多一个人）
+    moodAt: 20,            // 心情掉到 20 以下就有可能彻底发疯
+    chance: 0.4,           // 每晚每个人发疯的概率（最多一个人）
     recoverAt: 40,         // 心情回到这条线以上才恢复正常
     breakItems: true
   },

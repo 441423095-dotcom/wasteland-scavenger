@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v15';
+  var BUILD = 'v16';
 
   // 货架上固定摆这四层
   var SHELF_ITEMS = ['food', 'water', 'medicine', 'material'];
@@ -219,7 +219,7 @@
     for (var i = 0; i < SF.SUPPLIES.length; i++) {
       var key = SF.SUPPLIES[i].key;
       var n = state.supplies[key] || 0;
-      var canFeed = key === 'food' || key === 'water';
+      var canFeed = key === 'food' || key === 'water' || key === 'medicine';
 
       if (canFeed) {
         html += '<button type="button" id="hold-' + key + '" class="inv-cell' +
@@ -394,11 +394,14 @@
       var lowHunger = s.hunger > 80;
       var starving = lowThirst || lowHunger;
       var fedAll = !!m.eat && !!m.drink;
-      var ready = heldItem === 'food' ? !m.eat : (heldItem === 'water' ? !m.drink : false);
+      var ready = heldItem === 'food' ? !m.eat
+        : (heldItem === 'water' ? !m.drink
+          : (heldItem === 'medicine' ? !!s.sick : false));
 
       var mealMarks = '';
       if (m.eat) mealMarks += '<span class="mini-fed">食</span>';
       if (m.drink) mealMarks += '<span class="mini-fed">水</span>';
+      if (s.sick) mealMarks += '<span class="mini-fed is-bad">病</span>';
 
       html += '<button type="button" class="mini-card' +
         (s.id === state.leaderId ? ' is-lead' : '') +
@@ -505,7 +508,7 @@
 
     if (!hungry) return '今天所有人都吃过了，点「结束今天」睡觉。 · ' + BUILD;
 
-    return '点右上角的食物或水，再点人投喂。还有 ' + hungry + ' 人没吃没喝。 · ' + BUILD;
+    return '点右上角的食物、水或药品，再点人。还有 ' + hungry + ' 人没吃没喝。 · ' + BUILD;
   }
 
   function renderShelter() {
@@ -1118,7 +1121,7 @@
 
   /* 直接用 style 点亮 / 熄灭右上角的图标，不依赖任何类名 */
   function paintHold() {
-    var keys = ['food', 'water'];
+    var keys = ['food', 'water', 'medicine'];
     var i;
 
     for (i = 0; i < keys.length; i++) {
@@ -1152,8 +1155,7 @@
     }
 
     if (heldItem) {
-      bar.textContent = '【已选中' + (heldItem === 'food' ? '食物' : '水') +
-        '，请点击人物投喂】';
+      bar.textContent = '【已选中' + holdLabel(heldItem) + '，请点击人物投喂】';
       bar.style.color = '#ff5252';
       bar.style.fontWeight = '700';
       return;
@@ -1175,7 +1177,7 @@
 
   /* 图标和名片：直接在元素上绑 click，不走冒泡 */
   function bindFastTaps() {
-    var keys = ['food', 'water'];
+    var keys = ['food', 'water', 'medicine'];
     var i;
 
     for (i = 0; i < keys.length; i++) {
@@ -1203,6 +1205,12 @@
     }
   }
 
+  function holdLabel(key) {
+    if (key === 'food') return '食物';
+    if (key === 'water') return '水';
+    return '药品';
+  }
+
   /* 点物资图标：拿起来 / 放回去 */
   function pickItem(key) {
     var now = Date.now();
@@ -1218,7 +1226,7 @@
     }
 
     if ((state.supplies[key] || 0) <= 0) {
-      updateHint((key === 'food' ? '食物' : '水') + '已经用完了。');
+      updateHint(holdLabel(key) + ' 已经用完了。');
       return;
     }
 
@@ -1235,12 +1243,14 @@
     renderShelter();
   }
 
-  /* 喂一个人：库存当场扣掉，卡片闪一下 */
+  /* 喂一个人 / 给他用药：库存当场扣掉，卡片闪一下 */
   function feedPerson(id) {
     if (!heldItem) return;
 
     var kind = heldItem;
-    var res = SF.feed(state, id, kind);
+    var res = kind === 'medicine'
+      ? SF.useMedicineOn(state, id)
+      : SF.feed(state, id, kind);
 
     if (!res.ok) {
       updateHint(res.msg || '不行。');
@@ -1253,6 +1263,7 @@
     if (SF.sfx) {
       if (kind === 'food' && SF.sfx.eat) SF.sfx.eat();
       else if (kind === 'water' && SF.sfx.drink) SF.sfx.drink();
+      else if (SF.sfx.pick) SF.sfx.pick();
     }
 
     renderShelter();

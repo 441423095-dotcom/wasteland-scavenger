@@ -2727,3 +2727,11 @@ body {
 .mfill {
   transition: width 0.35s ease-out;
 }
+
+
+
+/* v16：生病标记 */
+.mini-fed.is-bad {
+  background: #cf5a4a;
+  color: #fff6f2;
+}

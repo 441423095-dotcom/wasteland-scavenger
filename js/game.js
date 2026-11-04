@@ -457,6 +457,12 @@ SF.SUPPLIES = [
       victim.mood = clamp(victim.mood - 6, 0, C.maxStat);
       result.injured.push({ name: victim.name, hp: hurtHp });
 
+      if (victim.hp <= 0) {
+        victim.alive = false;
+        result.died = true;
+        SF.addLog(state, victim.name + ' 伤得太重，没能撑回避难所。');
+      }
+
       if (protector) {
         result.lines.push('在' + loc.name + '遇到了流浪狗，' + victim.name +
           '为了保护' + protector.name + '被咬伤了。');
@@ -618,6 +624,25 @@ SF.SUPPLIES = [
     return true;
   };
 
+  // 主界面：拿着药品点人，治病并回血
+  SF.useMedicineOn = function (state, id) {
+    var s = SF.find(state, id);
+    if (!s || !s.alive) return { ok: false, msg: '' };
+    if ((state.supplies.medicine || 0) < 1) {
+      return { ok: false, msg: '没有药品了。' };
+    }
+    if (!s.sick && s.hp >= C.maxStat) {
+      return { ok: false, msg: s.name + ' 没病，血也是满的，别浪费药。' };
+    }
+
+    state.supplies.medicine = Math.max(0, Math.round((state.supplies.medicine || 0) - 1));
+    s.sick = false;
+    s.hp = clamp(s.hp + C.night.medicineHeal, 0, C.maxStat);
+
+    SF.addLog(state, '给 ' + s.name + ' 用了药，病好了，血也回了 ' + C.night.medicineHeal + '。');
+    return { ok: true, msg: s.name + ' 吃了药，病好了，血量 +' + C.night.medicineHeal + '。' };
+  };
+
   SF.equipMask = function (state, id) {
     var s = SF.find(state, id);
     if (!s || !s.alive || s.hasMask) return false;
@@ -704,7 +729,7 @@ SF.SUPPLIES = [
       var isDrank = rowData[s.id].drank;
       var before = { hp: s.hp, hunger: s.hunger, thirst: s.thirst, mood: s.mood };
 
-      // ② 没吃 / 没喝：对应的食、水各掉 30（hunger / thirst 变大）
+      // ② 没吃 / 没水：饥饿、水分各涨 35（涨满 100 就是死）
       var missing = 0;
       if (!isFed) {
         s.hunger = clamp(s.hunger + N.missLoss, 0, C.maxStat);
@@ -722,23 +747,25 @@ SF.SUPPLIES = [
       var dmg = 0;
       var moodDelta = 0;
 
-      // 一晚既没吃又没喝：额外掉血、掉心情
-      if (missing === 2) {
-        dmg += N.missBothHp;
-        moodDelta -= N.missBothMood;
+      // 饿或渴到 70 以上：心情每天额外 −20
+      if (s.hunger > N.painAt || s.thirst > N.painAt) {
+        moodDelta -= N.painMood;
       }
-      // 连着第二晚还没吃上：再加罚
-      if (s.hungryDays >= N.streakAt || s.thirstDays >= N.streakAt) {
-        dmg += N.streakHp;
-        moodDelta -= N.streakMood;
+
+      // 连着两天没喝到水：50% 概率生病
+      if (s.thirstDays >= N.sickThirstDays && s.thirst > N.painAt) {
+        if (roll(N.sickChance)) s.sick = true;
       }
+
+      // 生病：每晚额外掉 20 血
       if (s.sick) {
         dmg += N.sickDamage;
         moodDelta += N.moodSick;
       }
 
-      if (missing) {
-        if (roll(N.sickChance)) s.sick = true;
+      // 饥饿或口渴满 100：直接倒下
+      if (s.hunger >= C.maxStat || s.thirst >= C.maxStat) {
+        dmg += 1000;
       }
 
       var heal = 0;
