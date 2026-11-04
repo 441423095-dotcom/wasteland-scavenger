@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v24';
+  var BUILD = 'v25';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -176,7 +176,7 @@
   function openModal(html, extraClass) {
     var modal = $('modal');
     modal.className = 'modal' + (extraClass ? ' ' + extraClass : '');
-    modal.innerHTML = html;
+    modal.innerHTML = '<button type="button" class="modal-x" data-act="close">×</button>' + html;
     modal.scrollTop = 0;
     $('overlay').classList.add('is-on');
   }
@@ -664,7 +664,8 @@
       html += '<div class="equip-row">' +
         '<span class="equip-fig">' + portraitHtml(s, 34, 34) + '</span>' +
         '<span class="equip-main">' + s.name +
-        '<span class="equip-role">' + s.role + '</span>' +
+        '<span class="equip-role">' + s.role + ' · ' + s.trait + '</span>' +
+        '<span class="equip-trait">' + s.traitText + '</span>' +
         '<span class="equip-verdict' +
         (SF.verdictFor(state, loc, s).good ? ' is-good' : ' is-bad') + '">' +
         SF.verdictFor(state, loc, s).text + '</span></span>' +
@@ -689,6 +690,29 @@
     closeModal();
     renderShelter();
     startSearch(raidLoc, raidIds);
+  }
+
+  /* 材料：修门 / 铺床 */
+  function homeFortify(kind) {
+    var cost = kind === 'door' ? 3 : 4;
+
+    if ((state.supplies.material || 0) < cost) {
+      updateHint('材料不够，需要 ' + cost + ' 份。');
+      return;
+    }
+
+    state.supplies.material = Math.max(0, Math.round(state.supplies.material - cost));
+
+    if (kind === 'door') {
+      state.defense = 1;
+    } else {
+      state.bedLevel = 1;
+    }
+
+    renderShelter();
+    updateHint(kind === 'door'
+      ? '门被木板钉死了，夜里盗贼进不来。'
+      : '床铺加了一层，睡觉时心情恢复翻倍。');
   }
 
   /* 浴室：选一个人洗澡 */
@@ -1810,12 +1834,18 @@
     $('shelf').addEventListener('click', onShelfClick);
     $('btn-night').addEventListener('click', endDay);
     $('btn-clean').addEventListener('click', openBath);
+    $('btn-repair').addEventListener('click', function () { homeFortify('door'); });
+    $('btn-bed').addEventListener('click', function () { homeFortify('bed'); });
     $('btn-log').addEventListener('click', openLog);
     $('btn-go-home').addEventListener('click', onGoHome);
     $('people').addEventListener('click', onPeopleClick);
     $('scene').addEventListener('click', openRoster);
     $('map-grid').addEventListener('click', onMapClick);
     $('modal').addEventListener('click', onModalClick);
+
+    $('overlay').addEventListener('click', function (ev) {
+      if (ev.target === $('overlay')) closeModal();
+    });
 
     $('btn-debug').addEventListener('click', function (ev) {
       if (ev) ev.stopPropagation();

@@ -474,7 +474,8 @@ SF.SUPPLIES = [
       // 第二阶段：基础物资，小概率受伤
       if (locId === 'market') {
         giveHaul(haul, 'food', rnd(2, 3));
-        result.lines.push('货架上还剩几罐没过期的，你们抱了 ' + (haul.food) + ' 罐出来。');
+        if (roll(0.2)) giveHaul(haul, 'medicine', 1);
+        result.lines.push('货架上还剩几罐没过期的，你们抱了几罐出来。');
       } else if (locId === 'warehouse') {
         giveHaul(haul, 'material', rnd(2, 4));
         if (roll(0.4)) {
@@ -483,7 +484,7 @@ SF.SUPPLIES = [
         }
         result.lines.push('仓库外圈全是木料和铁皮，能搬的都搬了。');
       } else if (locId === 'pharmacy') {
-        var med = hasLin ? 2 : (roll(0.35) ? 1 : 0);
+        var med = hasLin ? 2 : (roll(0.6) ? 1 : 0);
         if (med) giveHaul(haul, 'medicine', med);
         result.lines.push(med
           ? (hasLin ? '林晓看懂了说明书，挑出两份还能用的药。' : '你们在柜台里翻出一份药。')
@@ -565,8 +566,17 @@ SF.SUPPLIES = [
       }
     }
 
+    // 组队加成：2 人 1.5 倍，3 人 2 倍
+    var partyBoost = 1 + 0.5 * (party.length - 1);
+    for (var bk in haul) {
+      if (!haul.hasOwnProperty(bk)) continue;
+      haul[bk] = Math.max(1, Math.round(haul[bk] * partyBoost));
+    }
+    if (party.length >= 2 && !haul.water) giveHaul(haul, 'water', 1);
+    if (party.length >= 3 && !haul.food) giveHaul(haul, 'food', 1);
+
     // 危险事件：第一阶段绝对安全，第二阶段小概率，第三阶段极易重伤
-    var riskChance = depth <= 1 ? 0 : (depth === 2 ? 0.2 : 0.7);
+    var riskChance = depth <= 1 ? 0 : (depth === 2 ? 0.12 : 0.45);
 
     if (loc.id === 'police' && depth >= 3 && !hasTie && !hasWeapon) {
       riskChance = 0.95;
@@ -576,7 +586,7 @@ SF.SUPPLIES = [
     }
     if (hasWeapon) riskChance = riskChance * 0.5;
 
-    if (loc.far && depth === 2) riskChance += C.explore.injuryChanceNear;
+    if (loc.far && depth === 2) riskChance += 0.06;
 
     if (roll(riskChance)) {
       var victim = pickOne(party);
@@ -931,6 +941,7 @@ SF.SUPPLIES = [
       }
 
       moodDelta += (isFed ? N.moodFed : N.moodHungry) + (isDrank ? N.moodDrank : N.moodThirsty);
+      if (state.bedLevel) moodDelta += 6;
 
       // ③ 数值只做钳制，绝不直接清零；活着就进入第二天
       s.hp = clamp(s.hp + heal - dmg, 0, C.maxStat);
@@ -1020,7 +1031,7 @@ SF.SUPPLIES = [
       }
     }
 
-    var pool = ['sick', 'scare', 'shelter'];
+    var pool = ['sick', 'scare', 'shelter', 'cold'];
     if (madCand) pool.push('mad', 'mad');
     if (alive.length >= 2) pool.push('fight');
 
@@ -1098,6 +1109,22 @@ SF.SUPPLIES = [
           id: 'shelter',
           text: '门外传来一阵枪声。早上你们在门口发现一个沾血的医疗包，药品 +1。'
         });
+      } else if (kind === 'cold') {
+        if ((state.supplies.material || 0) >= 2) {
+          state.supplies.material = Math.max(0, Math.round(state.supplies.material - 2));
+          list.push({
+            id: 'cold',
+            text: '半夜气温骤降，你们烧了两块木板，四个人挤在一起熬到天亮。'
+          });
+        } else {
+          for (i = 0; i < alive.length; i++) {
+            alive[i].hp = clamp(alive[i].hp - 10, 0, C.maxStat);
+          }
+          list.push({
+            id: 'cold',
+            text: '半夜气温骤降，没有木柴生火，四个人冻得直发抖。全员血量 −10。'
+          });
+        }
       }
     }
 

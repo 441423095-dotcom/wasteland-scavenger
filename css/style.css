@@ -3036,3 +3036,41 @@ body {
   border: 0;
   box-shadow: none;
 }
+
+
+
+/* ============ v25：弹窗关闭按钮 ============ */
+
+.modal {
+  position: relative;
+}
+
+.modal-x {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 3;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.modal-x:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.equip-trait {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  line-height: 1.3;
+  color: #a9b5a0;
+}
