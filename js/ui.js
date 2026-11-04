@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v39';
+  var BUILD = 'v40';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -2092,6 +2092,12 @@
 
     var h = field.clientHeight || 600;
     var basketTop = h - 78;
+    var basketEl = $('mini-basket');
+    if (basketEl) {
+      var fRect = field.getBoundingClientRect();
+      var bRect = basketEl.getBoundingClientRect();
+      basketTop = bRect.top - fRect.top;
+    }
 
     for (var i = miniItems.length - 1; i >= 0; i--) {
       var it = miniItems[i];
@@ -2100,7 +2106,7 @@
         continue;
       }
 
-      it.top += 3.2;
+      it.top += 4.4;
       it.el.style.top = it.top + 'px';
 
       if (it.top + 30 >= basketTop && it.top < h) {
@@ -2155,7 +2161,7 @@
     miniPlaceBasket();
     showScreen('screen-mini');
 
-    miniDropTimer = window.setInterval(miniSpawn, 520);
+    miniDropTimer = window.setInterval(miniSpawn, 440);
     miniClockTimer = window.setInterval(function () {
       miniLeft -= 1;
       var c = $('mini-time');
