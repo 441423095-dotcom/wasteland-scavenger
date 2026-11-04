@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v34';
+  var BUILD = 'v35';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -2023,6 +2023,200 @@
     nextChar();
   }
 
+  /* ---------------- 抢物资小游戏 ---------------- */
+  var miniTimer = 0;
+  var miniDropTimer = 0;
+  var miniClockTimer = 0;
+  var miniItems = [];
+  var miniCounts = { food: 0, water: 0, material: 0 };
+  var miniBasketX = 50;
+  var miniLeft = 15;
+  var miniRunning = false;
+
+  var MINI_DEFS = {
+    food: { icon: '🍖', name: '食物' },
+    water: { icon: '💧', name: '水' },
+    material: { icon: '🪵', name: '木板' }
+  };
+
+  function miniRenderCounts() {
+    var box = $('mini-counts');
+    if (!box) return;
+    box.textContent = '🍖 ' + miniCounts.food + ' · 💧 ' + miniCounts.water +
+      ' · 🪵 ' + miniCounts.material;
+  }
+
+  function miniPlaceBasket() {
+    var basket = $('mini-basket');
+    if (basket) basket.style.left = miniBasketX + '%';
+  }
+
+  function miniSpawn() {
+    if (!miniRunning) return;
+
+    var field = $('mini-field');
+    if (!field) return;
+
+    var keys = ['food', 'water', 'material', 'material'];
+    var key = keys[Math.floor(Math.random() * keys.length)];
+
+    var el = document.createElement('div');
+    el.className = 'mini-item';
+    el.textContent = MINI_DEFS[key].icon;
+    var left = 4 + Math.random() * 88;
+    el.style.left = left + '%';
+    el.style.top = '-40px';
+    field.appendChild(el);
+
+    miniItems.push({ el: el, key: key, left: left, top: -40, dead: false });
+  }
+
+  function miniStep() {
+    if (!miniRunning) return;
+
+    var field = $('mini-field');
+    if (!field) return;
+
+    var h = field.clientHeight || 600;
+    var basketTop = h - 78;
+
+    for (var i = miniItems.length - 1; i >= 0; i--) {
+      var it = miniItems[i];
+      if (it.dead) {
+        miniItems.splice(i, 1);
+        continue;
+      }
+
+      it.top += 3.2;
+      it.el.style.top = it.top + 'px';
+
+      if (it.top + 30 >= basketTop && it.top < h) {
+        if (Math.abs(it.left - miniBasketX) < 7.5) {
+          miniCounts[it.key] += 1;
+          miniRenderCounts();
+          if (SF.sfx && SF.sfx.pick) SF.sfx.pick();
+          it.dead = true;
+          it.el.remove();
+          miniItems.splice(i, 1);
+          continue;
+        }
+      }
+
+      if (it.top > h + 20) {
+        it.dead = true;
+        it.el.remove();
+        miniItems.splice(i, 1);
+      }
+    }
+  }
+
+  function miniStop() {
+    miniRunning = false;
+    if (miniDropTimer) window.clearInterval(miniDropTimer);
+    if (miniClockTimer) window.clearInterval(miniClockTimer);
+    miniDropTimer = 0;
+    miniClockTimer = 0;
+
+    for (var i = 0; i < miniItems.length; i++) {
+      if (miniItems[i].el) miniItems[i].el.remove();
+    }
+    miniItems = [];
+  }
+
+  function startMiniGame() {
+    miniCounts = { food: 0, water: 0, material: 0 };
+    miniBasketX = 50;
+    miniLeft = 15;
+    miniRunning = true;
+
+    var over = $('mini-over');
+    if (over) over.classList.remove('is-on');
+
+    var field = $('mini-field');
+    if (field) field.innerHTML = '';
+
+    var clock = $('mini-time');
+    if (clock) clock.textContent = '15';
+
+    miniRenderCounts();
+    miniPlaceBasket();
+    showScreen('screen-mini');
+
+    miniDropTimer = window.setInterval(miniSpawn, 520);
+    miniClockTimer = window.setInterval(function () {
+      miniLeft -= 1;
+      var c = $('mini-time');
+      if (c) c.textContent = String(Math.max(0, miniLeft));
+      if (miniLeft <= 0) miniEnd();
+    }, 1000);
+  }
+
+  function miniEnd() {
+    if (!miniRunning && miniLeft > 0) return;
+
+    miniRunning = false;
+    if (miniDropTimer) window.clearInterval(miniDropTimer);
+    if (miniClockTimer) window.clearInterval(miniClockTimer);
+    miniDropTimer = 0;
+    miniClockTimer = 0;
+
+    var text = $('mini-over-text');
+    if (text) {
+      text.textContent = '你抱回了 🍖 ' + miniCounts.food + ' 份食物、💧 ' +
+        miniCounts.water + ' 瓶水、🪵 ' + miniCounts.material + ' 块木板。';
+    }
+
+    var over = $('mini-over');
+    if (over) over.classList.add('is-on');
+  }
+
+  function miniFinish() {
+    miniStop();
+
+    state = SF.newGame();
+    state.supplies.food = miniCounts.food;
+    state.supplies.water = miniCounts.water;
+    state.supplies.material = miniCounts.material;
+
+    if (SF.saveGame) SF.saveGame(state);
+
+    closeModal();
+    renderShelter();
+    showScreen('screen-shelter');
+    showStoryIfAny();
+  }
+
+  function bindMiniInput() {
+    var screen = $('screen-mini');
+    if (!screen) return;
+
+    var move = function (clientX) {
+      var rect = screen.getBoundingClientRect();
+      var pct = ((clientX - rect.left) / rect.width) * 100;
+      if (pct < 6) pct = 6;
+      if (pct > 94) pct = 94;
+      miniBasketX = pct;
+      miniPlaceBasket();
+    };
+
+    screen.addEventListener('mousemove', function (ev) {
+      if (ev.buttons || ev.type === 'mousemove') move(ev.clientX);
+    });
+
+    screen.addEventListener('touchstart', function (ev) {
+      if (ev.touches && ev.touches[0]) move(ev.touches[0].clientX);
+    }, { passive: true });
+
+    screen.addEventListener('touchmove', function (ev) {
+      if (ev.touches && ev.touches[0]) move(ev.touches[0].clientX);
+    }, { passive: true });
+
+    var go = $('btn-mini-go');
+    if (go) go.addEventListener('click', miniFinish);
+
+    window.setInterval(miniStep, 16);
+  }
+
   /* ---------------- 启动 ---------------- */
 
   function boot() {
@@ -2117,11 +2311,11 @@
         if (ev) ev.stopPropagation();
         if (introTimer) window.clearTimeout(introTimer);
         introTimer = 0;
-        showScreen('screen-shelter');
-        renderShelter();
-        showStoryIfAny();
+        startMiniGame();
       };
     });
+
+    bindMiniInput();
   }
 
   if (document.readyState === 'loading') {

@@ -3292,3 +3292,95 @@ body {
   opacity: 0;
   pointer-events: none;
 }
+
+
+
+/* ============ v35：接物资小游戏 ============ */
+
+#screen-mini {
+  background: #000;
+  overflow: hidden;
+}
+
+.mini-hud {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 12px;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 13px;
+  color: #ffe9a8;
+}
+
+.mini-clock b {
+  color: #ff6b5e;
+}
+
+.mini-field {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 44px;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.mini-item {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  font-size: 22px;
+  line-height: 28px;
+  text-align: center;
+  will-change: top;
+}
+
+.mini-basket {
+  position: absolute;
+  bottom: 18px;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #2b2418;
+  background: linear-gradient(180deg, #b98a4e, #7d5726);
+  border: 3px solid #4b3417;
+  border-radius: 0 0 14px 14px;
+  z-index: 4;
+}
+
+.mini-over {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.86);
+}
+
+.mini-over.is-on {
+  display: flex;
+}
+
+.mini-over-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #ff6b5e;
+}
+
+.mini-over-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #e8e8e4;
+}
