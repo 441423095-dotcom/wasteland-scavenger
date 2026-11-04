@@ -405,24 +405,25 @@ SF.SUPPLIES = [
     // 按探索层数给产出：外围几乎空手，内部一点点，核心才可能有稀有货
     if (depth <= 1) {
       var r1 = Math.random();
-      if (r1 < 0.55) {
+      if (r1 < 0.35) {
         result.lines.push('翻了一圈，什么也没找到，只带回一身灰。');
-      } else if (r1 < 0.85) {
+      } else if (r1 < 0.75) {
         result.lines.push('值钱的东西早被人搬空了，只拖回一捆还能烧的废料。');
         giveHaul(haul, 'material', rnd(1, 2));
       } else {
-        result.lines.push('里里外外翻了一遍，只摸到半块发霉的面包。');
-        giveHaul(haul, 'food', 1);
+        result.lines.push('里里外外翻了一遍，只摸到一点能吃能喝的。');
+        giveHaul(haul, roll(0.5) ? 'food' : 'water', 1);
       }
     } else if (depth === 2) {
-      var k2 = pickOne(['food', 'water', 'food', 'water', 'medicine']);
+      // 第二阶段：至少 1~2 份食物或水，运气好才有药
+      var k2 = pickOne(['food', 'food', 'water', 'water', 'medicine']);
       giveHaul(haul, k2, k2 === 'medicine' ? 1 : rnd(1, 2));
       if (roll(0.5)) giveHaul(haul, 'material', 1);
 
       if (k2 === 'medicine') {
         result.lines.push('在里屋的柜子里翻出一板药，别的什么也没有。');
       } else {
-        result.lines.push('往里又摸了一段，只带回来一点' +
+        result.lines.push('往里又摸了一段，带回来一些' +
           (k2 === 'food' ? '吃的' : '水') + '。');
       }
     } else {
@@ -526,24 +527,8 @@ SF.SUPPLIES = [
         text: '回来的路上，你们遇到一个抱着孩子的女人，她抓住' + leadName +
           '的袖子不肯松手，说只求一口吃的。',
         options: [
-          { key: 'take', label: '带她回去' },
-          { key: 'leave', label: '不管她' }
-        ]
-      };
-    }
-
-    // 彩蛋：失踪的同伴在废墟里被找到
-    if (!result.choice && state.missing && state.missing.length && roll(0.05)) {
-      var lostFriend = state.missing[0];
-      result.choice = {
-        id: 'lostFriend',
-        lostId: lostFriend.id,
-        title: '废墟里的熟人',
-        text: '你们在废墟里发现了浑身是伤的 ' + lostFriend.name +
-          '。他还活着，眼睛盯着你们手里的背包。',
-        options: [
-          { key: 'save', label: '用 1 份药品救他', disabled: (state.supplies.medicine || 0) < 1 },
-          { key: 'leaveLost', label: '没有药，只能离开' }
+          { key: 'give', label: '给她 1 份食物', disabled: (state.supplies.food || 0) < 1 },
+          { key: 'refuse', label: '狠心拒绝' }
         ]
       };
     }
@@ -632,25 +617,21 @@ SF.SUPPLIES = [
     var i;
 
     if (result.choice.id === 'stranger') {
-      if (key === 'take') {
-        if ((state.supplies.food || 0) >= 1) {
-          state.supplies.food -= 1;
-          result.lines.push('你们把女人和孩子带了回来，分了他们一份口粮。');
-        } else {
-          result.lines.push('你们实在拿不出吃的，只能看着她走远。');
-        }
+      if (key === 'give' && (state.supplies.food || 0) >= 1) {
+        state.supplies.food = Math.max(0, Math.round(state.supplies.food - 1));
         for (i = 0; i < state.survivors.length; i++) {
           if (state.survivors[i].alive) {
-            state.survivors[i].mood = clamp(state.survivors[i].mood + 8, 0, C.maxStat);
+            state.survivors[i].mood = clamp(state.survivors[i].mood + 10, 0, C.maxStat);
           }
         }
+        result.lines.push('你们给了她一份食物。她没有道谢，只是抱着孩子快步走远。全员心情 +10。');
       } else {
         for (i = 0; i < state.survivors.length; i++) {
           if (state.survivors[i].alive) {
-            state.survivors[i].mood = clamp(state.survivors[i].mood - 8, 0, C.maxStat);
+            state.survivors[i].mood = clamp(state.survivors[i].mood - 15, 0, C.maxStat);
           }
         }
-        result.lines.push('你们没有回头。回去的路上谁都没说话。');
+        result.lines.push('你们没有回头。回去的路上谁都没说话，全员心情 −15。');
       }
     } else if (result.choice.id === 'backpacker') {
       if (key === 'bury') {
@@ -679,19 +660,6 @@ SF.SUPPLIES = [
         result.lines.push('你们把这副扑克牌收了回去，总算有点能打发时间的东西。');
       } else {
         result.lines.push('牌留在了桌上，反正也没人有心情玩。');
-      }
-    } else if (result.choice.id === 'lostFriend') {
-      var lostName = '';
-      for (i = 0; i < (state.missing || []).length; i++) {
-        if (state.missing[i].id === result.choice.lostId) lostName = state.missing[i].name;
-      }
-
-      if (key === 'save' && (state.supplies.medicine || 0) >= 1) {
-        state.supplies.medicine = Math.max(0, Math.round((state.supplies.medicine || 0) - 1));
-        SF.reviveLost(state, result.choice.lostId);
-        result.lines.push('你们用一瓶药把' + lostName + '救了回来，他还能撑着走回避难所。');
-      } else {
-        result.lines.push('你们没有多余的药，只能看着他留在废墟里。');
       }
     }
 
@@ -951,9 +919,6 @@ SF.SUPPLIES = [
     if (madCand) pool.push('mad', 'mad');
     if (alive.length >= 2) pool.push('fight');
 
-    var lost = SF.lostCandidate ? SF.lostCandidate(state) : null;
-    if (lost) pool.push('lost');
-
     var used = {};
     var count = rnd(1, 2);
 
@@ -1030,66 +995,12 @@ SF.SUPPLIES = [
           id: 'shelter',
           text: '门外传来一阵枪声。早上你们在门口发现一个沾血的医疗包，药品 +1。'
         });
-      } else if (kind === 'lost' && lost) {
-        lost.alive = false;
-        lost.missing = true;
-        if (!state.missing) state.missing = [];
-        state.missing.push({
-          id: lost.id,
-          name: lost.name,
-          role: lost.role,
-          charId: lost.charId,
-          portrait: lost.portrait
-        });
-        list.push({
-          id: 'lost',
-          text: lost.name + ' 去了' + (state.lastExpedition && state.lastExpedition.name
-            ? state.lastExpedition.name : '城郊') +
-            '之后就再也没有回来……身上带的东西也一起没了。'
-        });
       }
     }
 
     for (i = 0; i < list.length; i++) SF.addLog(state, list[i].text);
 
     return list;
-  };
-
-  /* 高危探索后，极低概率有人失踪 */
-  SF.lostCandidate = function (state) {
-    var exp = state.lastExpedition;
-    if (!exp || exp.risk !== 'high' || !exp.ids || !exp.ids.length) return null;
-    if (!roll(0.05)) return null;
-
-    for (var i = 0; i < exp.ids.length; i++) {
-      var s = SF.find(state, exp.ids[i]);
-      if (s && s.alive) return s;
-    }
-    return null;
-  };
-
-  /* 探索时救回失踪的同伴 */
-  SF.reviveLost = function (state, id) {
-    var s = SF.find(state, id);
-    if (!s || s.alive) return false;
-
-    s.alive = true;
-    s.missing = false;
-    s.hp = 40;
-    s.hunger = 40;
-    s.thirst = 40;
-    s.mood = 50;
-    s.sick = false;
-    s.injured = true;
-
-    if (state.missing) {
-      for (var i = state.missing.length - 1; i >= 0; i--) {
-        if (state.missing[i].id === id) state.missing.splice(i, 1);
-      }
-    }
-
-    SF.addLog(state, s.name + ' 被你们从废墟里背了回来。');
-    return true;
   };
 
   /* 硬核版夜间事件：盗窃 / 传染 / 乞丐 / 梦境 */

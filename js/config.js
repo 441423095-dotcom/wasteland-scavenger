@@ -88,7 +88,7 @@ SF.CONFIG = {
   // ---------- 探索 ----------
   explore: {
     searchDelay: 900,
-    maxSurvivors: 8,
+    maxSurvivors: 4,
 
     newcomerChance: 0.1,      // 带回新幸存者（10%）
     specialChance: 0.04,      // 搜到收音机 / 杀虫剂（极低）

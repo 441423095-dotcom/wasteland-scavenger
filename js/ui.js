@@ -7,7 +7,8 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v21';
+  var BUILD = 'v22';
+  var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
   var SHELF_ITEMS = ['food', 'water', 'medicine', 'material'];
@@ -290,26 +291,28 @@
       '</div>';
   }
 
-  /* 顶部滚动播报 */
-  var loadNoticeDay = 0;
-
+  /* 顶部广播栏：一眼看清今天发生了什么 */
   function renderTicker() {
     var parts = [];
+    var left = state.rescueLeft > 0 ? state.rescueLeft : 0;
+
+    if (state.items && state.items.flare) {
+      parts.push('已取得信号弹 · 救援倒计时 ' + left + ' 天');
+    } else {
+      parts.push('军方警告：救援倒计时 ' + left + ' 天。未持有信号弹者将被抛弃');
+    }
 
     if (loadNoticeDay) {
       parts.push('已读取第 ' + loadNoticeDay + ' 天存档');
     }
 
-    parts.push('第 ' + state.day + ' 天');
-
-    if (state.rescueLeft > 0) {
-      parts.push('军方救援倒计时 ' + state.rescueLeft + ' 天');
-    } else {
-      parts.push('救援没有来');
+    if (state.lastEvent) {
+      var t = String(state.lastEvent);
+      if (t.length > 24) t = t.slice(0, 24) + '…';
+      parts.push(t);
     }
-    if (state.lastEvent) parts.push(state.lastEvent);
 
-    $('ticker-text').textContent = parts.join('  ·  ') + '  ·  ';
+    $('ticker-text').textContent = parts.join('　·　');
   }
 
   /* 状态差就换成蹲坐的像素小人 */
@@ -500,33 +503,15 @@
 
   function dayHint() {
     var alive = SF.aliveAll(state);
-    if (!alive.length) return '避难所里已经没有活人了。';
+    if (!alive.length) return '【避难所里没有活人了】';
 
-    if (heldItem) {
-      return '手里拿着' + (heldItem === 'food' ? '食物' : '水') +
-        ' —— 点左边的人递给他。再点图标一次就放回去。';
+    if (allFed()) return '【全员已进食，可以结束今天】';
+
+    if ((state.supplies.food || 0) > 0 || (state.supplies.water || 0) > 0) {
+      return '【请点击右上角物资投喂】';
     }
 
-    var hungry = 0;
-    var noFood = 0;
-    var noWater = 0;
-    var i;
-
-    for (i = 0; i < alive.length; i++) {
-      var m = (state.meal && state.meal[alive[i].id]) || {};
-      if (!m.eat) noFood += 1;
-      if (!m.drink) noWater += 1;
-      if (!m.eat || !m.drink) hungry += 1;
-    }
-
-    if (!hungry) return '全员已进食，点「结束今天」睡觉。 · ' + BUILD;
-
-    if (noFood && noWater) {
-      return '点右上角的食物或水，再点人投喂。还有 ' + hungry + ' 人没吃没喝。 · ' + BUILD;
-    }
-    if (noFood) return '还有 ' + noFood + ' 人没吃东西，点一下食物再点他。 · ' + BUILD;
-
-    return '还有 ' + noWater + ' 人没喝水，点一下水再点他。 · ' + BUILD;
+    return '【请选择行动：探索或休息】';
   }
 
   function allFed() {
