@@ -3790,7 +3790,6 @@ body {
   width: 34px;
   height: 34px;
   object-fit: contain;
-  mix-blend-mode: screen;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
 }
 

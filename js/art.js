@@ -355,7 +355,8 @@ var ITEMS = {
 
 /* 支持用图片替换某个物资的图标（没有配图片就继续用代码画） */
 var ITEM_IMAGES = {
-  water: 'assets/item-water.png'
+  water: 'assets/item-water.png',
+  radio: 'assets/item-radio.png'
 };
 
 SF.itemSrc = {};
