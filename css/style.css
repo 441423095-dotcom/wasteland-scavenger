@@ -5849,3 +5849,55 @@ button.inv-ghost {
 .actions-sub {
   display: none;
 }
+
+
+
+/* ============ v86：底部紧凑四键 + 透明空槽 ============ */
+
+.actions {
+  display: flex;
+  gap: 5px;
+  max-width: none;
+  margin: 0;
+  justify-content: center;
+}
+
+.actions .btn,
+.actions .btn-main {
+  flex: 1;
+  padding: 7px 4px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+.bottom-hud {
+  padding: 8px 8px 6px;
+}
+
+.hintbar {
+  font-size: 11px;
+  margin-bottom: 5px;
+  padding: 3px 6px;
+  min-height: 0;
+}
+
+.center-tip {
+  display: none !important;
+}
+
+.inv .inv-cell.is-empty-slot {
+  border: 1px dashed rgba(150, 165, 150, 0.28) !important;
+  background: transparent !important;
+  width: 34px;
+  height: 38px;
+  min-height: 38px;
+}
+
+.q-mark {
+  display: none;
+}
+
+.shelf-sec:nth-of-type(2) .shelf-row,
+.shelf-sec:nth-of-type(3) .shelf-row {
+  gap: 12px;
+}

@@ -248,9 +248,8 @@
         (showNum ? '<span class="inv-num">' + Math.round(n) + '</span>' : '');
 
       if (kind === 'info' && n <= 0) {
-        // 没获得：只显示一个问号
-        return '<button type="button" class="inv-cell is-empty-slot" data-item="' + key + '">' +
-          '<span class="q-mark">?</span></button>';
+        // 没获得：只有一圈极淡的虚线，没有任何字
+        return '<button type="button" class="inv-cell is-empty-slot" data-item="' + key + '"></button>';
       }
 
       if (kind === 'hold') {
@@ -1330,11 +1329,11 @@
     else if (state.supplies[key] !== undefined) owned = (state.supplies[key] || 0) > 0;
 
     if (!owned) {
-      showCenterTip('【未知物品：还没搜到，暂时用不上】', false);
+      updateHint('【未知物品：还没搜到】');
       return;
     }
 
-    showCenterTip(itemDesc(key) || '这件东西暂时没用。', false);
+    updateHint(itemDesc(key) || '');
   }
 
   /* ---------------- 物资兑换（占位） ---------------- */
@@ -1504,9 +1503,11 @@
     }
 
     if (heldItem) {
-      bar.textContent = '【已选中' + holdLabel(heldItem) + '，请点击人物' +
-        (heldItem === 'medicine' ? '用药】' : '投喂】');
-      bar.style.color = '#ff5252';
+      var heldText = heldItem === 'food' ? '已拿起食物（恢复50饥饿值） | 请点击人物'
+        : (heldItem === 'water' ? '已拿起水（恢复50口渴值） | 请点击人物'
+          : '已拿起药品（治病并回30血） | 请点击人物');
+      bar.textContent = heldText;
+      bar.style.color = '#ffffff';
       bar.style.fontWeight = '700';
       return;
     }
@@ -1578,15 +1579,12 @@
     }
 
     if ((state.supplies[key] || 0) <= 0) {
-      showCenterTip(itemDesc(key));
       return;
     }
 
     heldItem = key;
     renderShelter();
     updateHint();
-    hideCenterTip();
-    showCenterTip(itemDesc(key), true);
     if (SF.sfx && SF.sfx.pick) SF.sfx.pick();
   }
 
