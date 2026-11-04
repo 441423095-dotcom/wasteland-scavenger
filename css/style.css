@@ -3137,3 +3137,26 @@ body {
   gap: 3px;
   justify-content: center;
 }
+
+
+
+/* ============ v29：日志像小说一样好读 ============ */
+
+.modal-log,
+.modal-night,
+.modal-story {
+  max-width: 480px;
+}
+
+.log-line,
+.night-story {
+  font-size: 14px;
+  line-height: 1.8;
+  letter-spacing: 0.2px;
+}
+
+.night-story {
+  padding: 12px 14px;
+  margin: 10px 0;
+  font-size: 14px;
+}
