@@ -5324,3 +5324,87 @@ button.inv-ghost {
   border: 1px solid rgba(255, 215, 0, 0.3);
   border-radius: 4px;
 }
+
+
+
+/* ============ v74：标签归位、图标排一行、去掉多余数字 ============ */
+
+.inv {
+  right: 26px;
+  top: 26px;
+  width: 236px;
+  max-width: 62vw;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.shelf-sec {
+  display: block;
+  margin: 0 0 10px;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
+.shelf-label {
+  display: block;
+  margin: 0 0 3px 2px;
+  padding: 0;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  color: rgba(220, 232, 210, 0.72);
+  background: none;
+  border: 0;
+  text-shadow: 0 1px 3px #000;
+}
+
+.shelf-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2px;
+  padding: 0;
+  min-height: 56px;
+}
+
+.inv-cell {
+  flex: 0 0 auto;
+  padding: 0;
+  background: none !important;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  box-shadow: none !important;
+}
+
+.inv-cell .inv-ico img,
+.inv-cell .inv-ico svg {
+  width: 40px !important;
+  height: 40px !important;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.75));
+}
+
+.inv-num {
+  font-size: 13px !important;
+  font-weight: 700;
+  color: #fff8dd;
+  text-shadow: 0 1px 3px #000;
+}
+
+/* 没获得的装备：只留灰暗轮廓，没有数字 */
+.inv-cell.is-ghost {
+  opacity: 0.35;
+}
+
+.inv-cell.is-ghost .inv-ico img,
+.inv-cell.is-ghost .inv-ico svg {
+  filter: grayscale(1) brightness(0.6) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
+}
+
+.inv-cell.is-held {
+  border-color: #ffd700;
+  background: rgba(255, 215, 0, 0.1) !important;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.85) !important;
+}

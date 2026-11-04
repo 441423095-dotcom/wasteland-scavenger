@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v73';
+  var BUILD = 'v74';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -238,10 +238,15 @@
     function cell(key, n, kind) {
       var rot = tilts[tIdx % tilts.length];
       tIdx += 1;
-      var cls = 'inv-cell' + (n <= 0 ? ' is-empty' : '') +
+      var showNum = kind === 'hold' || kind === 'count';
+      var ghost = '';
+      var showNum = kind === 'hold' || kind === 'count';
+      var cls = 'inv-cell' +
+        (kind === 'hold' && n <= 0 ? ' is-empty' : '') +
+        (kind === 'info' && n <= 0 ? ' is-ghost' : '') +
         (heldItem === key ? ' is-held' : '');
-      var inner = '<span class="inv-ico">' + SF.itemSvg(key, 42) + '</span>' +
-        '<span class="inv-num">' + Math.round(n) + '</span>';
+      var inner = '<span class="inv-ico">' + SF.itemSvg(key, 40) + '</span>' +
+        (showNum ? '<span class="inv-num">' + Math.round(n) + '</span>' : '');
 
       if (kind === 'hold') {
         return '<button type="button" id="hold-' + key + '" class="' + cls +
@@ -260,7 +265,7 @@
     basics += cell('food', state.supplies.food || 0, 'hold');
     basics += cell('water', state.supplies.water || 0, 'hold');
     basics += cell('medicine', state.supplies.medicine || 0, 'hold');
-    basics += cell('material', state.supplies.material || 0, 'info');
+    basics += cell('material', state.supplies.material || 0, 'count');
 
     gear += cell('flashlight', state.items.flashlight ? 1 : 0, 'info');
     gear += cell('weapon', state.items.weapon ? 1 : 0, 'info');
