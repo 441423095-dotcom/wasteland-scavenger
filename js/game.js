@@ -552,19 +552,21 @@ SF.SUPPLIES = [
     var locId = loc.id;
 
     if (depth <= 1) {
-      // 第一阶段：只有废料，绝对安全
-      if (Math.random() < 0.35) {
+      // 第一层：70% 只有垃圾，最多 1 个基础物资
+      if (Math.random() < 0.7) {
+        if (roll(0.5)) giveHaul(haul, 'material', 1);
         result.lines.push(flavor('empty'));
+      } else {
+        giveHaul(haul, roll(0.5) ? 'food' : 'water', 1);
+        result.lines.push('外围只摸到一点能吃的，你们赶紧退了出来。');
       }
-      giveHaul(haul, 'material', rnd(1, 3));
-      result.lines.push('你们只在外围转了一圈，翻到一些废料，没人受伤。');
       result.safe = true;
     } else if (depth === 2) {
       // 第二阶段：基础物资，小概率受伤
       if (locId === 'market') {
-        giveHaul(haul, 'food', rnd(2, 3));
+        if (roll(0.5)) giveHaul(haul, 'food', 1);
         if (roll(0.2)) giveHaul(haul, 'medicine', 1);
-        result.lines.push('货架上还剩几罐没过期的，你们抱了几罐出来。');
+        result.lines.push('货架上还剩几罐没过期的，你们只抱了一罐出来。');
       } else if (locId === 'warehouse') {
         giveHaul(haul, 'material', rnd(2, 4));
         if (roll(0.45)) {
@@ -710,7 +712,7 @@ SF.SUPPLIES = [
     if (party.length >= 3 && !haul.food) giveHaul(haul, 'food', 1);
 
     // 危险事件：第一阶段绝对安全，第二阶段小概率，第三阶段极易重伤
-    var riskChance = depth <= 1 ? 0 : (depth === 2 ? 0.12 : 0.45);
+    var riskChance = depth <= 1 ? 0 : (depth === 2 ? 0.12 : 1);
 
     if (loc.id === 'police' && depth >= 3 && !hasTie && !hasWeapon) {
       riskChance = 0.95;

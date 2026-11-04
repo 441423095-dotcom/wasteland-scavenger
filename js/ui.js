@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v31';
+  var BUILD = 'v32';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -837,6 +837,37 @@
 
   /* ---------------- 搜刮 ---------------- */
 
+  /* 深入前的劝阻对话 */
+  var DEEP_TALK = {
+    2: [
+      '林晓拉了拉你的袖子，小声说：“里面太黑了，我们拿得差不多了，要不……回去吧？”',
+      '铁柱咽了口唾沫，死死盯着走廊尽头：“我好像听到了奇怪的声音。”',
+      '娜娜皱着眉头：“这地方味道太冲了，再往里走可能会惹上麻烦。”'
+    ],
+    3: [
+      '陈默脸色煞白：“你们疯了吗？里面绝对有东西，我们这点人手根本不够塞牙缝的！”',
+      '外面传来了沉重的脚步声。铁柱握紧了手里的武器：“如果非要进去，你们最好做好流血的准备。”',
+      '娜娜一把抓住你的手：“够了！赚够了！再贪心我们都会死在这里！”'
+    ]
+  };
+
+  function openDeeperConfirm(nextDepth) {
+    var pool = DEEP_TALK[nextDepth] || DEEP_TALK[3];
+    var line = pool[Math.floor(Math.random() * pool.length)];
+
+    openModal('<div class="modal-head">' +
+      '<span class="modal-title">再往里走？</span>' +
+      '<span class="modal-sub">第 ' + nextDepth + ' 层</span>' +
+      '</div>' +
+      '<div class="night-story">' + line + '</div>' +
+      '<div class="modal-actions">' +
+      '<button type="button" class="btn" data-act="back-home">听劝，带着物资撤退</button>' +
+      '<button type="button" class="btn btn-main dbg-danger" data-act="deeper-go">' +
+      '不管不顾，继续深入</button>' +
+      '</div>',
+      'modal-story');
+  }
+
   function startSearch(locId, partyIds, depth) {
     if (searching) return;
     if (!partyIds || !partyIds.length) return;
@@ -1617,6 +1648,8 @@
     } else if (act === 'depart') {
       depart();
     } else if (act === 'deeper') {
+      openDeeperConfirm(raidDepth + 1);
+    } else if (act === 'deeper-go') {
       startSearch(raidLoc, raidIds, raidDepth + 1);
     } else if (act === 'bath') {
       var br = SF.bath(state, id);
