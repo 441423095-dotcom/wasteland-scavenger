@@ -3843,3 +3843,12 @@ body {
   object-fit: contain;
   margin: 0 auto;
 }
+
+
+
+/* ============ v54：围坐图整体下移 ============ */
+
+.scene {
+  top: 44%;
+  bottom: 12%;
+}
