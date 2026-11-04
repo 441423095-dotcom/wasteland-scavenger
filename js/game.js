@@ -399,47 +399,54 @@ SF.SUPPLIES = [
     result.success = success;
 
     var haul = {};
-    var junkOnly = !loc.far && loc.id !== 'market' && roll(C.explore.junkChanceNear);
-    result.junkOnly = junkOnly;
-    var mult = 1 + C.party.lootPerExtra * (party.length - 1);
+    var junkOnly = false;
+    result.junkOnly = false;
 
-    if (junkOnly) {
-      giveHaul(haul, 'material', Math.ceil(rnd(C.explore.junkLoot[0], C.explore.junkLoot[1]) * mult));
-      result.lines.push('整片地方被人翻过好几轮了，食物和水一点没剩，只拖回一堆还能用的材料。');
-    } else {
-      var factor = success ? 1 : C.explore.failLootFactor;
-      var depthBonus = 1 + 0.6 * (depth - 1);
-
-      for (i = 0; i < SF.SUPPLIES.length; i++) {
-        var key = SF.SUPPLIES[i].key;
-        var range = loc.loot[key];
-        if (!range) continue;
-        var qty = rnd(range[0], range[1]);
-        if (!success) qty = Math.floor(qty * factor);
-        if (qty > 0) giveHaul(haul, key, Math.ceil(qty * mult * depthBonus));
+    // 按探索层数给产出：外围几乎空手，内部一点点，核心才可能有稀有货
+    if (depth <= 1) {
+      var r1 = Math.random();
+      if (r1 < 0.55) {
+        result.lines.push('翻了一圈，什么也没找到，只带回一身灰。');
+      } else if (r1 < 0.85) {
+        result.lines.push('值钱的东西早被人搬空了，只拖回一捆还能烧的废料。');
+        giveHaul(haul, 'material', rnd(1, 2));
+      } else {
+        result.lines.push('里里外外翻了一遍，只摸到半块发霉的面包。');
+        giveHaul(haul, 'food', 1);
       }
-      result.lines.push(success ? loc.okText : loc.badText);
+    } else if (depth === 2) {
+      var k2 = pickOne(['food', 'water', 'food', 'water', 'medicine']);
+      giveHaul(haul, k2, k2 === 'medicine' ? 1 : rnd(1, 2));
+      if (roll(0.5)) giveHaul(haul, 'material', 1);
+
+      if (k2 === 'medicine') {
+        result.lines.push('在里屋的柜子里翻出一板药，别的什么也没有。');
+      } else {
+        result.lines.push('往里又摸了一段，只带回来一点' +
+          (k2 === 'food' ? '吃的' : '水') + '。');
+      }
+    } else {
+      if (roll(0.35)) giveHaul(haul, pickOne(['food', 'water']), 1);
+      if (roll(0.6)) giveHaul(haul, 'material', rnd(1, 3));
+      result.lines.push('摸到了最里面，空气里全是铁锈味，谁都不敢大口喘气。');
     }
 
-    // 铁柱在队里：物资翻倍
+    // 铁柱只能帮着多扛一点废料，食物和药照旧稀缺
     var hasTie = false;
     var hasNana = false;
     for (i = 0; i < party.length; i++) {
       if (party[i].charId === 'tie') hasTie = true;
       if (party[i].charId === 'nana') hasNana = true;
     }
-    if (hasTie) {
-      for (var hk in haul) {
-        if (!haul.hasOwnProperty(hk)) continue;
-        haul[hk] = Math.round(haul[hk] * T.tieLootMult);
-      }
-      result.lines.push('铁柱扛起一整箱东西就走，一趟顶两趟。');
+    if (hasTie && (haul.material || 0) > 0) {
+      haul.material = Math.min(4, haul.material + 1);
+      result.lines.push('铁柱把散落的废料捆成一捆，多扛了一些回来。');
     }
 
     // 掠夺者
     if (!junkOnly && roll(T.raiderChance + (party.length - 1) * 0.03)) {
       if (hasNana && roll(T.nanaNegotiate)) {
-        var bonus = rnd(T.nanaBonus[0], T.nanaBonus[1]);
+        var bonus = 1;
         giveHaul(haul, roll(0.5) ? 'food' : 'water', bonus);
         result.lines.push('路上被三个掠夺者拦住。娜娜笑着递了根烟，聊了几句，东西一样没少，还多拿了 ' + bonus + ' 份。');
       } else {
@@ -504,11 +511,11 @@ SF.SUPPLIES = [
       }
     }
 
-    // 幸运事件
-    if (!junkOnly && roll(0.14)) {
+    // 幸运事件（只给 1 份）
+    if (roll(0.1)) {
       var lucky = pickOne(['medicine', 'food', 'water']);
-      giveHaul(haul, lucky, 2);
-      result.lines.push('在' + loc.name + '发现了另一个死去幸存者留下的背包，里面还有些能用的东西。');
+      giveHaul(haul, lucky, 1);
+      result.lines.push('在' + loc.name + '的角落发现了另一个幸存者留下的半袋东西。');
     }
 
     // 人际事件（需要玩家选择）
@@ -541,23 +548,25 @@ SF.SUPPLIES = [
       };
     }
 
-    // 主线物品：警局的信号弹、第 5 天后的破收音机
-    if (loc.id === 'police' && !state.items.flare && roll(0.6)) {
+    // 主线物品只在第 2 层以后才可能出现
+    if (loc.id === 'police' && depth >= 2 && !state.items.flare &&
+        roll(depth >= 3 ? 0.6 : 0.25)) {
       state.items.flare = true;
       result.item = { key: 'medicine', name: '信号弹' };
       result.lines.push('你们在枪柜底下摸到两发信号弹，小心地收进背包。');
     }
 
-    if (!state.items.radio && !state.items.radioBroken && state.day >= 5 && roll(0.5)) {
+    if (!state.items.radio && !state.items.radioBroken && depth >= 2 &&
+        state.day >= 5 && roll(0.4)) {
       state.items.radioBroken = true;
       result.lines.push('临走时在杂物间翻出一台破损的收音机，也许还能修。');
     }
 
-    // 单次探索的收获封顶，避免出现一次背回几十份的离谱情况
-    for (var hcap in haul) {
-      if (!haul.hasOwnProperty(hcap)) continue;
-      if (haul[hcap] > 8) haul[hcap] = 8;
-    }
+    // 食物、水、药品死死压住，材料稍微宽松一点
+    if ((haul.food || 0) > 3) haul.food = 3;
+    if ((haul.water || 0) > 3) haul.water = 3;
+    if ((haul.medicine || 0) > 1) haul.medicine = 1;
+    if ((haul.material || 0) > 4) haul.material = 4;
 
     applyHaul(state, haul, result);
 
