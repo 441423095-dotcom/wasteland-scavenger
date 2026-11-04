@@ -6,6 +6,9 @@
 
   var C = SF.CONFIG;
 
+  // 版本号：每次改动都往后加一，方便确认页面是不是最新版
+  var BUILD = 'v12';
+
   // 货架上固定摆这四层
   var SHELF_ITEMS = ['food', 'water', 'medicine', 'material'];
 
@@ -488,9 +491,9 @@
       if (!m.eat || !m.drink) hungry += 1;
     }
 
-    if (!hungry) return '今天所有人都吃过了，点「结束今天」睡觉。 · v11';
+    if (!hungry) return '今天所有人都吃过了，点「结束今天」睡觉。 · ' + BUILD;
 
-    return '点右上角的食物或水，再点人投喂。还有 ' + hungry + ' 人没吃没喝。 · v11';
+    return '点右上角的食物或水，再点人投喂。还有 ' + hungry + ' 人没吃没喝。 · ' + BUILD;
   }
 
   function renderShelter() {
