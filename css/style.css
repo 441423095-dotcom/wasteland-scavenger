@@ -3870,3 +3870,110 @@ body {
   top: 46%;
   bottom: 10%;
 }
+
+
+
+/* ============ v57：废土战术身份牌 ============ */
+
+.mini-card {
+  background: linear-gradient(180deg, #1c1c1a 0%, #121311 60%, #0c0d0c 100%);
+  border: 1px solid #4a4a4a;
+  border-radius: 3px;
+  box-shadow:
+    inset 0 2px 7px rgba(0, 0, 0, 0.9),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.06),
+    inset 1px 0 0 rgba(255, 255, 255, 0.04),
+    0 3px 8px rgba(0, 0, 0, 0.65);
+}
+
+.mini-card:hover {
+  border-color: #6b6b6b;
+}
+
+.mini-fig .portrait-img {
+  border: 1px solid #4a4a4a;
+  border-radius: 3px;
+  filter: sepia(0.22) contrast(1.06) saturate(0.92);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.mini-name {
+  color: #ffffff;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px #000, 0 0 7px rgba(0, 0, 0, 0.9);
+}
+
+.mkey {
+  color: #6f7770;
+  font-size: 8px;
+}
+
+.mtrack {
+  height: 4px;
+  background: #080908;
+  border: 1px solid rgba(0, 0, 0, 0.9);
+  border-radius: 2px;
+  box-shadow:
+    inset 0 1px 3px #000,
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.mfill.hp {
+  background: linear-gradient(90deg, #ff2f26, #ff8a72);
+  box-shadow: 0 0 5px rgba(255, 60, 45, 0.55);
+}
+
+.mfill.thirst {
+  background: linear-gradient(90deg, #1f8bff, #6fd6ff);
+  box-shadow: 0 0 5px rgba(60, 160, 255, 0.55);
+}
+
+.mfill.hunger {
+  background: linear-gradient(90deg, #ff8c00, #ffc94a);
+  box-shadow: 0 0 5px rgba(255, 150, 40, 0.55);
+}
+
+.mfill.mood {
+  background: linear-gradient(90deg, #22d45a, #8dff9e);
+  box-shadow: 0 0 5px rgba(60, 220, 110, 0.55);
+}
+
+.mrow.is-low .mfill {
+  background: #ff2b21;
+  animation: micro-blink 0.5s steps(2, end) infinite;
+  box-shadow: 0 0 8px rgba(255, 43, 33, 0.85);
+}
+
+/* 手里拿着物资时，该喂的人亮金边 */
+.mini-card.is-ready {
+  border-color: #ffd700;
+  box-shadow:
+    inset 0 2px 7px rgba(0, 0, 0, 0.9),
+    0 0 10px rgba(255, 215, 0, 0.75);
+}
+
+/* 刚被投喂：整张卡金闪一下 */
+.mini-card.is-flash {
+  border-color: #ffd700;
+  animation: card-gold 0.7s ease-out 1;
+}
+
+@keyframes card-gold {
+  0% {
+    box-shadow: 0 0 18px 4px rgba(255, 215, 0, 0.95);
+    background: linear-gradient(180deg, #4a4218, #2a2610);
+  }
+  100% {
+    box-shadow:
+      inset 0 2px 7px rgba(0, 0, 0, 0.9),
+      0 3px 8px rgba(0, 0, 0, 0.65);
+  }
+}
+
+.mini-fed {
+  border-radius: 2px;
+  box-shadow: 0 0 4px rgba(127, 209, 106, 0.5);
+}
