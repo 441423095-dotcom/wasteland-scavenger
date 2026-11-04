@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v50';
+  var BUILD = 'v51';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -1613,6 +1613,13 @@
       (n.events && n.events.length ? n.events.length + ' 件事' : '很安静') +
       '</span>' +
       '</div>';
+
+    html += '<div class="consume-line">今日消耗：食物 -' + (n.foodUsed || 0) +
+      ' · 水 -' + (n.waterUsed || 0) + '</div>';
+
+    if (n.milestone) {
+      html += '<div class="warn-line">【主线警告】' + n.milestone + '</div>';
+    }
 
     html += '<div class="res-label">夜里发生了什么</div>';
 

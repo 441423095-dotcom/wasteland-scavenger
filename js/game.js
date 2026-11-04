@@ -815,7 +815,7 @@ SF.SUPPLIES = [
 
     // 关卡：必须由玩家自己决定要不要花物资，绝不自动扣
     if (depth >= 2 && roll(0.5)) {
-      var gk = pickOne(['pit', 'fireDoor', 'wound', 'dust', 'gas', 'dog', 'survivor', 'zombie', 'generator']);
+      var gk = pickOne(['pit', 'fireDoor', 'wound', 'dust', 'gas', 'dog', 'survivor', 'zombie', 'generator', 'bomb']);
 
       if (gk === 'pit' || gk === 'fireDoor') {
         result.choice = {
@@ -856,6 +856,17 @@ SF.SUPPLIES = [
           options: [
             { key: 'gatePay', label: '消耗 1 份食物引开', disabled: (state.supplies.food || 0) < 1 },
             { key: 'gateRetreat', label: '原路返回（见好就收）' }
+          ]
+        };
+      } else if (gk === 'bomb') {
+        result.choice = {
+          id: 'gate',
+          kind: 'bomb',
+          title: '未爆弹与军用运输车',
+          text: '一辆翻倒的军用运输车旁躺着一枚未爆弹，车厢里全是没拆封的口粮和武器。拆解有 60% 概率直接引爆。',
+          options: [
+            { key: 'gatePay', label: '强行拆解（60% 爆炸）' },
+            { key: 'gateRetreat', label: '太危险，见好就收' }
           ]
         };
       } else if (gk === 'dog') {
@@ -1120,6 +1131,19 @@ SF.SUPPLIES = [
           state.supplies.food = Math.max(0, Math.round(state.supplies.food - 1));
           result.deepBonus = true;
           result.lines.push('男人收下食物，把下一层的物资分布画给了你们。（食物 -1，下一层物资翻倍）');
+        } else if (gate.kind === 'bomb') {
+          if (roll(0.6)) {
+            var blast = pickOne(party);
+            blast.hp = clamp(blast.hp - 40, 0, C.maxStat);
+            blast.injured = true;
+            result.injured.push({ name: blast.name, hp: 40 });
+            result.lines.push('拆到一半引信烧了起来，' + blast.name +
+              '被爆炸掀翻在地，你们只能拖着他撤出。（' + blast.name + ' 血量 -40）');
+          } else {
+            state.supplies.food = Math.max(0, Math.round((state.supplies.food || 0) + 3));
+            state.items.weapon = true;
+            result.lines.push('你屏住呼吸拆掉了引信，车厢里的口粮和一把武器全归你们了。（食物 +3，武器到手）');
+          }
         } else if (gate.kind === 'weapon') {
           var breaker = null;
           for (i = 0; i < state.survivors.length; i++) {
@@ -1392,8 +1416,15 @@ SF.SUPPLIES = [
       }
     }
 
-    var pool = ['sick', 'scare', 'shelter', 'cold',
+    var pool = ['sick', 'scare', 'shelter', 'cold', 'badCan',
       'acidRain', 'rats', 'zombieDoor', 'gift', 'radioMood', 'rainWater', 'guest'];
+
+    var moodSum = 0;
+    for (i = 0; i < alive.length; i++) moodSum += alive[i].mood;
+    if (alive.length >= 2 && (state.supplies.food || 0) > 0 &&
+        (moodAvg = pool && moodSum / alive.length) < 30) {
+      pool.push('fightMood');
+    }
     if (madCand) pool.push('mad', 'mad');
     if (alive.length >= 2) pool.push('fight');
 
@@ -1466,6 +1497,25 @@ SF.SUPPLIES = [
         list.push({
           id: 'scare',
           text: '一只变异老鼠窜过脚边，把所有人吓得一夜没敢合眼。全员心情 −5。'
+        });
+      } else if (kind === 'badCan') {
+        state.supplies.food = Math.max(0, Math.round((state.supplies.food || 0) + 1));
+        if (roll(0.5)) {
+          for (i = 0; i < alive.length; i++) alive[i].hp = clamp(alive[i].hp - 20, 0, C.maxStat);
+          list.push({ id: 'badCan', text: '翻出一罐过期的罐头，大家分着吃了，后半夜全在拉肚子。（食物 +1，全员血量 -20）' });
+        } else {
+          list.push({ id: 'badCan', text: '翻出一罐过期的罐头，闻着还行，吃下去居然没事。（食物 +1）' });
+        }
+      } else if (kind === 'fightMood') {
+        var a1 = pickOne(alive);
+        var b1 = alive[(alive.indexOf(a1) + 1) % alive.length];
+        a1.hp = clamp(a1.hp - 20, 0, C.maxStat);
+        b1.hp = clamp(b1.hp - 20, 0, C.maxStat);
+        for (i = 0; i < alive.length; i++) alive[i].mood = clamp(alive[i].mood - 10, 0, C.maxStat);
+        list.push({
+          id: 'fightMood',
+          text: a1.name + ' 和 ' + b1.name + ' 为了最后一个罐头大打出手，' +
+            '两个人都见了血。（各 -20 血，全员心情 -10）'
         });
       } else if (kind === 'acidRain') {
         if ((state.supplies.material || 0) >= 2) {
@@ -1886,6 +1936,35 @@ SF.SUPPLIES = [
     }
 
     ensureLeader(state);
+
+    // 主线里程碑：没在期限内完成就会被惩罚
+    if (state.day === 4 && !state.items.radio) {
+      for (i = 0; i < alive.length; i++) {
+        if (alive[i].alive) alive[i].mood = clamp(alive[i].mood - 20, 0, C.maxStat);
+      }
+      report.milestone = '军方信号即将加密，你们错过了第一波救援情报。（全员心情 -20）';
+      SF.addLog(state, report.milestone);
+    }
+
+    if (state.day === 8 && !state.items.gasMask) {
+      for (i = 0; i < alive.length; i++) {
+        if (alive[i].alive) alive[i].hp = clamp(alive[i].hp - 20, 0, C.maxStat);
+      }
+      report.milestone = '城市降下酸雨，没有防护的人皮肤被灼伤。（全员血量 -20）';
+      SF.addLog(state, report.milestone);
+    }
+
+    if (state.day === 11 && !state.items.weapon &&
+        !wornBy(state, null, 'weapon')) {
+      var stolenFood = Math.floor((state.supplies.food || 0) / 2);
+      var stolenWater = Math.floor((state.supplies.water || 0) / 2);
+      state.supplies.food = Math.max(0, (state.supplies.food || 0) - stolenFood);
+      state.supplies.water = Math.max(0, (state.supplies.water || 0) - stolenWater);
+      report.milestone = '一群暴徒半夜撬开了门，抢走了你们一半的物资！（食物 -' +
+        stolenFood + '，水 -' + stolenWater + '）';
+      SF.addLog(state, report.milestone);
+    }
+
     report.allDead = checkOver(state, report.day);
 
     // 第 20 天结束：有信号弹就等来直升机，没有就到此为止

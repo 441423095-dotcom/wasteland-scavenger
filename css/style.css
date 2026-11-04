@@ -3797,3 +3797,16 @@ body {
   filter: grayscale(100%) brightness(0.55) contrast(0.9);
   opacity: 0.5;
 }
+
+
+
+/* ============ v51：每日消耗红字 ============ */
+
+.consume-line {
+  margin: 4px 0 8px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #ff6b5e;
+  text-shadow: 0 0 10px rgba(255, 107, 94, 0.35);
+}
