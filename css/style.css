@@ -4349,3 +4349,132 @@ body {
   font-weight: 700;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 1), 0 0 6px rgba(0, 0, 0, 0.9);
 }
+
+
+
+/* ============ v62：暗绿玻璃战术档案面板 ============ */
+
+.modal.modal-detail {
+  background: rgba(18, 34, 26, 0.8);
+  -webkit-backdrop-filter: blur(6px) saturate(1.1);
+  backdrop-filter: blur(6px) saturate(1.1);
+  border: 1px solid rgba(150, 220, 160, 0.35);
+  border-radius: 10px;
+  box-shadow:
+    0 0 18px rgba(90, 210, 120, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 30px rgba(0, 0, 0, 0.65);
+}
+
+.modal-detail .modal-head {
+  border-bottom: 1px solid rgba(150, 220, 160, 0.22);
+}
+
+.modal-detail .modal-title {
+  color: #dcffdf;
+  letter-spacing: 1px;
+}
+
+/* 头像凹槽 */
+.modal-detail .stat-fig {
+  display: flex;
+  justify-content: center;
+  padding: 8px;
+  margin: 6px 0 10px;
+  background: #08110c;
+  border-radius: 8px;
+  box-shadow:
+    inset 0 3px 12px rgba(0, 0, 0, 0.95),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+.modal-detail .stat-fig .portrait-img {
+  border-radius: 4px;
+  filter: sepia(0.15) contrast(1.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* 天赋卡片 */
+.modal-detail .trait-box {
+  display: block;
+  margin: 0 0 10px;
+  padding: 8px 10px;
+  background: #131a15;
+  border-left: 4px solid #56e06a;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.modal-detail .trait-box b {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 13px;
+  color: #d8ffdd;
+}
+
+.modal-detail .trait-box span {
+  display: block;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #9fb3a3;
+}
+
+/* 仪表盘状态条 */
+.modal-detail .stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 7px 0;
+}
+
+.modal-detail .stat-label {
+  flex: 0 0 34px;
+  font-size: 11px;
+  color: #a9bdae;
+}
+
+.modal-detail .stat .bar {
+  flex: 1;
+  height: 10px;
+  border-radius: 5px;
+  background: #060b08;
+  border: 1px solid rgba(0, 0, 0, 0.9);
+  box-shadow:
+    inset 0 1px 4px rgba(0, 0, 0, 1),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.modal-detail .stat .bar i {
+  display: block;
+  height: 100%;
+  border-radius: 5px;
+}
+
+.modal-detail .stat.hp .bar i {
+  background: linear-gradient(90deg, #d92015, #ff5b4a);
+  box-shadow: 0 0 6px rgba(255, 70, 50, 0.6);
+}
+
+.modal-detail .stat.hunger .bar i {
+  background: linear-gradient(90deg, #e27400, #ffb347);
+  box-shadow: 0 0 6px rgba(255, 150, 40, 0.55);
+}
+
+.modal-detail .stat.thirst .bar i {
+  background: linear-gradient(90deg, #1477e0, #63c8ff);
+  box-shadow: 0 0 6px rgba(60, 160, 255, 0.55);
+}
+
+.modal-detail .stat.mood .bar i {
+  background: linear-gradient(90deg, #12b843, #82f59a);
+  box-shadow: 0 0 6px rgba(60, 220, 110, 0.55);
+}
+
+.modal-detail .stat-val {
+  flex: 0 0 30px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+  color: #eaf5e6;
+}

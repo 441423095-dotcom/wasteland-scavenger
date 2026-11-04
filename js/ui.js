@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v52';
+  var BUILD = 'v62';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -197,7 +197,7 @@
 
   /* ---------------- 状态条 ---------------- */
 
-  function statBar(label, value, invert) {
+  function statBar(label, value, invert, kind) {
     var v = Math.round(value);
     var good = invert ? 100 - v : v;
     if (good < 0) good = 0;
@@ -207,7 +207,7 @@
     if (good < 33) cls = 'bad';
     else if (good < 66) cls = 'warn';
 
-    return '<div class="stat">' +
+    return '<div class="stat ' + (kind || '') + '">' +
       '<span class="stat-label">' + label + '</span>' +
       '<span class="bar"><i class="' + cls + '" style="width:' + good + '%"></i></span>' +
       '<span class="stat-val">' + v + '</span>' +
@@ -215,10 +215,10 @@
   }
 
   function statsBlock(s) {
-    return statBar('口渴', s.thirst, true) +
-      statBar('饥饿', s.hunger, true) +
-      statBar('血量', s.hp, false) +
-      statBar('心情', s.mood, false);
+    return statBar('血量', s.hp, false, 'hp') +
+      statBar('饥饿', s.hunger, true, 'hunger') +
+      statBar('口渴', s.thirst, true, 'thirst') +
+      statBar('心情', s.mood, false, 'mood');
   }
 
   /* ---------------- 避难所渲染 ---------------- */
