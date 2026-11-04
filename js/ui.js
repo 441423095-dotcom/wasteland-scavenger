@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v26';
+  var BUILD = 'v27';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -765,6 +765,31 @@
     return n;
   }
 
+  function traitName(s) {
+    if (s.charId === 'chen') return '黑科技破解';
+    if (s.charId === 'lin') return '药理知识';
+    if (s.charId === 'tie') return '体力充沛';
+    if (s.charId === 'nana') return '交涉能力';
+    return s.trait;
+  }
+
+  /* 选人面板展示的被动文案（与底层逻辑保持一致） */
+  function traitTextFor(s) {
+    if (s.charId === 'chen') {
+      return '黑科技破解：必带 1 份药品，且不会触发陷阱。';
+    }
+    if (s.charId === 'lin') {
+      return '药理知识：带回的药品翻倍；全队生病掉血减半。';
+    }
+    if (s.charId === 'tie') {
+      return '体力充沛：食物/水/材料额外 +1~2。';
+    }
+    if (s.charId === 'nana') {
+      return '交涉能力：危险事件 100% 免伤，50% 概率反抢物资。';
+    }
+    return s.traitText;
+  }
+
   function renderPartyPicker(locId) {
     var loc = SF.findLocation(locId);
     if (!loc) return;
@@ -789,8 +814,8 @@
         '<span class="pick-check' + (on ? ' is-on' : '') + '"></span>' +
         '<span class="pick-fig">' + portraitHtml(s, 30, 40) + '</span>' +
         '<span class="pick-main"><b>' + s.name + '</b>' +
-        '<span class="pick-role">' + s.role + ' · ' + s.trait + '</span>' +
-        '<span class="pick-trait">' + s.traitText + '</span>' +
+        '<span class="pick-role">' + s.role + ' · ' + traitName(s) + '</span>' +
+        '<span class="pick-trait">' + traitTextFor(s) + '</span>' +
         '<span class="pick-verdict' + (v.good ? ' is-good' : ' is-bad') + '">' +
         v.text + '</span></span>' +
         '</button>' +

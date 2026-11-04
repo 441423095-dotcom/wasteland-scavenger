@@ -541,10 +541,16 @@ SF.SUPPLIES = [
 
     // 掠夺者
     if (!junkOnly && roll(T.raiderChance + (party.length - 1) * 0.03)) {
-      if (hasNana && roll(T.nanaNegotiate)) {
-        var bonus = 1;
-        giveHaul(haul, roll(0.5) ? 'food' : 'water', bonus);
-        result.lines.push('路上被三个掠夺者拦住。娜娜笑着递了根烟，聊了几句，东西一样没少，还多拿了 ' + bonus + ' 份。');
+      if (hasNana) {
+        // 娜娜：危险事件 100% 免伤，50% 概率反抢
+        if (roll(0.5)) {
+          giveHaul(haul, roll(0.5) ? 'food' : 'water', 1);
+          result.lines.push('路上被三个掠夺者拦住。娜娜笑着递了根烟，聊了几句，' +
+            '东西一样没少，还反手拿走了他们一份补给。');
+        } else {
+          result.lines.push('路上被三个掠夺者拦住。娜娜挡在前面交涉了几句，' +
+            '最后谁也没动手，东西一样没少。');
+        }
       } else {
         haul.food = Math.floor((haul.food || 0) / 2);
         haul.water = Math.floor((haul.water || 0) / 2);
@@ -564,6 +570,33 @@ SF.SUPPLIES = [
           SF.addLog(state, robbed.name + ' 被打得太重，没能撑回避难所。');
         }
       }
+    }
+
+    // ===== 职业被动：一定要真的生效 =====
+    if (hasChen) {
+      // 陈默：破解电子锁/售货机，必带 1 份药品，且不会踩到陷阱
+      giveHaul(haul, 'medicine', 1);
+      result.trapSafe = true;
+      result.lines.push('陈默撬开一台自动售货机的电子锁，顺手拿走一盒药。');
+    }
+
+    if (hasLin) {
+      // 林晓：任何地点的药品收益翻倍
+      if (haul.medicine) {
+        haul.medicine = haul.medicine * 2;
+        result.lines.push('林晓认出了草药和化学试剂，药品翻倍。');
+      }
+    }
+
+    if (hasTie) {
+      // 铁柱：基础物资（食物/水/材料）额外 +1~2
+      var extra = rnd(1, 2);
+      if (haul.food) giveHaul(haul, 'food', extra);
+      if (haul.water) giveHaul(haul, 'water', extra);
+      if (haul.material) giveHaul(haul, 'material', extra);
+      if (!haul.food && !haul.water && !haul.material) giveHaul(haul, 'material', extra);
+
+      result.lines.push('铁柱把能扛的都扛上了，基础物资额外 +' + extra + '。');
     }
 
     // 组队加成：2 人 1.5 倍，3 人 2 倍
@@ -656,10 +689,16 @@ SF.SUPPLIES = [
       result.lines.push('你们在枪柜底下摸到两发信号弹，小心地收进背包。');
     }
 
-    if (!state.items.radio && !state.items.radioBroken && depth >= 2 &&
-        state.day >= 5 && roll(0.4)) {
-      state.items.radioBroken = true;
-      result.lines.push('临走时在杂物间翻出一台破损的收音机，也许还能修。');
+    // 破收音机只在城郊仓库出；带陈默就直接修好
+    if (loc.id === 'warehouse' && depth >= 2 &&
+        !state.items.radio && !state.items.radioBroken && roll(0.45)) {
+      if (hasChen) {
+        state.items.radio = true;
+        result.lines.push('陈默在仓库里翻出一台收音机，当场拧了两下线圈，修好了。');
+      } else {
+        state.items.radioBroken = true;
+        result.lines.push('临走时在杂物间翻出一台破损的收音机，也许还能修。');
+      }
     }
 
     // 食物、水、药品死死压住，材料稍微宽松一点
@@ -923,9 +962,9 @@ SF.SUPPLIES = [
         if (roll(N.sickChance)) s.sick = true;
       }
 
-      // 生病：每晚额外掉 20 血
+      // 生病：每晚额外掉 20 血；队里有林晓就减半
       if (s.sick) {
-        dmg += N.sickDamage;
+        dmg += Math.round(N.sickDamage * (SF.charAlive(state, 'lin') ? 0.5 : 1));
         moodDelta += N.moodSick;
       }
 
