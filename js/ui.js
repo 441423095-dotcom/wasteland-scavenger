@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v76';
+  var BUILD = 'v80';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -248,9 +248,10 @@
         (showNum ? '<span class="inv-num">' + Math.round(n) + '</span>' : '');
 
       if (kind === 'info' && n <= 0) {
-        // 没获得：只留一个很小的虚线空槽，没有图标、没有数字、没有文字
-        return '<button type="button" class="inv-cell is-empty-slot" data-item="' + key +
-          '"></button>';
+        // 没获得：极暗轮廓 + 虚线空槽，没有数字、没有文字
+        return '<button type="button" class="inv-cell is-empty-slot" data-item="' + key + '">' +
+          '<span class="inv-ico" style="opacity:.22;filter:grayscale(1)">' +
+          SF.itemSvg(key, 26) + '</span></button>';
       }
 
       if (kind === 'hold') {

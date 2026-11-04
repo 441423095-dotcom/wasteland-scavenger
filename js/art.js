@@ -360,6 +360,7 @@ var ITEM_IMAGES = {
   medicine: 'assets/item-medicine.jpeg?v=2',
   material: 'assets/item-wood.jpeg?v=2',
   flashlight: 'assets/item-flashlight.jpeg?v=2',
+  weapon: 'assets/item-weapon.jpeg?v=1',
   radio: 'assets/item-radio.jpeg?v=2'
 };
 
