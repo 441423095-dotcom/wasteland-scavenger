@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v16';
+  var BUILD = 'v17';
 
   // 货架上固定摆这四层
   var SHELF_ITEMS = ['food', 'water', 'medicine', 'material'];
@@ -291,8 +291,16 @@
   }
 
   /* 顶部滚动播报 */
+  var loadNoticeDay = 0;
+
   function renderTicker() {
-    var parts = ['第 ' + state.day + ' 天'];
+    var parts = [];
+
+    if (loadNoticeDay) {
+      parts.push('已读取第 ' + loadNoticeDay + ' 天存档');
+    }
+
+    parts.push('第 ' + state.day + ' 天');
 
     if (state.rescueLeft > 0) {
       parts.push('军方救援倒计时 ' + state.rescueLeft + ' 天');
@@ -1092,6 +1100,7 @@
 
   function finishNight() {
     nightReport = SF.finishNight(state, nightReport);
+    if (SF.saveGame) SF.saveGame(state);
     renderShelter();
     showScreen('screen-shelter');
 
@@ -1567,10 +1576,127 @@
     showScreen('screen-shelter');
   }
 
+  /* ---------------- 开发者测试面板 ---------------- */
+
+  var dbgTarget = null;
+
+  function openDebug() {
+    var panel = $('debug-panel');
+    if (panel) panel.classList.add('is-on');
+    renderDebugPeople();
+  }
+
+  function closeDebug() {
+    var panel = $('debug-panel');
+    if (panel) panel.classList.remove('is-on');
+  }
+
+  function renderDebugPeople() {
+    var box = $('dbg-people');
+    if (!box) return;
+
+    var alive = SF.aliveAll(state);
+    if (!alive.length) {
+      box.innerHTML = '<span class="dbg-label">没有活人</span>';
+      return;
+    }
+
+    if (!dbgTarget || !SF.find(state, dbgTarget)) dbgTarget = alive[0].id;
+
+    var html = '';
+    for (var i = 0; i < alive.length; i++) {
+      var s = alive[i];
+      html += '<button type="button" class="dbg-person' +
+        (s.id === dbgTarget ? ' is-on' : '') +
+        '" data-dbg-id="' + s.id + '">' + s.name + '</button>';
+    }
+
+    box.innerHTML = html;
+  }
+
+  function debugAction(action) {
+    var s = dbgTarget ? SF.find(state, dbgTarget) : null;
+    var i;
+    var msg = '';
+
+    if (action === 'dying') {
+      if (!s) return;
+      s.hp = 5;
+      s.hunger = 95;
+      s.thirst = 95;
+      s.mood = 5;
+      msg = s.name + '：血量 5、饥饿 95、口渴 95、心情 5。';
+    } else if (action === 'sick') {
+      if (!s) return;
+      s.sick = true;
+      msg = s.name + ' 生病了。';
+    } else if (action === 'mad') {
+      if (!s) return;
+      s.mood = 0;
+      s.mad = true;
+      msg = s.name + ' 发疯了。';
+    } else if (action === 'full') {
+      var all = SF.aliveAll(state);
+      for (i = 0; i < all.length; i++) {
+        all[i].hp = 100;
+        all[i].hunger = 0;
+        all[i].thirst = 0;
+        all[i].mood = 100;
+        all[i].sick = false;
+        all[i].mad = false;
+        all[i].injured = false;
+      }
+      msg = '全员满状态。';
+    } else if (action === 'wipe') {
+      state.supplies.food = 0;
+      state.supplies.water = 0;
+      state.supplies.medicine = 0;
+      state.supplies.material = 0;
+      msg = '物资已清空。';
+    } else if (action === 'event') {
+      var ev = SF.makePersonalEvent ? SF.makePersonalEvent(state) : null;
+      if (!ev) {
+        updateHint('这次没抽到夜间事件，再点一下试试。');
+        return;
+      }
+      try {
+        SF.resolvePersonalEvent(state, {
+          day: state.day,
+          rows: [],
+          eventText: '',
+          event: ev,
+          deaths: [],
+          meds: [],
+          theft: null
+        }, ev.options && ev.options.length ? ev.options[0].key : 'ok');
+        msg = '已强制触发：' + ev.title;
+      } catch (e) {
+        msg = '事件执行失败：' + e.message;
+      }
+    } else if (action === 'restart') {
+      if (SF.clearSave) SF.clearSave();
+      window.location.reload();
+      return;
+    }
+
+    renderShelter();
+    renderDebugPeople();
+    if (msg) updateHint(msg);
+  }
+
   /* ---------------- 启动 ---------------- */
 
   function boot() {
-    state = SF.newGame();
+    var loaded = SF.loadGame ? SF.loadGame() : null;
+
+    if (loaded) {
+      state = SF.repairState ? SF.repairState(loaded) : loaded;
+      loadNoticeDay = state.day || 0;
+    } else {
+      state = SF.newGame();
+    }
+
+    nightReport = null;
     renderShelter();
     loadImages();
 
@@ -1596,6 +1722,31 @@
     $('map-grid').addEventListener('click', onMapClick);
     $('modal').addEventListener('click', onModalClick);
 
+    $('btn-debug').addEventListener('click', function (ev) {
+      if (ev) ev.stopPropagation();
+      openDebug();
+    });
+
+    $('btn-debug-close').addEventListener('click', function (ev) {
+      if (ev) ev.stopPropagation();
+      closeDebug();
+    });
+
+    $('debug-panel').addEventListener('click', function (ev) {
+      var person = elementFrom(ev.target, $('debug-panel'), 'data-dbg-id');
+      if (person) {
+        dbgTarget = person.getAttribute('data-dbg-id');
+        renderDebugPeople();
+        return;
+      }
+
+      var btn = elementFrom(ev.target, $('debug-panel'), 'data-dbg');
+      if (btn) {
+        if (ev) ev.stopPropagation();
+        debugAction(btn.getAttribute('data-dbg'));
+      }
+    });
+
     // 点空白处：放下手里的物资
     document.addEventListener('click', function (ev) {
       if (!heldItem) return;
@@ -1603,10 +1754,16 @@
       if (isInside(t, $('shelf'))) return;
       if (isInside(t, $('people'))) return;
       if (isInside(t, $('overlay'))) return;
+      if (isInside(t, $('debug-panel'))) return;
+      if (isInside(t, $('btn-debug'))) return;
       clearHold();
     });
 
     showScreen('screen-shelter');
+
+    if (loadNoticeDay) {
+      updateHint('已读取第 ' + loadNoticeDay + ' 天存档');
+    }
   }
 
   if (document.readyState === 'loading') {

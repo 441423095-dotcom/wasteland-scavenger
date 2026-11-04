@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b0e0b">
 <title>我在末日捡垃圾</title>
-<link rel="stylesheet" href="css/style.css?v=16">
+<link rel="stylesheet" href="css/style.css?v=17">
 </head>
 <body>
 <div id="app">
@@ -69,6 +69,38 @@
 
   </section>
 
+  <!-- ================= 开发者测试面板 ================= -->
+  <button type="button" class="debug-btn" id="btn-debug">🛠️ 测试</button>
+
+  <div class="debug-panel" id="debug-panel">
+    <div class="dbg-head">
+      <span>测试面板</span>
+      <button type="button" class="dbg-close" id="btn-debug-close">×</button>
+    </div>
+
+    <div class="dbg-label">选择目标</div>
+    <div class="dbg-people" id="dbg-people"></div>
+
+    <div class="dbg-row">
+      <button type="button" class="dbg-btn" data-dbg="dying">目标濒死</button>
+      <button type="button" class="dbg-btn" data-dbg="sick">目标生病</button>
+      <button type="button" class="dbg-btn" data-dbg="mad">目标发疯</button>
+    </div>
+
+    <div class="dbg-row">
+      <button type="button" class="dbg-btn" data-dbg="full">全员满状态</button>
+      <button type="button" class="dbg-btn" data-dbg="wipe">清空物资</button>
+    </div>
+
+    <div class="dbg-row">
+      <button type="button" class="dbg-btn dbg-wide" data-dbg="event">强制触发夜间事件</button>
+    </div>
+
+    <div class="dbg-row">
+      <button type="button" class="dbg-btn dbg-wide dbg-danger" data-dbg="restart">重新开始（清空存档）</button>
+    </div>
+  </div>
+
   <!-- ================= 弹窗 ================= -->
   <div class="overlay" id="overlay">
     <div class="modal" id="modal"></div>
@@ -76,10 +108,11 @@
 
 </div>
 
-<script src="js/config.js?v=16"></script>
-<script src="js/game.js?v=16"></script>
-<script src="js/art.js?v=16"></script>
-<script src="js/sfx.js?v=16"></script>
-<script src="js/ui.js?v=16"></script>
+<script src="js/config.js?v=17"></script>
+<script src="js/game.js?v=17"></script>
+<script src="js/art.js?v=17"></script>
+<script src="js/sfx.js?v=17"></script>
+<script src="js/save.js?v=17"></script>
+<script src="js/ui.js?v=17"></script>
 </body>
 </html>
