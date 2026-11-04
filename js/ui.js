@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v51';
+  var BUILD = 'v52';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -37,7 +37,7 @@
         var h = img.naturalHeight || img.height;
 
         // 游戏里最大也就显示一百多像素，先缩小再处理，省内存也省时间
-        var cap = 256;
+        var cap = src.indexOf('scene') >= 0 ? 1024 : 256;
         if (w > cap || h > cap) {
           var scale = Math.min(cap / w, cap / h);
           w = Math.round(w * scale);
