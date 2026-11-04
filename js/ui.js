@@ -285,15 +285,10 @@
     html += '<div class="shelf-sec"><span class="shelf-label">特殊道具</span>' +
       '<div class="shelf-row">' + special + '</div></div>';
 
-    if (heldItem) {
-      var label = heldItem === 'food' ? '食物：恢复 50 点饥饿，铁柱需要两份。'
-        : (heldItem === 'water' ? '水：恢复 50 点口渴。'
-          : '药品：治好生病并恢复 30 点血量。');
-      html += '<div class="hold-tip">' + label + '</div>';
-    }
-
     $('shelf').innerHTML = html;
   }
+
+  function shelfSlotOld() {}
 
   /* 没拿到就是灰色虚线空槽，拿到了才是彩色图标 */
   function shelfSlot(sl) {
@@ -1315,13 +1310,13 @@
   }
 
   function itemDesc(key) {
-    if (key === 'food') return '【食物】：吃下去恢复 50 点饥饿，铁柱一次要吃两份。';
-    if (key === 'water') return '【饮用水】：饮用后恢复 50 点口渴值。';
-    if (key === 'medicine') return '【药品】：治好生病并恢复 30 点血量。';
-    if (key === 'material') return '【木板】：修补窗户、钉死大门、生火取暖，探索时也能搭桥。';
-    if (key === 'flashlight') return '【手电筒】：装备后探索仓库等暗处，物资收益增加。';
-    if (key === 'weapon') return '【武器】：警局必备，也能在探索里当撬棍换零件。';
-    if (key === 'radio') return '【收音机】：修好后能收到军方救援情报，也是进入警局的前提。';
+    if (key === 'food') return '【食物：食用后恢复 50 点饥饿值】';
+    if (key === 'water') return '【水：饮用后恢复 50 点口渴值】';
+    if (key === 'medicine') return '【药品：治好生病并恢复 30 点血量】';
+    if (key === 'material') return '【木板：修补窗户、钉死大门、生火取暖】';
+    if (key === 'flashlight') return '【手电筒：探索暗处时物资收益增加】';
+    if (key === 'weapon') return '【武器：警局必备，也能当撬棍】';
+    if (key === 'radio') return '【收音机：修好后能收到军方情报】';
     return '';
   }
 

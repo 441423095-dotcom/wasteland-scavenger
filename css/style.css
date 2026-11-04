@@ -5623,3 +5623,38 @@ button.inv-ghost {
   font-size: 8.5px;
   letter-spacing: 0.8px;
 }
+
+
+
+/* ============ v78：唯一一行白色提示文字 ============ */
+
+.center-tip {
+  position: absolute;
+  left: auto;
+  right: 14px;
+  top: 268px;
+  transform: none;
+  z-index: 12;
+  max-width: 230px;
+  padding: 0;
+  font-size: 11px;
+  line-height: 1.7;
+  text-align: right;
+  color: #ffffff;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0;
+  box-shadow: none !important;
+  text-shadow: 0 1px 3px #000, 0 0 8px rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s linear;
+}
+
+.center-tip.is-on {
+  opacity: 1;
+}
+
+.hold-tip {
+  display: none !important;
+}
