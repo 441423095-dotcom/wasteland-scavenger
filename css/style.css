@@ -5106,3 +5106,11 @@ button.inv-ghost {
 .diary:focus {
   transform: translateY(-1px);
 }
+
+
+
+/* ============ v71：日志本再下移 5% ============ */
+
+.diary {
+  top: 370px;
+}
