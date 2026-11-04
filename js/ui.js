@@ -219,10 +219,8 @@
       var canFeed = key === 'food' || key === 'water';
 
       if (canFeed) {
-        html += '<button type="button" class="inv-cell' +
-          (n <= 0 ? ' is-empty' : '') +
-          (heldItem === key ? ' is-hold' : '') +
-          '" data-hold="' + key + '">' +
+        html += '<button type="button" id="hold-' + key + '" class="inv-cell' +
+          (n <= 0 ? ' is-empty' : '') + '" data-hold="' + key + '">' +
           '<span class="inv-ico">' + SF.itemSvg(key, 40) + '</span>' +
           '<span class="inv-meta">' +
           '<span class="inv-num">' + (Math.round(n * 10) / 10) + '</span>' +
@@ -490,9 +488,9 @@
       if (!m.eat || !m.drink) hungry += 1;
     }
 
-    if (!hungry) return '今天所有人都吃过了，点「结束今天」睡觉。';
+    if (!hungry) return '今天所有人都吃过了，点「结束今天」睡觉。 · v11';
 
-    return '点右上角的食物或水，再点人投喂。还有 ' + hungry + ' 人没吃没喝。';
+    return '点右上角的食物或水，再点人投喂。还有 ' + hungry + ' 人没吃没喝。 · v11';
   }
 
   function renderShelter() {
@@ -525,7 +523,10 @@
     $('btn-repair').disabled = !anyAp;
     $('btn-talk').disabled = !anyAp;
 
-    $('hintbar').textContent = dayHint();
+    // 直接给图标和名片绑点击，再按当前选中的物资刷一遍样式
+    paintHold();
+    bindFastTaps();
+    updateHint();
   }
 
   /* ---------------- 地图 ---------------- */
@@ -989,11 +990,11 @@
       'modal-gear');
   }
 
-  /* 库存面板：点物资图标拿起/放下，点特殊道具看详情 */
+  /* 库存面板：点物资图标拿起/放下（备用委托），点特殊道具看详情 */
   function onShelfClick(ev) {
     var hold = elementFrom(ev.target, $('shelf'), 'data-hold');
     if (hold) {
-      toggleHold(hold.getAttribute('data-hold'));
+      pickItem(hold.getAttribute('data-hold'));
       return;
     }
 
@@ -1088,6 +1089,7 @@
   // 刚喂过的人：卡片闪一下
   var flashId = null;
   var hintTimer = 0;
+  var lastPickAt = 0;
 
   function isInside(el, node) {
     while (el && el.nodeType === 1) {
@@ -1097,76 +1099,159 @@
     return false;
   }
 
-  /* 底部提示条：临时换成操作反馈，过一会儿恢复 */
-  function showToast(text, bad) {
+  /* 直接用 style 点亮 / 熄灭右上角的图标，不依赖任何类名 */
+  function paintHold() {
+    var keys = ['food', 'water'];
+    var i;
+
+    for (i = 0; i < keys.length; i++) {
+      var el = document.getElementById('hold-' + keys[i]);
+      if (!el) continue;
+
+      el.style.pointerEvents = 'auto';
+
+      if (heldItem === keys[i]) {
+        el.style.border = '4px solid #ffeb3b';
+        el.style.boxShadow = '0 0 12px #ffeb3b';
+        el.style.background = 'rgba(255, 235, 59, 0.3)';
+        el.style.zIndex = '60';
+      } else {
+        el.style.border = '1px solid rgba(255, 255, 255, 0.12)';
+        el.style.boxShadow = 'none';
+        el.style.background = 'rgba(255, 255, 255, 0.05)';
+        el.style.zIndex = '';
+      }
+    }
+  }
+
+  /* 底部提示：选中物资时是红色的“请点击人物” */
+  function updateHint(message) {
     var bar = $('hintbar');
     if (!bar) return;
 
-    bar.textContent = text;
-    bar.className = bad ? 'hintbar is-bad' : 'hintbar is-good';
-
-    if (hintTimer) window.clearTimeout(hintTimer);
-    hintTimer = window.setTimeout(function () {
+    if (hintTimer) {
+      window.clearTimeout(hintTimer);
       hintTimer = 0;
-      bar.className = 'hintbar';
-      bar.textContent = dayHint();
-    }, 1800);
+    }
+
+    if (heldItem) {
+      bar.textContent = '【当前已选中' + (heldItem === 'food' ? '食物' : '水') +
+        '，请点击人物】';
+      bar.style.color = '#ff5252';
+      bar.style.fontWeight = '700';
+      return;
+    }
+
+    bar.style.color = '';
+    bar.style.fontWeight = '';
+    bar.textContent = message || dayHint();
+
+    if (message) {
+      hintTimer = window.setTimeout(function () {
+        hintTimer = 0;
+        if (heldItem) return;
+        var b = $('hintbar');
+        if (b) b.textContent = dayHint();
+      }, 1600);
+    }
+  }
+
+  /* 图标和名片：直接在元素上绑 click，不走冒泡 */
+  function bindFastTaps() {
+    var keys = ['food', 'water'];
+    var i;
+
+    for (i = 0; i < keys.length; i++) {
+      (function (key) {
+        var el = document.getElementById('hold-' + key);
+        if (!el) return;
+
+        el.style.pointerEvents = 'auto';
+        el.onclick = function (ev) {
+          if (ev) ev.stopPropagation();
+          pickItem(key);
+        };
+      })(keys[i]);
+    }
+
+    var cards = document.querySelectorAll('.mini-card');
+    for (i = 0; i < cards.length; i++) {
+      (function (el) {
+        el.style.pointerEvents = 'auto';
+        el.onclick = function (ev) {
+          if (ev) ev.stopPropagation();
+          onPersonTap(el.getAttribute('data-id'));
+        };
+      })(cards[i]);
+    }
   }
 
   /* 点物资图标：拿起来 / 放回去 */
-  function toggleHold(item) {
-    if (heldItem === item) {
+  function pickItem(key) {
+    var now = Date.now();
+    // 一次点击只处理一次，避免冒泡和直接绑定各触发一遍
+    if (now - lastPickAt < 260) return;
+    lastPickAt = now;
+
+    if (heldItem === key) {
       heldItem = null;
-      renderShelf();
-      renderPeople();
-      showToast('把' + (item === 'food' ? '食物' : '水') + '放回了库存。');
+      renderShelter();
+      updateHint('把手里的东西放回了库存。');
       return;
     }
 
-    if ((state.supplies[item] || 0) <= 0) {
-      showToast((item === 'food' ? '食物' : '水') + '已经用完了。', true);
+    if ((state.supplies[key] || 0) <= 0) {
+      updateHint((key === 'food' ? '食物' : '水') + '已经用完了。');
       return;
     }
 
-    heldItem = item;
-    renderShelf();
-    renderPeople();
-    showToast('手里拿着' + (item === 'food' ? '食物' : '水') +
-      ' —— 点左边的人递给他。');
+    heldItem = key;
+    renderShelter();
+    updateHint();
   }
 
   /* 点空白处：把手里的东西放回去 */
   function clearHold() {
     if (!heldItem) return;
-
     heldItem = null;
-    renderShelf();
-    renderPeople();
-
-    $('hintbar').className = 'hintbar';
-    $('hintbar').textContent = dayHint();
+    renderShelter();
   }
 
   /* 喂一个人：库存当场扣掉，卡片闪一下 */
   function feedPerson(id) {
+    if (!heldItem) return;
+
     var res = SF.feed(state, id, heldItem);
 
     if (!res.ok) {
-      showToast(res.msg || '不行。', true);
+      updateHint(res.msg || '不行。');
       return;
     }
 
     heldItem = null; // 投喂完成自动放下
+    flashId = id;
 
     renderShelter();
-    flashId = id;
-    renderPeople();
-
-    showToast(res.msg);
+    updateHint(res.msg);
 
     window.setTimeout(function () {
       if (flashId === id) flashId = null;
     }, 700);
+  }
+
+  /* 点名片：手里有东西就喂，否则打开人物面板 */
+  function onPersonTap(id) {
+    var s = SF.find(state, id);
+    if (!s || !s.alive) return;
+
+    if (heldItem) {
+      feedPerson(id);
+      return;
+    }
+
+    state.leaderId = s.id;
+    renderShelter();
+    openDetail(s.id);
   }
 
   /* 「结束今天」：按今天已经喂过的人直接结算，不再弹分配窗 */
@@ -1452,6 +1537,14 @@
     state = SF.newGame();
     renderShelter();
     loadImages();
+
+    // 库存和人物面板压在最上面，弹窗再压在它们上面
+    $('shelf').style.zIndex = '30';
+    $('shelf').style.pointerEvents = 'auto';
+    $('shelf').style.maxWidth = '52vw';
+    $('people').style.zIndex = '30';
+    $('people').style.pointerEvents = 'auto';
+    $('overlay').style.zIndex = '100';
 
     $('btn-explore').addEventListener('click', onExplore);
     $('btn-status').addEventListener('click', openRoster);
