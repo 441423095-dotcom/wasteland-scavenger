@@ -808,7 +808,13 @@ SF.SUPPLIES = [
       }
     }
 
-    report.event = makePersonalEvent(state);
+    // 夜间事件只是个点缀，绝不能因为它让整晚结算崩掉
+    try {
+      report.event = SF.makePersonalEvent ? SF.makePersonalEvent(state) : null;
+    } catch (e) {
+      report.event = null;
+    }
+
     return report;
   };
 
@@ -1320,9 +1326,12 @@ SF.SUPPLIES = [
       target.mood = SF.clamp(target.mood - 6, 0, C.maxStat);
       lines.push(target.name + '被咬伤，血量 −15。');
     } else if (ev.id === 'rage' && target) {
-      if (!removeOne(state, 'material')) removeOne(state, 'food');
-      allMood(state, -5);
-      lines.push(target.name + '砸了一通东西，物资少了一份，所有人都被吵得心情 −5。');
+      var stole = removeOne(state, 'food');
+      target.mood = SF.clamp(target.mood - 8, 0, C.maxStat);
+      allMood(state, -3);
+      lines.push(stole
+        ? target.name + ' 半夜饿得受不了，偷偷吃了一份食物，心情大跌，所有人都没吃好。'
+        : target.name + ' 饿得在墙角砸了一通，什么也没找到，所有人都被吵得心情不好。');
     } else if (ev.id === 'theft') {
       if (state.defense > 0 || (state.supplies.material || 0) >= C.material.guardCost * 2) {
         lines.push('门被顶得死死的，盗贼转了两圈就走了。');
@@ -1351,6 +1360,9 @@ SF.SUPPLIES = [
     report.event = null;
     return report;
   };
+
+  // 暴露出去，给主结算函数调用
+  SF.makePersonalEvent = makePersonalEvent;
 })();
 
 
@@ -1364,6 +1376,16 @@ SF.SUPPLIES = [
       if (alive[i].ap > 0 && !alive[i].mad) return true;
     }
     return false;
+  };
+
+  // 能不能出门：只看行动点和血量，饿/渴/心情差不影响
+  SF.canExplore = function (state) {
+    var alive = SF.aliveAll(state);
+    for (var i = 0; i < alive.length; i++) {
+      var s = alive[i];
+      if (s.ap > 0 && !s.mad && s.hp >= 20) return s;
+    }
+    return null;
   };
 
   SF.bath = function (state, id) {

@@ -139,11 +139,11 @@ SF.CONFIG = {
     foodPerPerson: 1,
     waterPerPerson: 1,
 
-    // 没分到吃的/喝的：先按 10 点掉血；连续 3 晚没吃上，惩罚才加重
-    starveHp: 10,
-    thirstHp: 10,
+    // 没分到吃的/喝的：先按 8 点掉血；连续 3 晚没吃上，惩罚才加重
+    starveHp: 8,
+    thirstHp: 8,
     streakAt: 3,             // 连续挨饿/挨渴到第几晚开始加重
-    streakHp: 20,            // 连续挨饿/挨渴之后的每夜掉血
+    streakHp: 15,            // 连续挨饿/挨渴之后的每夜掉血
     streakMood: 8,           // 连续挨饿/挨渴之后的心情下降
 
     hungerUp: 38,
@@ -170,9 +170,9 @@ SF.CONFIG = {
   // ---------- 材料与防贼 ----------
   material: {
     guardCost: 1,             // 至少留这么多材料才算堵好门
-    theftChance: 0.45,        // 材料不够时夜里被偷的概率
-    theftFood: 2,
-    theftWater: 2
+    theftChance: 0.30,        // 材料不够时夜里被偷的概率
+    theftFood: 1,
+    theftWater: 1
   },
 
   // ---------- 救援倒计时 ----------
@@ -205,7 +205,7 @@ SF.CONFIG = {
 
   events: {
     nightChance: 0.55,     // 每晚触发事件的概率
-    nightFoodSteal: 2,     // 强盗/老鼠带走的食物
+    nightFoodSteal: 1,     // 强盗/老鼠带走的食物
     feverHpLoss: 15
   },
 

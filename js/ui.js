@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v13';
+  var BUILD = 'v14';
 
   // 货架上固定摆这四层
   var SHELF_ITEMS = ['food', 'water', 'medicine', 'material'];
@@ -493,6 +493,7 @@
     var alive = SF.aliveAll(state);
     var exploreBtn = $('btn-explore');
     var anyAp = SF.anyAp(state);
+    var scout = SF.canExplore ? SF.canExplore(state) : null;
 
     if (!alive.length) {
       exploreBtn.disabled = true;
@@ -503,8 +504,9 @@
       $('btn-status').disabled = false;
       $('btn-night').disabled = false;
 
-      exploreBtn.disabled = !anyAp;
-      exploreBtn.textContent = anyAp ? '出门探索' : '没有力气了';
+      // 只有血量低于 20 才算虚弱；饿、渴、心情差都不锁按钮
+      exploreBtn.disabled = !scout;
+      exploreBtn.textContent = scout ? '出门探索' : '今天都动不了了';
     }
 
     $('btn-clean').disabled = !anyAp || (state.supplies.water || 0) < 1;
@@ -1505,7 +1507,7 @@
 
   function onExplore() {
     if (!SF.aliveAll(state).length) return;
-    if (!SF.anyAp(state)) return;
+    if (!SF.canExplore(state)) return;
 
     closeModal();
     renderMap();
