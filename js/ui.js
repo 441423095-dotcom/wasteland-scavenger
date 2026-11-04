@@ -134,6 +134,13 @@
       });
     }
 
+    var diaryImg = $('diary-img');
+    if (diaryImg) {
+      keyWhite(diaryImg.getAttribute('src'), function (url) {
+        diaryImg.src = url;
+      });
+    }
+
     var idx = 0;
 
     function nextPortrait() {
