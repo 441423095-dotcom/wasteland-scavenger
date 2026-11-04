@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v44';
+  var BUILD = 'v45';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -227,12 +227,12 @@
         html += '<button type="button" id="hold-' + key + '" class="inv-cell' +
           (n <= 0 ? ' is-empty' : '') + '" data-hold="' + key + '" title="' +
           SF.SUPPLIES[i].name + '">' +
-          '<span class="inv-ico">' + SF.itemSvg(key, 28) + '</span>' +
+          '<span class="inv-ico">' + SF.itemSvg(key, 30) + '</span>' +
           '<span class="inv-num">' + Math.round(n) + '</span>' +
           '</button>';
       } else {
         html += '<span class="inv-cell' + (n <= 0 ? ' is-empty' : '') + '">' +
-          '<span class="inv-ico">' + SF.itemSvg(key, 28) + '</span>' +
+          '<span class="inv-ico">' + SF.itemSvg(key, 30) + '</span>' +
           '<span class="inv-num">' + Math.round(n) + '</span>' +
           '</span>';
       }
@@ -240,10 +240,10 @@
     html += '</span></div>';
 
     var slots = [
-      { key: 'radio', tip: '收音机 - 修好后能收到军方救援情报。', has: state.items.radio, worn: false },
-      { key: 'mask', tip: '防毒面具 - 进入废弃医院的必需品。', has: state.items.gasMask, worn: gearWorn('mask') },
-      { key: 'flashlight', tip: '手电筒 - 可在城郊仓库大幅增加收益。', has: state.items.flashlight, worn: gearWorn('torch') },
-      { key: 'weapon', tip: '武器 - 警局必备，也可在探索中当撬棍。', has: state.items.weapon, worn: gearWorn('weapon') }
+      { key: 'radio', label: '收音机', tip: '收音机 - 修好后能收到军方救援情报。', has: state.items.radio, worn: false },
+      { key: 'mask', label: '面具', tip: '防毒面具 - 进入废弃医院的必需品。', has: state.items.gasMask, worn: gearWorn('mask') },
+      { key: 'flashlight', label: '手电', tip: '手电筒 - 可在城郊仓库大幅增加收益。', has: state.items.flashlight, worn: gearWorn('torch') },
+      { key: 'weapon', label: '武器', tip: '武器 - 警局必备，也可在探索中当撬棍。', has: state.items.weapon, worn: gearWorn('weapon') }
     ];
 
     html += '<div class="shelf-line"><span class="shelf-tag">特殊道具</span><span class="inv-grid">';
@@ -259,14 +259,19 @@
     $('shelf').innerHTML = html;
   }
 
-  /* 没拿到的道具画灰色剪影，拿到了变彩色 */
+  /* 没拿到就是灰色虚线空槽，拿到了才是彩色图标 */
   function shelfSlot(sl) {
-    return '<button type="button" class="inv-cell inv-tool' +
-      (sl.has ? ' is-on' : ' is-ghost') + '" data-item="' + sl.key +
+    if (!sl.has) {
+      return '<button type="button" class="inv-cell inv-tool is-ghost" data-item="' +
+        sl.key + '" title="' + sl.tip + '">' +
+        '<span class="ghost-label">' + sl.label + '</span>' +
+        '</button>';
+    }
+
+    return '<button type="button" class="inv-cell inv-tool is-on" data-item="' + sl.key +
       '" title="' + sl.tip + '">' +
-      '<span class="inv-ico">' + SF.icon(sl.key === 'flashlight' ? 'flashlight' :
-        (sl.key === 'mask' ? 'mask' : sl.key), 26) + '</span>' +
-      (sl.has && sl.worn ? '<i class="inv-dot"></i>' : '') +
+      '<span class="inv-ico">' + SF.icon(sl.key, 30) + '</span>' +
+      (sl.worn ? '<i class="inv-dot"></i>' : '') +
       '</button>';
   }
 
