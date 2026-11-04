@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v72';
+  var BUILD = 'v73';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -232,51 +232,49 @@
 
   function renderShelf() {
     var html = '';
+    var tilts = [-6, 4, -3, 7, 3, -5, 6, -4];
+    var tIdx = 0;
 
-    var supplyCells = '';
-    for (var i = 0; i < SF.SUPPLIES.length; i++) {
-      var key = SF.SUPPLIES[i].key;
-      var n = state.supplies[key] || 0;
-      var canFeed = key === 'food' || key === 'water' || key === 'medicine';
-      var ico = '<span class="inv-ico">' + SF.itemSvg(key, 42) + '</span>';
-      var num = '<span class="inv-num">' + Math.round(n) + '</span>';
-      var held = heldItem === key ? ' is-held' : '';
+    function cell(key, n, kind) {
+      var rot = tilts[tIdx % tilts.length];
+      tIdx += 1;
+      var cls = 'inv-cell' + (n <= 0 ? ' is-empty' : '') +
+        (heldItem === key ? ' is-held' : '');
+      var inner = '<span class="inv-ico">' + SF.itemSvg(key, 42) + '</span>' +
+        '<span class="inv-num">' + Math.round(n) + '</span>';
 
-      if (canFeed) {
-        supplyCells += '<button type="button" id="hold-' + key + '" class="inv-cell' +
-          (n <= 0 ? ' is-empty' : '') + held + '" data-hold="' + key + '" title="' +
-          SF.SUPPLIES[i].name + '">' + ico + num + '</button>';
-      } else {
-        supplyCells += '<button type="button" class="inv-cell' +
-          (n <= 0 ? ' is-empty' : '') +
-          '" data-item="material" title="木板">' + ico + num + '</button>';
+      if (kind === 'hold') {
+        return '<button type="button" id="hold-' + key + '" class="' + cls +
+          '" data-hold="' + key + '" style="transform:rotate(' + rot + 'deg)">' +
+          inner + '</button>';
       }
+
+      return '<button type="button" class="' + cls + '" data-item="' + key +
+        '" style="transform:rotate(' + rot + 'deg)">' + inner + '</button>';
     }
 
-    var slots = [
-      { key: 'radio', label: '收音机', tip: '【收音机】：修好后能收到军方救援情报，也是进入警局的前提。', has: state.items.radio, worn: false },
-      { key: 'mask', label: '面具', tip: '【防毒面具】：进入废弃医院的必需品，也能减少探索时染病。', has: state.items.gasMask, worn: gearWorn('mask') },
-      { key: 'flashlight', label: '手电', tip: '【手电筒】：装备后探索仓库等暗处，物资收益增加。', has: state.items.flashlight, worn: gearWorn('torch') },
-      { key: 'weapon', label: '武器', tip: '【武器】：警局必备，也能在探索里当撬棍换零件。', has: state.items.weapon, worn: gearWorn('weapon') }
-    ];
+    var basics = '';
+    var gear = '';
+    var special = '';
 
-    var toolCells = '';
-    for (var si = 0; si < slots.length; si++) toolCells += shelfSlot(slots[si]);
+    basics += cell('food', state.supplies.food || 0, 'hold');
+    basics += cell('water', state.supplies.water || 0, 'hold');
+    basics += cell('medicine', state.supplies.medicine || 0, 'hold');
+    basics += cell('material', state.supplies.material || 0, 'info');
 
-    html += '<div class="shelf-sec">' +
-      '<span class="shelf-label">物资</span>' +
-      '<div class="shelf-row">' + supplyCells + '</div>' +
-      '</div>';
+    gear += cell('flashlight', state.items.flashlight ? 1 : 0, 'info');
+    gear += cell('weapon', state.items.weapon ? 1 : 0, 'info');
 
-    html += '<div class="shelf-sec">' +
-      '<span class="shelf-label">特殊道具</span>' +
-      '<div class="shelf-row">' + shelfSlot(slots[0]) + shelfSlot(slots[1]) + '</div>' +
-      '</div>';
+    special += cell('radio', state.items.radio ? 1 : 0, 'info');
 
-    html += '<div class="shelf-sec">' +
-      '<span class="shelf-label">武器装备</span>' +
-      '<div class="shelf-row">' + shelfSlot(slots[2]) + shelfSlot(slots[3]) + '</div>' +
-      '</div>';
+    html += '<div class="shelf-sec"><span class="shelf-label">基础物资</span>' +
+      '<div class="shelf-row">' + basics + '</div></div>';
+
+    html += '<div class="shelf-sec"><span class="shelf-label">武器装备</span>' +
+      '<div class="shelf-row">' + gear + '</div></div>';
+
+    html += '<div class="shelf-sec"><span class="shelf-label">特殊道具</span>' +
+      '<div class="shelf-row">' + special + '</div></div>';
 
     if (heldItem) {
       var label = heldItem === 'food' ? '食物：恢复 50 点饥饿，铁柱需要两份。'
@@ -1281,6 +1279,9 @@
     else if (key === 'radioBroken') tryRepair();
     else if (key === 'pesticide') openPesticide();
     else if (key === 'cards') openGearInfo('扑克牌', '只要它在避难所里，所有人每天的心情恢复都会更快。');
+    else if (key === 'food') openGearInfo('食物', '罐头或面包。点它再点人即可投喂：恢复 50 点饥饿。铁柱一次要吃两份。');
+    else if (key === 'water') openGearInfo('水', '干净的水。点它再点人即可投喂：恢复 50 点口渴。');
+    else if (key === 'medicine') openGearInfo('药品', '止疼药与抗生素。点它再点生病的人：治好生病并恢复 30 点血量。');
     else if (key === 'material') openGearInfo('木板', '重要的建筑材料，夜里可以用来修补漏风的窗户、钉死大门，探索时也能搭桥或当撬棍。');
     else if (key === 'flashlight') openGearInfo('手电筒', '装备后探索仓库等暗处，物资收益增加。出发前给队员穿上。');
     else if (key === 'gasMask') openGearInfo('防毒面具', '进入废弃医院的必需品，也能防止探索时染病。');
@@ -1516,7 +1517,7 @@
     return '药品';
   }
 
-  /* 点物资图标：拿起来 / 放回去 */
+  /* 点物资图标：消耗品可以拿起来，同时所有物资都会弹说明 */
   function pickItem(key) {
     var now = Date.now();
     // 一次点击只处理一次，避免冒泡和直接绑定各触发一遍
@@ -1526,18 +1527,19 @@
     if (heldItem === key) {
       heldItem = null;
       renderShelter();
-      updateHint('把手里的东西放回了库存。');
+      openGear(key);
       return;
     }
 
     if ((state.supplies[key] || 0) <= 0) {
-      updateHint(holdLabel(key) + ' 已经用完了。');
+      openGear(key);
       return;
     }
 
     heldItem = key;
     renderShelter();
     updateHint();
+    openGear(key);
     if (SF.sfx && SF.sfx.pick) SF.sfx.pick();
   }
 
