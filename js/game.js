@@ -814,29 +814,38 @@ SF.SUPPLIES = [
     if ((haul.material || 0) > 4) haul.material = 4;
 
     // 第二层起：可能遇到必须消耗物资才能通过的关卡
-    if (depth >= 2 && roll(0.35)) {
-      var gateKind = pickOne(['fence', 'mother', 'generator']);
+    if (depth >= 2 && roll(0.5)) {
+      var gateKind = pickOne([
+        'fence', 'mother', 'generator', 'pit', 'fireDoor', 'wound', 'dust', 'dog', 'survivor'
+      ]);
+      var gateAlive = SF.aliveAll(state);
 
-      if (gateKind === 'fence') {
-        if ((state.supplies.material || 0) >= 2) {
-          state.supplies.material = Math.max(0, Math.round(state.supplies.material - 2));
+      if (gateKind === 'fence' || gateKind === 'fireDoor' || gateKind === 'pit') {
+        var needMat = gateKind === 'pit' ? 2 : 2;
+        var gname = gateKind === 'fence' ? '倒塌的铁栅栏' : (gateKind === 'fireDoor' ? '被重物卡死的防火门' : '塌陷的深坑');
+        var actor = party[0];
+
+        if ((state.supplies.material || 0) >= needMat) {
+          state.supplies.material = Math.max(0, Math.round(state.supplies.material - needMat));
           giveHaul(haul, 'medicine', 1);
-          result.lines.push('前面被倒塌的铁栅栏挡住了，你们用 2 块木板做了踏板过去，' +
-            '顺手摸到一份药。（木板 -2，药品 +1）');
+          result.lines.push(gname + '挡在前面，你们用 ' + needMat +
+            ' 块木板搭了个临时通道过去，顺手摸到一份药。（木板 -' + needMat + '，药品 +1）');
         } else {
-          result.lines.push('前面被倒塌的铁栅栏挡住了，木板不够，只能强行撤退。（木板不足）');
+          for (i = 0; i < gateAlive.length; i++) {
+            gateAlive[i].mood = clamp(gateAlive[i].mood - 6, 0, C.maxStat);
+          }
+          result.lines.push('因为找不到木板，' + actor.name + '只能眼睁睁看着对面的物资，狠狠锤了一下墙。（全员心情 -6）');
         }
       } else if (gateKind === 'mother') {
         if ((state.supplies.food || 0) >= 1) {
           state.supplies.food = Math.max(0, Math.round(state.supplies.food - 1));
-          for (i = 0; i < alive.length; i++) {
-            alive[i].mood = clamp(alive[i].mood + 10, 0, C.maxStat);
+          for (i = 0; i < gateAlive.length; i++) {
+            gateAlive[i].mood = clamp(gateAlive[i].mood + 10, 0, C.maxStat);
           }
-          result.lines.push('一个抱着孩子的女人在路边乞求，你给了她 1 份食物。' +
-            '她低着头走开，你们的心情反而好了一点。（食物 -1，全员心情 +10）');
+          result.lines.push('一个抱着孩子的女人在路边乞求，你给了她 1 份食物。（食物 -1，全员心情 +10）');
         } else {
-          for (i = 0; i < alive.length; i++) {
-            alive[i].mood = clamp(alive[i].mood - 10, 0, C.maxStat);
+          for (i = 0; i < gateAlive.length; i++) {
+            gateAlive[i].mood = clamp(gateAlive[i].mood - 10, 0, C.maxStat);
           }
           var chased = pickOne(party);
           chased.hp = clamp(chased.hp - 20, 0, C.maxStat);
@@ -845,7 +854,45 @@ SF.SUPPLIES = [
           result.lines.push('你们没有东西给她，她的哭声引来了丧尸，' + chased.name +
             '被追着咬伤。（全员心情 -10，' + chased.name + ' 血量 -20）');
         }
-      } else {
+      } else if (gateKind === 'wound' || gateKind === 'dust') {
+        var hurtOne = pickOne(party);
+
+        if ((state.supplies.water || 0) >= 1) {
+          state.supplies.water = Math.max(0, Math.round(state.supplies.water - 1));
+          result.lines.push((gateKind === 'wound'
+            ? hurtOne.name + '的腿被划开一道口子，你们用 1 瓶水冲干净了伤口。'
+            : '这里的灰尘呛得人无法呼吸，你们用 1 瓶水打湿布条捂住口鼻才继续往里走。') +
+            '（水 -1）');
+        } else {
+          hurtOne.hp = clamp(hurtOne.hp - 30, 0, C.maxStat);
+          hurtOne.sick = true;
+          hurtOne.injured = true;
+          result.injured.push({ name: hurtOne.name, hp: 30 });
+          result.lines.push('没有水给' + hurtOne.name + '冲洗，林晓只能撕下自己的衣服内衬帮他包扎。' +
+            hurtOne.name + '咬着牙，疼得满头大汗。（' + hurtOne.name + ' 血量 -30，已发烧）');
+        }
+      } else if (gateKind === 'dog') {
+        if ((state.supplies.water || 0) >= 1) {
+          state.supplies.water = Math.max(0, Math.round(state.supplies.water - 1));
+          giveHaul(haul, 'food', 1);
+          result.lines.push('一只瘦骨嶙峋的狗挡在路口，你们给了它 1 瓶水。' +
+            '它摇着尾巴带你们绕到后面，那里有半袋吃的。（水 -1，食物 +1）');
+        } else {
+          result.lines.push('一只瘦骨嶙峋的狗挡在路口，你们连水都没有，只能绕远路。');
+        }
+      } else if (gateKind === 'survivor') {
+        if ((state.supplies.food || 0) >= 1) {
+          state.supplies.food = Math.max(0, Math.round(state.supplies.food - 1));
+          result.deepBonus = true;
+          result.lines.push('一个瘦脱相的男人求你们给口吃的，他愿意用情报交换。' +
+            '（食物 -1，下一层物资翻倍）');
+        } else {
+          for (i = 0; i < gateAlive.length; i++) {
+            gateAlive[i].mood = clamp(gateAlive[i].mood - 10, 0, C.maxStat);
+          }
+          result.lines.push('你们连一口吃的都拿不出来，只能低着头从他身边走过。（全员心情 -10）');
+        }
+      } else if (gateKind === 'generator') {
         var armed = null;
         for (i = 0; i < party.length; i++) {
           if (party[i].hasWeapon) armed = party[i];

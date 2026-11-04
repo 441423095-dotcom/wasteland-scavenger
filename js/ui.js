@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v38';
+  var BUILD = 'v39';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -908,7 +908,22 @@
     timer = window.setTimeout(function () {
       timer = 0;
       searching = false;
-      lastReport = SF.explore(state, locId, partyIds, raidDepth);
+
+      try {
+        lastReport = SF.explore(state, locId, partyIds, raidDepth);
+      } catch (e) {
+        lastReport = {
+          location: loc,
+          partyNames: [],
+          loot: [],
+          lines: ['这次的路线出了岔子，你们什么都没摸到就撤了回来。'],
+          injured: [],
+          item: null,
+          choice: null,
+          depth: raidDepth
+        };
+      }
+
       lastReport.depth = raidDepth;
 
       if (raidDepth === 1) raidTotals = {};
@@ -947,7 +962,9 @@
       '</div>';
 
     for (var i = 0; i < r.lines.length; i++) {
-      html += '<p class="log-line">' + r.lines[i] + '</p>';
+      var lineText = String(r.lines[i]).replace(/（([^）]*)）/g,
+        '<span class="story-note">（$1）</span>');
+      html += '<p class="log-line">' + lineText + '</p>';
     }
 
     html += '<div class="res-label">带回来的东西</div>';

@@ -3483,3 +3483,21 @@ body {
 .mini-over-btn:active {
   background: #1a1e1a;
 }
+
+
+
+/* ============ v39：赛博色高亮数值 ============ */
+
+.story-note {
+  display: inline-block;
+  padding: 0 4px;
+  font-size: 12px;
+  color: #57f2c8;
+  background: rgba(87, 242, 200, 0.08);
+  border: 1px solid rgba(87, 242, 200, 0.35);
+  border-radius: 3px;
+}
+
+.log-line {
+  color: #eceee8;
+}
