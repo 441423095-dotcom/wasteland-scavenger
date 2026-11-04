@@ -2853,3 +2853,18 @@ body {
   border-color: rgba(224, 87, 66, 0.6);
   background: rgba(224, 87, 66, 0.18);
 }
+
+
+
+/* ============ v19：夜间事件日志 ============ */
+
+.night-story {
+  margin: 6px 0;
+  padding: 8px 10px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: #d9e3d0;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid rgba(156, 201, 122, 0.7);
+  border-radius: 0 4px 4px 0;
+}

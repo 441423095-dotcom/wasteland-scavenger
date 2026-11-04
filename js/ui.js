@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v18';
+  var BUILD = 'v19';
 
   // 货架上固定摆这四层
   var SHELF_ITEMS = ['food', 'water', 'medicine', 'material'];
@@ -519,7 +519,7 @@
       if (!m.eat || !m.drink) hungry += 1;
     }
 
-    if (!hungry) return '所有人都已进食，点「结束今天」睡觉。 · ' + BUILD;
+    if (!hungry) return '全员已进食，点「结束今天」睡觉。 · ' + BUILD;
 
     if (noFood && noWater) {
       return '点右上角的食物或水，再点人投喂。还有 ' + hungry + ' 人没吃没喝。 · ' + BUILD;
@@ -1302,7 +1302,7 @@
     }
 
     renderShelter();
-    updateHint(res.msg);
+    updateHint();
 
     window.setTimeout(function () {
       if (flashId === id) flashId = null;
@@ -1357,52 +1357,22 @@
 
     var html = '<div class="modal-head">' +
       '<span class="modal-title">第 ' + n.day + ' 夜</span>' +
-      '<span class="modal-sub">结算</span>' +
+      '<span class="modal-sub">' +
+      (n.events && n.events.length ? n.events.length + ' 件事' : '很安静') +
+      '</span>' +
       '</div>';
 
-    if (n.eventText) {
-      html += '<div class="alert">' + n.eventText + '</div>';
+    html += '<div class="res-label">夜里发生了什么</div>';
+
+    if (n.events && n.events.length) {
+      for (var i = 0; i < n.events.length; i++) {
+        html += '<div class="night-story">' + n.events[i].text + '</div>';
+      }
+    } else {
+      html += '<div class="night-story">这一夜很安静，只有风吹过铁皮的声音。</div>';
     }
 
-    html += '<div class="need-row">' + SF.icon('food', 15) +
-      '<span>今天手动喂了</span><span class="need-num">' + n.foodUsed + '</span>' +
-      '<span class="need-left">库存 ' + (state.supplies.food || 0) + '</span></div>';
-
-    html += '<div class="need-row">' + SF.icon('water', 15) +
-      '<span>今天手动喂了</span><span class="need-num">' + n.waterUsed + '</span>' +
-      '<span class="need-left">库存 ' + (state.supplies.water || 0) + '</span></div>';
-
-    if (n.shortage) {
-      html += '<div class="alert bad">有人没分到吃的或喝的，饿着睡了。</div>';
-    }
-    if (n.theft) {
-      html += '<div class="alert bad">门没堵牢，夜里被偷了：食物 −' +
-        n.theft.food + '，水 −' + n.theft.water + '。</div>';
-    }
-
-    html += '<div class="res-label">这一夜</div>';
-
-    for (var i = 0; i < n.rows.length; i++) {
-      var row = n.rows[i];
-      var diff = Math.round(row.hpAfter) - Math.round(row.hpBefore);
-
-      html += '<div class="np-row">' +
-        '<span class="np-name">' + row.name + '</span>' +
-        '<span class="np-tags">' +
-        '<span class="tag ' + (row.fed ? 'tag-ok' : 'tag-bad') + '">' +
-        (row.fed ? '吃了' : '没吃') + '</span>' +
-        '<span class="tag ' + (row.drank ? 'tag-ok' : 'tag-bad') + '">' +
-        (row.drank ? '喝了' : '没喝') + '</span>' +
-        (row.sick ? '<span class="tag tag-bad">生病</span>' : '') +
-        (row.injured ? '<span class="tag tag-bad">受伤</span>' : '') +
-        (row.med ? '<span class="tag tag-ok">用药</span>' : '') +
-        (diff !== 0 ? '<span class="tag ' + (diff > 0 ? 'tag-ok' : 'tag-bad') +
-          '">血 ' + (diff > 0 ? '+' : '') + diff + '</span>' : '') +
-        (row.died ? '<span class="tag tag-bad">倒下</span>' : '') +
-        '</span></div>';
-    }
-
-    if (n.deaths.length) {
+    if (n.deaths && n.deaths.length) {
       html += '<div class="alert bad">' + n.deaths.join('、') + ' 没能撑过这一夜。</div>';
     }
 
