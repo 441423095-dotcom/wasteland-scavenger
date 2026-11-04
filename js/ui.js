@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v19';
+  var BUILD = 'v20';
 
   // 货架上固定摆这四层
   var SHELF_ITEMS = ['food', 'water', 'medicine', 'material'];
@@ -540,6 +540,14 @@
     return true;
   }
 
+  function storyText() {
+    if (state.items && state.items.flare) return '信号弹到手，准备撤离';
+    if (state.day <= 5) return '军方封锁中，先活下去';
+    if (state.day <= 10) return '去废弃警局找信号弹';
+    if (state.day <= 15) return '没有信号弹，直升机看不到我们';
+    return '最后冲刺';
+  }
+
   function renderShelter() {
     $('day-num').textContent = String(state.day);
 
@@ -569,8 +577,15 @@
     }
 
     $('btn-clean').disabled = !anyAp || (state.supplies.water || 0) < 1;
-    $('btn-repair').disabled = !anyAp;
-    $('btn-talk').disabled = !anyAp;
+
+    // 底部主线状态
+    var storyLine = $('story-line');
+    if (storyLine) {
+      var flareText = state.items.flare ? '信号弹：已到手' : '信号弹：还没有';
+      storyLine.textContent = '第 ' + state.day + ' / 15 天 · ' +
+        (state.rescueLeft > 0 ? '军方倒计时 ' + state.rescueLeft + ' 天' : '救援没来') +
+        ' · ' + storyText() + ' · ' + flareText;
+    }
 
     // 直接给图标和名片绑点击，再按当前选中的物资刷一遍样式
     paintHold();
@@ -591,6 +606,7 @@
     for (var i = 0; i < C.locations.length; i++) {
       var loc = C.locations[i];
       if (loc.hidden && !state.vaultUnlocked) continue;
+      if (loc.unlockDay && state.day < loc.unlockDay) continue;
 
       paths += '<line x1="50" y1="82" x2="' + loc.mapX + '" y2="' + loc.mapY +
         '" stroke="rgba(200,210,190,0.32)" stroke-width="0.45" stroke-dasharray="2 2"/>';
@@ -616,6 +632,7 @@
   /* 出发前的装备界面 */
   var raidLoc = '';
   var raidIds = [];
+  var raidDepth = 1;
 
   function gearButtons(s) {
     var defs = [
@@ -767,12 +784,16 @@
 
   /* ---------------- 搜刮 ---------------- */
 
-  function startSearch(locId, partyIds) {
+  function startSearch(locId, partyIds, depth) {
     if (searching) return;
     if (!partyIds || !partyIds.length) return;
 
     var loc = SF.findLocation(locId);
     if (!loc) return;
+
+    raidLoc = locId;
+    raidIds = partyIds.slice();
+    raidDepth = depth || 1;
 
     var names = [];
     for (var i = 0; i < partyIds.length; i++) {
@@ -785,7 +806,7 @@
 
     openModal('<div class="modal-head">' +
       '<span class="modal-title">' + loc.name + '</span>' +
-      '<span class="modal-sub">搜寻中……</span>' +
+      '<span class="modal-sub">第 ' + raidDepth + ' 层 · 搜寻中……</span>' +
       '</div>' +
       '<div class="res-text">' + names.join('、') + ' 正在里面翻找，别出声。</div>',
       'modal-search');
@@ -793,7 +814,8 @@
     timer = window.setTimeout(function () {
       timer = 0;
       searching = false;
-      lastReport = SF.explore(state, locId, partyIds);
+      lastReport = SF.explore(state, locId, partyIds, raidDepth);
+      lastReport.depth = raidDepth;
 
       if (!SF.aliveAll(state).length) {
         state.over = true;
@@ -852,8 +874,14 @@
       }
       html += '</div>';
     } else {
-      html += '<div class="modal-actions">' +
-        '<button type="button" class="btn btn-main" data-act="back-home">带回避难所</button>' +
+      html += '<div class="modal-actions">';
+
+      if (raidDepth < 3) {
+        html += '<button type="button" class="btn btn-main" data-act="deeper">' +
+          '继续深入（第 ' + (raidDepth + 1) + ' 层）</button>';
+      }
+
+      html += '<button type="button" class="btn" data-act="back-home">见好就收</button>' +
         '</div>';
     }
 
@@ -899,10 +927,10 @@
     if (s.sick) {
       html += '<div class="alert bad">正在生病。每晚会掉血，点下面的「用药品」可以治疗。</div>';
     }
-    if (s.hunger >= C.night.hungerHurtAt) {
+    if (s.hunger >= C.night.painAt) {
       html += '<div class="alert">饿得厉害，再吃不上东西就要掉血了。</div>';
     }
-    if (s.thirst >= C.night.thirstHurtAt) {
+    if (s.thirst >= C.night.painAt) {
       html += '<div class="alert">渴得厉害，再喝不上水就要掉血了。</div>';
     }
 
@@ -1125,11 +1153,54 @@
     renderShelter();
     showScreen('screen-shelter');
 
-    if (nightReport.allDead) {
-      openGameOver();
-    } else {
-      openNight();
+    if (state.won) {
+      openVictory();
+      return;
     }
+
+    if (nightReport.allDead || state.over) {
+      openGameOver();
+      return;
+    }
+
+    showStoryIfAny();
+    openNight();
+  }
+
+  /* 线性主线：进入新的一天时弹一次 */
+  function showStoryIfAny() {
+    if (!SF.storyFor) return;
+
+    var st = SF.storyFor(state);
+    if (!st) return;
+    if (state.storySeenDay === state.day) return;
+
+    state.storySeenDay = state.day;
+
+    openModal('<div class="modal-head">' +
+      '<span class="modal-title">' + st.title + '</span>' +
+      '<span class="modal-sub">第 ' + state.day + ' 天</span>' +
+      '</div>' +
+      '<div class="res-text">' + st.text.replace(/\n/g, '<br>') + '</div>' +
+      '<div class="modal-actions">' +
+      '<button type="button" class="btn btn-main" data-act="close">知道了</button>' +
+      '</div>',
+      'modal-story');
+  }
+
+  function openVictory() {
+    var days = state.overAtDay || 20;
+
+    openModal('<div class="modal-head"><span class="modal-title">直升机来了</span></div>' +
+      '<div class="res-text">第 ' + days + ' 天的清晨，你们爬上楼顶，' +
+      '把最后一发信号弹打上天。螺旋桨的声音越来越近。</div>' +
+      '<div class="res-label">结局</div>' +
+      '<div class="res-text">活下来的人：' +
+      SF.aliveAll(state).map(function (s) { return s.name; }).join('、') + '</div>' +
+      '<div class="modal-actions">' +
+      '<button type="button" class="btn btn-main" data-act="restart">再来一局</button>' +
+      '</div>',
+      'modal-over');
   }
 
   /* ---------------- 主界面投喂 ---------------- */
@@ -1444,6 +1515,8 @@
       openEquipment(raidLoc, raidIds);
     } else if (act === 'depart') {
       depart();
+    } else if (act === 'deeper') {
+      startSearch(raidLoc, raidIds, raidDepth + 1);
     } else if (act === 'bath') {
       var br = SF.bath(state, id);
       renderShelter();
@@ -1708,8 +1781,6 @@
     $('shelf').addEventListener('click', onShelfClick);
     $('btn-night').addEventListener('click', endDay);
     $('btn-clean').addEventListener('click', openBath);
-    $('btn-repair').addEventListener('click', function () { onHomeAction('repair'); });
-    $('btn-talk').addEventListener('click', function () { onHomeAction('talk'); });
     $('btn-log').addEventListener('click', openLog);
     $('btn-go-home').addEventListener('click', onGoHome);
     $('people').addEventListener('click', onPeopleClick);
@@ -1759,6 +1830,8 @@
     if (loadNoticeDay) {
       updateHint('已读取第 ' + loadNoticeDay + ' 天存档');
     }
+
+    showStoryIfAny();
   }
 
   if (document.readyState === 'loading') {

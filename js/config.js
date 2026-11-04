@@ -12,7 +12,7 @@ SF.CONFIG = {
   maxStat: 100,
 
   startSupplies: {
-    food: 5,
+    food: 3,
     water: 2
   },
 
@@ -239,8 +239,8 @@ SF.CONFIG = {
       chance: 0.9,
       newcomerBonus: 0,
       loot: {
-        food: [3, 5],
-        water: [1, 3],
+        food: [2, 3],
+        water: [1, 2],
         medicine: [0, 0],
         material: [0, 1]
       },
@@ -309,6 +309,28 @@ SF.CONFIG = {
       },
       okText: '你撬开仓库侧门，里面是成堆的木料和没拆封的箱子。你搬了两趟，才在天黑前回去。',
       badText: '铁皮棚深处有东西在动。你只摸到门口的几个破箱子，就被逼着退了出来。'
+    },
+    {
+      id: 'police',
+      name: '废弃警局',
+      icon: 'hospital',
+      mapX: 46,
+      mapY: 70,
+      risk: '高风险',
+      riskLevel: 'high',
+      hint: '信号弹 · 暴徒',
+      far: true,
+      unlockDay: 6,
+      chance: 0.72,
+      newcomerBonus: 0,
+      loot: {
+        food: [1, 2],
+        water: [1, 2],
+        medicine: [1, 2],
+        material: [1, 2]
+      },
+      okText: '警局的枪柜被撬开过，地上散着几颗信号弹，你捡起还能用的那几发。',
+      badText: '刚摸进档案室就听见脚步，你们只能贴着墙退出来。'
     },
     {
       id: 'vault',

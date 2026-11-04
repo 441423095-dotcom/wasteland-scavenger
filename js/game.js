@@ -113,6 +113,7 @@ SF.SUPPLIES = [
       items: {
         radio: false,
         radioBroken: false,
+        flare: false,
         pesticide: false,
         cards: false,
         gasMask: false,
@@ -130,6 +131,8 @@ SF.SUPPLIES = [
       leaderId: player.id,
       exploredToday: false,
       over: false,
+      won: false,
+      storySeenDay: 0,
       overDay: 0
     };
   };
@@ -320,10 +323,12 @@ SF.SUPPLIES = [
 
   // ---------- 组队探索 ----------
 
-  SF.explore = function (state, locId, partyIds) {
+  SF.explore = function (state, locId, partyIds, depth) {
     var loc = SF.findLocation(locId);
     var party = [];
     var i;
+
+    depth = depth || 1;
 
     if (partyIds && partyIds.length) {
       for (i = 0; i < partyIds.length; i++) {
@@ -366,6 +371,11 @@ SF.SUPPLIES = [
       return result;
     }
 
+    if (loc.unlockDay && state.day < loc.unlockDay) {
+      result.lines.push('这个地方现在还不知道怎么走。');
+      return result;
+    }
+
     for (i = 0; i < party.length; i++) result.partyNames.push(party[i].name);
 
     // 记下这次去哪儿、谁去的，夜里的事件要用来判断失踪
@@ -389,7 +399,7 @@ SF.SUPPLIES = [
     result.success = success;
 
     var haul = {};
-    var junkOnly = !loc.far && roll(C.explore.junkChanceNear);
+    var junkOnly = !loc.far && loc.id !== 'market' && roll(C.explore.junkChanceNear);
     result.junkOnly = junkOnly;
     var mult = 1 + C.party.lootPerExtra * (party.length - 1);
 
@@ -398,13 +408,15 @@ SF.SUPPLIES = [
       result.lines.push('整片地方被人翻过好几轮了，食物和水一点没剩，只拖回一堆还能用的材料。');
     } else {
       var factor = success ? 1 : C.explore.failLootFactor;
+      var depthBonus = 1 + 0.6 * (depth - 1);
+
       for (i = 0; i < SF.SUPPLIES.length; i++) {
         var key = SF.SUPPLIES[i].key;
         var range = loc.loot[key];
         if (!range) continue;
         var qty = rnd(range[0], range[1]);
         if (!success) qty = Math.floor(qty * factor);
-        if (qty > 0) giveHaul(haul, key, Math.ceil(qty * mult));
+        if (qty > 0) giveHaul(haul, key, Math.ceil(qty * mult * depthBonus));
       }
       result.lines.push(success ? loc.okText : loc.badText);
     }
@@ -453,7 +465,8 @@ SF.SUPPLIES = [
 
     // 危险事件：受伤
     var riskChance = (loc.far ? C.explore.injuryChanceFar : (success ? 0 : C.explore.injuryChanceNear))
-      + (party.length - 1) * C.party.riskPerExtra;
+      + (party.length - 1) * C.party.riskPerExtra
+      + (depth - 1) * 0.15;
 
     var hasWeapon = false;
     for (i = 0; i < party.length; i++) {
@@ -526,6 +539,24 @@ SF.SUPPLIES = [
           { key: 'leaveLost', label: '没有药，只能离开' }
         ]
       };
+    }
+
+    // 主线物品：警局的信号弹、第 5 天后的破收音机
+    if (loc.id === 'police' && !state.items.flare && roll(0.6)) {
+      state.items.flare = true;
+      result.item = { key: 'medicine', name: '信号弹' };
+      result.lines.push('你们在枪柜底下摸到两发信号弹，小心地收进背包。');
+    }
+
+    if (!state.items.radio && !state.items.radioBroken && state.day >= 5 && roll(0.5)) {
+      state.items.radioBroken = true;
+      result.lines.push('临走时在杂物间翻出一台破损的收音机，也许还能修。');
+    }
+
+    // 单次探索的收获封顶，避免出现一次背回几十份的离谱情况
+    for (var hcap in haul) {
+      if (!haul.hasOwnProperty(hcap)) continue;
+      if (haul[hcap] > 8) haul[hcap] = 8;
     }
 
     applyHaul(state, haul, result);
@@ -1353,7 +1384,53 @@ SF.SUPPLIES = [
 
     ensureLeader(state);
     report.allDead = checkOver(state, report.day);
+
+    // 第 20 天结束：有信号弹就等来直升机，没有就到此为止
+    if (state.day > 20 && !state.over) {
+      state.over = true;
+      state.overAtDay = 20;
+      state.won = !!state.items.flare;
+    }
+
     return report;
+  };
+
+  // 线性主线的节点文本（每天只在第一次进入时弹）
+  SF.storyFor = function (state) {
+    var d = state.day;
+
+    if (d === 1) {
+      return {
+        title: '军方广播',
+        text: '城市已封锁，幸存者请寻找掩体。不要上街，不要开灯。'
+      };
+    }
+
+    if (d === 6) {
+      return {
+        title: '断断续续的求援信号',
+        text: '你们把收音机修好了。里面传来断断续续的求援信号：' +
+          '“救援直升机将在 15 天后抵达……请准备信号弹。”\n' +
+          '去废弃警局搜寻信号弹吧，但那里据说有暴徒出没。'
+      };
+    }
+
+    if (d === 11 && !state.items.flare) {
+      return {
+        title: '改航线的传闻',
+        text: '广播说救援直升机好像改航线了。如果我们没有信号弹，' +
+          '就算直升机来了也看不到我们。'
+      };
+    }
+
+    if (d === 16) {
+      return {
+        title: '最后五天',
+        text: '还有五天。要么拿着信号弹站到天台上，要么就在这间屋子里等死。'
+      };
+    }
+
+    return null;
   };
 
   // 旧接口：一次性跑完（没有事件选择时使用）
