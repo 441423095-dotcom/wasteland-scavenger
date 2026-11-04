@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v12';
+  var BUILD = 'v13';
 
   // 货架上固定摆这四层
   var SHELF_ITEMS = ['food', 'water', 'medicine', 'material'];
@@ -346,18 +346,17 @@
     return html;
   }
 
-  /* 左侧名片：半身像 + 名字职业 + 四条状态条 */
-  function miniBar(value, invert) {
+  /* 左侧名片：头像 + 名字 + 四维微缩状态条 */
+  function microRow(label, cls, value) {
     var v = Math.round(value);
-    var good = invert ? 100 - v : v;
-    if (good < 0) good = 0;
-    if (good > 100) good = 100;
+    if (v < 0) v = 0;
+    if (v > 100) v = 100;
 
-    var cls = 'ok';
-    if (good < 33) cls = 'bad';
-    else if (good < 66) cls = 'warn';
-
-    return '<span class="pbar"><i class="' + cls + '" style="width:' + good + '%"></i></span>';
+    return '<span class="mrow' + (v < 20 ? ' is-low' : '') + '">' +
+      '<span class="mkey">' + label + '</span>' +
+      '<span class="mtrack"><i class="mfill ' + cls +
+      '" style="width:' + v + '%"></i></span>' +
+      '</span>';
   }
 
   function renderPeople() {
@@ -366,31 +365,16 @@
 
     for (var i = 0; i < alive.length; i++) {
       var s = alive[i];
-      var critical = s.hp <= 30 || s.hunger >= 85 || s.thirst >= 85;
-
-      var hpGood = s.hp;
-      var hungerGood = 100 - s.hunger;
-      var thirstGood = 100 - s.thirst;
-
-      var kind = 'hp';
-      var val = hpGood;
-      if (hungerGood < val) {
-        kind = 'hunger';
-        val = hungerGood;
-      }
-      if (thirstGood < val) {
-        kind = 'thirst';
-        val = thirstGood;
-      }
-
-      val = Math.max(0, Math.min(100, Math.round(val)));
 
       var moodTag = '';
       if (s.mad) moodTag = '<span class="mini-mood is-mad">!</span>';
       else if (s.mood <= 30) moodTag = '<span class="mini-mood">' + SF.icon('cloud', 12) + '</span>';
 
       var m = (state.meal && state.meal[s.id]) || {};
-      var starving = s.hunger >= 85 || s.thirst >= 85;
+      var lowHp = s.hp < 20;
+      var lowThirst = s.thirst > 80;
+      var lowHunger = s.hunger > 80;
+      var starving = lowThirst || lowHunger;
       var fedAll = !!m.eat && !!m.drink;
       var ready = heldItem === 'food' ? !m.eat : (heldItem === 'water' ? !m.drink : false);
 
@@ -400,19 +384,20 @@
 
       html += '<button type="button" class="mini-card' +
         (s.id === state.leaderId ? ' is-lead' : '') +
-        (critical ? ' is-critical' : '') +
+        (lowHp ? ' is-deadly' : '') +
         (starving ? ' is-starving' : '') +
         (fedAll ? ' is-fed' : '') +
         (ready ? ' is-ready' : '') +
         (s.id === flashId ? ' is-flash' : '') +
         '" data-id="' + s.id + '">' +
-        '<span class="mini-fig">' + portraitHtml(s, 40, 40) + moodTag + '</span>' +
+        '<span class="mini-fig">' + portraitHtml(s, 42, 42) + moodTag + '</span>' +
         '<span class="mini-main">' +
         '<span class="mini-name"><span class="mini-ap' + (s.ap > 0 ? ' is-on' : '') +
         '"></span>' + s.name + mealMarks + '</span>' +
-        '<span class="mini-track">' +
-        '<i class="mini-fill ' + kind + '" style="width:' + val + '%"></i>' +
-        '</span>' +
+        microRow('血', 'hp', s.hp) +
+        microRow('水', 'thirst', 100 - s.thirst) +
+        microRow('食', 'hunger', 100 - s.hunger) +
+        microRow('心', 'mood', s.mood) +
         '</span>' +
         '</button>';
     }
