@@ -75,7 +75,7 @@ SF.CONFIG = {
 
   // 天赋相关的数值
   traits: {
-    tieFoodCost: 1,       // 铁柱每天的食物量
+    tieFoodCost: 2,       // 铁柱每天吃 2 份食物
     tieLootMult: 2,       // 铁柱带回的物资翻倍
     linWaterFactor: 1,    // 水统一按整数算
     nanaNegotiate: 0.85,  // 娜娜交涉成功概率
@@ -147,7 +147,7 @@ SF.CONFIG = {
     waterPerPerson: 1,
 
     // 没吃 / 没喝：对应的食 / 水各掉 35（满 100 就死）
-    missLoss: 35,
+    missLoss: 30,
     // 饿或渴超过这条线：心情每天额外掉 20
     painAt: 70,
     painMood: 20,
@@ -278,6 +278,7 @@ SF.CONFIG = {
       riskLevel: 'mid',
       hint: '药品 · 少量食物',
       far: true,
+      unlockDay: 7,
       chance: 0.8,
       newcomerBonus: 0,
       loot: {
@@ -299,6 +300,7 @@ SF.CONFIG = {
       riskLevel: 'high',
       hint: '材料 · 大量物资',
       far: true,
+      unlockDay: 4,
       chance: 0.68,
       newcomerBonus: 0,
       loot: {
@@ -320,7 +322,7 @@ SF.CONFIG = {
       riskLevel: 'high',
       hint: '信号弹 · 暴徒',
       far: true,
-      unlockDay: 6,
+      unlockDay: 10,
       chance: 0.72,
       newcomerBonus: 0,
       loot: {

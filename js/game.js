@@ -224,7 +224,7 @@ SF.SUPPLIES = [
   // ---------- 天赋 ----------
 
   SF.foodNeed = function (s) {
-    return C.meal.foodCost;
+    return s && s.charId === 'tie' ? 2 : C.meal.foodCost;
   };
 
   SF.waterRation = function (state) {
@@ -402,46 +402,98 @@ SF.SUPPLIES = [
     var junkOnly = false;
     result.junkOnly = false;
 
-    // 按探索层数给产出：外围几乎空手，内部一点点，核心才可能有稀有货
-    if (depth <= 1) {
-      var r1 = Math.random();
-      if (r1 < 0.35) {
-        result.lines.push('翻了一圈，什么也没找到，只带回一身灰。');
-      } else if (r1 < 0.75) {
-        result.lines.push('值钱的东西早被人搬空了，只拖回一捆还能烧的废料。');
-        giveHaul(haul, 'material', rnd(1, 2));
-      } else {
-        result.lines.push('里里外外翻了一遍，只摸到一点能吃能喝的。');
-        giveHaul(haul, roll(0.5) ? 'food' : 'water', 1);
-      }
-    } else if (depth === 2) {
-      // 第二阶段：至少 1~2 份食物或水，运气好才有药
-      var k2 = pickOne(['food', 'food', 'water', 'water', 'medicine']);
-      giveHaul(haul, k2, k2 === 'medicine' ? 1 : rnd(1, 2));
-      if (roll(0.5)) giveHaul(haul, 'material', 1);
-
-      if (k2 === 'medicine') {
-        result.lines.push('在里屋的柜子里翻出一板药，别的什么也没有。');
-      } else {
-        result.lines.push('往里又摸了一段，带回来一些' +
-          (k2 === 'food' ? '吃的' : '水') + '。');
-      }
-    } else {
-      if (roll(0.35)) giveHaul(haul, pickOne(['food', 'water']), 1);
-      if (roll(0.6)) giveHaul(haul, 'material', rnd(1, 3));
-      result.lines.push('摸到了最里面，空气里全是铁锈味，谁都不敢大口喘气。');
-    }
-
-    // 铁柱只能帮着多扛一点废料，食物和药照旧稀缺
+    // 队伍里有谁：职业规则要用
     var hasTie = false;
     var hasNana = false;
+    var hasChen = false;
+    var hasLin = false;
+    var hasWeapon = false;
+    var hasTorch = false;
+    var hasMask = false;
+
     for (i = 0; i < party.length; i++) {
       if (party[i].charId === 'tie') hasTie = true;
       if (party[i].charId === 'nana') hasNana = true;
+      if (party[i].charId === 'chen') hasChen = true;
+      if (party[i].charId === 'lin') hasLin = true;
+      if (party[i].hasWeapon) hasWeapon = true;
+      if (party[i].hasTorch) hasTorch = true;
+      if (party[i].hasMask) hasMask = true;
     }
-    if (hasTie && (haul.material || 0) > 0) {
-      haul.material = Math.min(4, haul.material + 1);
-      result.lines.push('铁柱把散落的废料捆成一捆，多扛了一些回来。');
+
+    var locId = loc.id;
+
+    if (depth <= 1) {
+      // 第一阶段：只有废料，绝对安全
+      giveHaul(haul, 'material', rnd(1, 3));
+      result.lines.push('你们只在外围转了一圈，翻到一些废料，没人受伤。');
+      result.safe = true;
+    } else if (depth === 2) {
+      // 第二阶段：基础物资，小概率受伤
+      if (locId === 'market') {
+        giveHaul(haul, 'food', rnd(2, 3));
+        result.lines.push('货架上还剩几罐没过期的，你们抱了 ' + (haul.food) + ' 罐出来。');
+      } else if (locId === 'warehouse') {
+        giveHaul(haul, 'material', rnd(2, 4));
+        if (roll(0.4)) {
+          state.items.flashlight = true;
+          result.lines.push('木箱底下压着一只手电筒，还能亮。');
+        }
+        result.lines.push('仓库外圈全是木料和铁皮，能搬的都搬了。');
+      } else if (locId === 'pharmacy') {
+        var med = hasLin ? 2 : (roll(0.35) ? 1 : 0);
+        if (med) giveHaul(haul, 'medicine', med);
+        result.lines.push(med
+          ? (hasLin ? '林晓看懂了说明书，挑出两份还能用的药。' : '你们在柜台里翻出一份药。')
+          : '药柜被人翻得精光，你们什么都没找到。');
+      } else if (locId === 'police') {
+        giveHaul(haul, 'material', rnd(1, 2));
+        result.lines.push('警局外圈只剩下散落的装备和弹药箱。');
+      } else {
+        giveHaul(haul, pickOne(['food', 'water']), rnd(1, 2));
+        result.lines.push('你们沿着熟悉的路又摸了一段，带回一点补给。');
+      }
+    } else {
+      // 第三阶段：稀有货，风险极高
+      if (locId === 'police') {
+        if (hasTie || hasWeapon) {
+          state.items.flare = true;
+          result.item = { key: 'medicine', name: '信号弹' };
+          giveHaul(haul, 'material', rnd(1, 3));
+
+          if (hasWeapon) {
+            state.items.weapon = true;
+            result.lines.push('你们端着枪一路推平了警局的走廊，信号弹和一把手枪都到手了。');
+          } else {
+            result.lines.push('铁柱撞开最后一道门，你们在枪柜里拿到了信号弹。');
+          }
+        } else {
+          result.lines.push('里面全是暴徒，没有能打的人，你们被追着打了出来，什么都没拿到。');
+        }
+      } else if (locId === 'warehouse') {
+        giveHaul(haul, 'material', hasTorch ? 4 : rnd(2, 4));
+        if (roll(0.5)) {
+          state.items.flashlight = true;
+          result.lines.push('在最里面翻到一只手电筒。');
+        }
+        result.lines.push(hasTorch
+          ? '手电照着最深处的货架，你们把能带的都搬了。'
+          : '里面黑得伸手不见五指，你们只能胡乱抓了几把。');
+      } else if (locId === 'pharmacy') {
+        var medDeep = hasLin ? 3 : (roll(0.4) ? 1 : 0);
+        if (medDeep) giveHaul(haul, 'medicine', medDeep);
+        result.lines.push(medDeep
+          ? '林晓摸进药房最里面，抱出几盒高级药品。'
+          : '越往里越黑，你们什么都没摸到就退了出来。');
+      } else {
+        giveHaul(haul, 'food', rnd(1, 2));
+        giveHaul(haul, 'water', 1);
+        if (roll(0.25)) {
+          state.items.weapon = true;
+          result.lines.push('角落靠着一根防暴棍，你们把它也带上了。');
+        }
+        result.lines.push('你们摸到了最里面，带回一些吃的和水。');
+      }
     }
 
     // 掠夺者
@@ -471,16 +523,18 @@ SF.SUPPLIES = [
       }
     }
 
-    // 危险事件：受伤
-    var riskChance = (loc.far ? C.explore.injuryChanceFar : (success ? 0 : C.explore.injuryChanceNear))
-      + (party.length - 1) * C.party.riskPerExtra
-      + (depth - 1) * 0.15;
+    // 危险事件：第一阶段绝对安全，第二阶段小概率，第三阶段极易重伤
+    var riskChance = depth <= 1 ? 0 : (depth === 2 ? 0.2 : 0.7);
 
-    var hasWeapon = false;
-    for (i = 0; i < party.length; i++) {
-      if (party[i].hasWeapon) hasWeapon = true;
+    if (loc.id === 'police' && depth >= 3 && !hasTie && !hasWeapon) {
+      riskChance = 0.95;
+    }
+    if (loc.id === 'police' && hasWeapon) {
+      riskChance = 0;
     }
     if (hasWeapon) riskChance = riskChance * 0.5;
+
+    if (loc.far && depth === 2) riskChance += C.explore.injuryChanceNear;
 
     if (roll(riskChance)) {
       var victim = pickOne(party);
@@ -492,7 +546,7 @@ SF.SUPPLIES = [
         }
       }
 
-      var hurtHp = C.explore.injuryHp;
+      var hurtHp = depth >= 3 ? 40 : C.explore.injuryHp;
       victim.hp = clamp(victim.hp - hurtHp, 0, C.maxStat);
       victim.injured = true;
       victim.mood = clamp(victim.mood - 6, 0, C.maxStat);
@@ -510,6 +564,16 @@ SF.SUPPLIES = [
       } else {
         result.lines.push('在' + loc.name + '遇到了流浪狗，' + victim.name + '被咬伤了。');
       }
+    }
+
+    // 危险事件结束后，记一条气泡给 UI 用
+    result.bubble = null;
+    if (result.item) {
+      result.bubble = { charId: party[0].charId, text: '拿到 ' + result.item.name + ' 了！' };
+    } else if (result.injured.length) {
+      result.bubble = { charId: party[0].charId, text: '嘶……挂彩了' };
+    } else if (haul.food) {
+      result.bubble = { charId: party[0].charId, text: '找到吃的了。' };
     }
 
     // 幸运事件（只给 1 份）
@@ -1003,6 +1067,35 @@ SF.SUPPLIES = [
     return list;
   };
 
+  /* 出发前给一句职业/装备评估 */
+  SF.verdictFor = function (state, loc, s) {
+    if (!loc || !s) return { text: '', good: true };
+
+    if (loc.id === 'police') {
+      if (s.charId === 'tie' || s.hasWeapon) {
+        return { text: '适合此地，能打', good: true };
+      }
+      return { text: '没有战斗力，极度危险', good: false };
+    }
+
+    if (loc.id === 'pharmacy') {
+      if (s.charId === 'lin') return { text: '看得懂说明书，药品翻倍', good: true };
+      if (s.hasMask) return { text: '有面具，不容易染病', good: true };
+      return { text: '不太懂药，收益很低', good: false };
+    }
+
+    if (loc.id === 'warehouse') {
+      if (s.hasTorch) return { text: '有手电，能搜满物资', good: true };
+      if (s.charId === 'tie') return { text: '身强体壮，适合搬货', good: true };
+      return { text: '里面太黑，容易出事', good: false };
+    }
+
+    if (s.mood < 20) return { text: '精神快撑不住了', good: false };
+    if (s.hp < 20) return { text: '伤得太重，走不远', good: false };
+
+    return { text: '状态还可以', good: true };
+  };
+
   /* 硬核版夜间事件：盗窃 / 传染 / 乞丐 / 梦境 */
   function makeRealNightEvent(state) {
     if (!roll(C.events.nightChance)) return null;
@@ -1323,6 +1416,28 @@ SF.SUPPLIES = [
       return {
         title: '军方广播',
         text: '城市已封锁，幸存者请寻找掩体。不要上街，不要开灯。'
+      };
+    }
+
+    if (d === 4) {
+      return {
+        title: '城郊仓库',
+        text: '你们摸清了城郊仓库的位置。里面有维修零件、武器，也许还有收音机。'
+      };
+    }
+
+    if (d === 7) {
+      return {
+        title: '废弃医院',
+        text: '有人在广播里提到城南的废弃医院还有存货。带上林晓，她看得懂说明书。'
+      };
+    }
+
+    if (d === 10) {
+      return {
+        title: '军方的最后一句话',
+        text: '警方频道传来军方广播：救援直升机进入最后十天倒计时，' +
+          '未持有信号弹者将被抛弃。废弃警局里也许还有信号弹——带上有战斗力的人。'
       };
     }
 

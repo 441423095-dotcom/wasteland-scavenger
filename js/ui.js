@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v22';
+  var BUILD = 'v23';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -591,10 +591,21 @@
     for (var i = 0; i < C.locations.length; i++) {
       var loc = C.locations[i];
       if (loc.hidden && !state.vaultUnlocked) continue;
-      if (loc.unlockDay && state.day < loc.unlockDay) continue;
+
+      var locked = !!(loc.unlockDay && state.day < loc.unlockDay);
 
       paths += '<line x1="50" y1="82" x2="' + loc.mapX + '" y2="' + loc.mapY +
         '" stroke="rgba(200,210,190,0.32)" stroke-width="0.45" stroke-dasharray="2 2"/>';
+
+      if (locked) {
+        html += '<button type="button" class="map-node is-locked" style="left:' + loc.mapX +
+          '%;top:' + loc.mapY + '%" data-locked="' + loc.id + '">' +
+          '<span class="node-ico">?</span>' +
+          '<span class="node-name">未知区域</span>' +
+          '<span class="node-risk risk-high">未解锁</span>' +
+          '</button>';
+        continue;
+      }
 
       html += '<button type="button" class="map-node" style="left:' + loc.mapX +
         '%;top:' + loc.mapY + '%" data-id="' + loc.id + '">' +
@@ -654,7 +665,10 @@
       html += '<div class="equip-row">' +
         '<span class="equip-fig">' + portraitHtml(s, 34, 34) + '</span>' +
         '<span class="equip-main">' + s.name +
-        '<span class="equip-role">' + s.role + '</span></span>' +
+        '<span class="equip-role">' + s.role + '</span>' +
+        '<span class="equip-verdict' +
+        (SF.verdictFor(state, loc, s).good ? ' is-good' : ' is-bad') + '">' +
+        SF.verdictFor(state, loc, s).text + '</span></span>' +
         '<span class="equip-gear">' + gearButtons(s) + '</span>' +
         '</div>';
     }
@@ -871,6 +885,8 @@
     }
 
     openModal(html, 'modal-log');
+
+    if (r.bubble) showBubble(r.bubble.charId, r.bubble.text);
   }
 
   function backHome() {
@@ -1582,9 +1598,38 @@
   }
 
   function onMapClick(ev) {
+    var locked = elementFrom(ev.target, $('map-grid'), 'data-locked');
+    if (locked) {
+      openModal('<div class="modal-head"><span class="modal-title">未知区域</span></div>' +
+        '<div class="res-text">没有情报，前往太危险。</div>' +
+        '<div class="modal-actions"><button type="button" class="btn" data-act="close">知道了</button></div>',
+        'modal-action');
+      return;
+    }
+
     var el = elementFrom(ev.target, $('map-grid'), 'data-id');
     if (!el) return;
     openExplorerPicker(el.getAttribute('data-id'));
+  }
+
+  /* 头顶气泡：0 陈默 · 1 林晓 · 2 铁柱 · 3 娜娜 */
+  var bubbleTimers = [0, 0, 0, 0];
+
+  function showBubble(charId, text) {
+    var idx = { chen: 0, lin: 1, tie: 2, nana: 3 }[charId];
+    if (idx === undefined || !text) return;
+
+    var el = $('bubble-' + idx);
+    if (!el) return;
+
+    el.textContent = text;
+    el.classList.add('is-on');
+
+    if (bubbleTimers[idx]) window.clearTimeout(bubbleTimers[idx]);
+    bubbleTimers[idx] = window.setTimeout(function () {
+      bubbleTimers[idx] = 0;
+      el.classList.remove('is-on');
+    }, 4000);
   }
 
   /* ---------------- 日常行动 ---------------- */
