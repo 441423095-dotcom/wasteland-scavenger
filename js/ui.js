@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v33';
+  var BUILD = 'v34';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -1965,6 +1965,64 @@
     if (msg) updateHint(msg);
   }
 
+  /* ---------------- 片头 ---------------- */
+  var INTRO_LINES = [
+    '那场灾难来得毫无预兆。楼下传来第一声惨叫时，你们四个合租的室友正围在桌前，为了谁该去倒垃圾而争吵。',
+    '仅仅过了十分钟，整座城市就沦陷了。公寓的防盗门被彻底焊死，门外是游荡的死者和刺鼻的血腥味，而你们的冰箱里，只剩下最后半箱泡面和三瓶矿泉水。',
+    '14 天后，军方承诺的救援直升机将抵达楼顶。在这之前，你们必须在这个不足六十平米的房间里，活下去。',
+    '不管以前你们是程序员、考研党、健身教练还是美妆博主，现在，你们只有一个共同的身份——幸存者。',
+    '在这间末日公寓里，一口水，就能决定谁能看到明天的太阳。'
+  ];
+
+  var introTimer = 0;
+
+  function playIntro(done) {
+    var box = $('intro-text');
+    var btn = $('btn-intro-go');
+    if (!box || !btn) {
+      done();
+      return;
+    }
+
+    box.innerHTML = '';
+    btn.classList.add('is-hidden');
+
+    var lineIdx = 0;
+    var charIdx = 0;
+    var current = null;
+
+    function nextChar() {
+      if (lineIdx >= INTRO_LINES.length) {
+        btn.classList.remove('is-hidden');
+        return;
+      }
+
+      if (!current) {
+        current = document.createElement('p');
+        current.className = 'intro-line';
+        box.appendChild(current);
+
+        if (lineIdx === 0 && SF.sfx && SF.sfx.pick) SF.sfx.pick();
+      }
+
+      var text = INTRO_LINES[lineIdx];
+      current.textContent = text.slice(0, charIdx + 1);
+      charIdx += 1;
+
+      if (charIdx >= text.length) {
+        lineIdx += 1;
+        charIdx = 0;
+        current = null;
+        introTimer = window.setTimeout(nextChar, 420);
+        return;
+      }
+
+      introTimer = window.setTimeout(nextChar, 34);
+    }
+
+    nextChar();
+  }
+
   /* ---------------- 启动 ---------------- */
 
   function boot() {
@@ -2048,9 +2106,22 @@
 
     if (loadNoticeDay) {
       updateHint('已读取第 ' + loadNoticeDay + ' 天存档');
+      showStoryIfAny();
+      return;
     }
 
-    showStoryIfAny();
+    showScreen('screen-intro');
+
+    playIntro(function () {
+      $('btn-intro-go').onclick = function (ev) {
+        if (ev) ev.stopPropagation();
+        if (introTimer) window.clearTimeout(introTimer);
+        introTimer = 0;
+        showScreen('screen-shelter');
+        renderShelter();
+        showStoryIfAny();
+      };
+    });
   }
 
   if (document.readyState === 'loading') {
