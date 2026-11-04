@@ -35,12 +35,21 @@
       try {
         var w = img.naturalWidth || img.width;
         var h = img.naturalHeight || img.height;
+
+        // 游戏里最大也就显示一百多像素，先缩小再处理，省内存也省时间
+        var cap = 256;
+        if (w > cap || h > cap) {
+          var scale = Math.min(cap / w, cap / h);
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+
         var canvas = document.createElement('canvas');
         canvas.width = w;
         canvas.height = h;
 
         var ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
+        ctx.drawImage(img, 0, 0, w, h);
 
         var data = ctx.getImageData(0, 0, w, h);
         var px = data.data;
