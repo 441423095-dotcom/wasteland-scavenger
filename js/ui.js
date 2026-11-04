@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v62';
+  var BUILD = 'v65';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -236,13 +236,17 @@
         html += '<button type="button" id="hold-' + key + '" class="inv-cell' +
           (n <= 0 ? ' is-empty' : '') + '" data-hold="' + key + '" title="' +
           SF.SUPPLIES[i].name + '">' +
-          '<span class="inv-ico">' + SF.itemSvg(key, 40) + '</span>' +
-          '<span class="inv-num">' + Math.round(n) + '</span>' +
+          '<span class="inv-ico" style="width:48px;height:48px;display:flex;align-items:center;justify-content:center">' +
+          SF.itemSvg(key, 48) + '</span>' +
+          '<span class="inv-num" style="font-size:26px;font-weight:700;line-height:1">' +
+          Math.round(n) + '</span>' +
           '</button>';
       } else {
         html += '<span class="inv-cell' + (n <= 0 ? ' is-empty' : '') + '">' +
-          '<span class="inv-ico">' + SF.itemSvg(key, 40) + '</span>' +
-          '<span class="inv-num">' + Math.round(n) + '</span>' +
+          '<span class="inv-ico" style="width:48px;height:48px;display:flex;align-items:center;justify-content:center">' +
+          SF.itemSvg(key, 48) + '</span>' +
+          '<span class="inv-num" style="font-size:26px;font-weight:700;line-height:1">' +
+          Math.round(n) + '</span>' +
           '</span>';
       }
     }
@@ -271,25 +275,22 @@
   /* 没拿到就是灰色虚线空槽，拿到了才是彩色图标 */
   function shelfSlot(sl) {
     var hasImg = SF.itemHasImage && SF.itemHasImage(sl.key);
-    var iconHtml = SF.itemSvg(sl.key, 40);
+    var box = 'style="width:40px;height:40px;display:flex;align-items:center;justify-content:center"';
 
     if (!sl.has) {
-      if (hasImg) {
-        return '<button type="button" class="inv-cell inv-tool is-ghost" data-item="' +
-          sl.key + '" title="' + sl.tip + '">' +
-          '<span class="inv-ico">' + iconHtml + '</span>' +
-          '</button>';
-      }
-
-      return '<button type="button" class="inv-cell inv-tool is-ghost" data-item="' +
-        sl.key + '" title="' + sl.tip + '">' +
-        '<span class="ghost-label">' + sl.label + '</span>' +
+      // 空槽：什么都别写，只有一圈很淡的虚线
+      return '<button type="button" class="inv-cell inv-tool is-ghost" data-item="' + sl.key +
+        '" title="' + sl.tip +
+        '" style="border:1px dashed #555;background:rgba(0,0,0,.42);color:transparent">' +
+        (hasImg ? '<span class="inv-ico" ' + box +
+          ' style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;opacity:.22;filter:grayscale(1)">' +
+          SF.itemSvg(sl.key, 40) + '</span>' : '') +
         '</button>';
     }
 
     return '<button type="button" class="inv-cell inv-tool is-on" data-item="' + sl.key +
       '" title="' + sl.tip + '">' +
-      '<span class="inv-ico">' + iconHtml + '</span>' +
+      '<span class="inv-ico" ' + box + '>' + SF.itemSvg(sl.key, 40) + '</span>' +
       (sl.worn ? '<i class="inv-dot"></i>' : '') +
       '</button>';
   }

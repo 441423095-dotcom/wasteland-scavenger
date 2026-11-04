@@ -4675,3 +4675,48 @@ body {
   border: 1px dashed rgba(150, 170, 150, 0.22) !important;
   box-shadow: inset 0 2px 9px rgba(0, 0, 0, 0.7);
 }
+
+
+
+/* ============ v65：图标强制 48px，空槽完全留白 ============ */
+
+.shelf-line .inv-ico img,
+.shelf-line .inv-ico svg,
+.inv-tool .inv-ico img,
+.inv-tool .inv-ico svg {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  object-fit: contain;
+}
+
+.shelf-line .inv-cell {
+  min-height: 66px;
+  padding: 3px 2px;
+  justify-content: center;
+  gap: 0;
+}
+
+.shelf-line .inv-ico {
+  flex: 0 0 auto;
+}
+
+.shelf-line .inv-num {
+  margin-top: 1px;
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  color: #fff8dd;
+  text-shadow: 0 1px 3px #000;
+}
+
+.inv-ghost .ghost-label {
+  display: none !important;
+}
+
+button.inv-ghost {
+  font-size: 0 !important;
+  line-height: 0 !important;
+  color: transparent !important;
+}
