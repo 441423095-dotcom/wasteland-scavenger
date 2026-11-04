@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v32';
+  var BUILD = 'v33';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -629,6 +629,7 @@
   var raidLoc = '';
   var raidIds = [];
   var raidDepth = 1;
+  var raidTotals = {};
 
   function gearButtons(s, locId) {
     var defs = [
@@ -910,6 +911,12 @@
       lastReport = SF.explore(state, locId, partyIds, raidDepth);
       lastReport.depth = raidDepth;
 
+      if (raidDepth === 1) raidTotals = {};
+      for (var li = 0; li < lastReport.loot.length; li++) {
+        var lk = lastReport.loot[li].key;
+        raidTotals[lk] = (raidTotals[lk] || 0) + lastReport.loot[li].qty;
+      }
+
       if (!SF.aliveAll(state).length) {
         state.over = true;
         state.overDay = state.day;
@@ -919,6 +926,17 @@
   }
 
   /* 探险日志 */
+  var RAID_TALK = [
+    '还好找到了这些东西，今晚总算能多撑一顿。',
+    '林晓把东西一样样码好：“省着点吃，能撑几天是几天。”',
+    '铁柱把包往地上一扔：“就这些？下趟得多带两个人。”',
+    '娜娜叹了口气：“至少今天不用空手回来了。”'
+  ];
+
+  function pickRaidTalk() {
+    return RAID_TALK[Math.floor(Math.random() * RAID_TALK.length)];
+  }
+
   function renderLog() {
     var r = lastReport;
     if (!r || !r.location) return;
@@ -944,6 +962,25 @@
     } else {
       html += '<div class="empty-text">什么也没带回来。</div>';
     }
+
+    // 本次探索累计结算
+    var totalChips = '';
+    var totalCount = 0;
+    for (var tk in raidTotals) {
+      if (!raidTotals.hasOwnProperty(tk) || raidTotals[tk] <= 0) continue;
+      totalCount += raidTotals[tk];
+      totalChips += '<span class="loot-chip is-total">' + SF.icon(tk, 15) +
+        '<span class="loot-qty">×' + raidTotals[tk] + '</span></span>';
+    }
+
+    if (totalChips) {
+      html += '<div class="res-label">本次探索总计（共 ' + totalCount + ' 件）</div>' +
+        '<div class="loot-row">' + totalChips + '</div>';
+    }
+
+    html += '<div class="night-story">' + (totalCount
+      ? pickRaidTalk()
+      : '空手而归。林晓把空背包往地上一扔，谁也没说话。') + '</div>';
 
     if (r.item) {
       html += '<div class="res-line"><span>特殊道具</span>' +
