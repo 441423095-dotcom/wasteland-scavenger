@@ -4976,3 +4976,82 @@ button.inv-ghost {
   opacity: 0.2;
   filter: grayscale(1);
 }
+
+
+
+/* ============ v69：缩小日志本 + 木质储物柜 ============ */
+
+.diary {
+  width: 52px;
+  height: 66px;
+  right: 8px;
+  top: auto;
+  bottom: 21%;
+  z-index: 4;
+  border-width: 2px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+.diary-lines {
+  transform: scale(0.72);
+  transform-origin: center;
+}
+
+.inv-panel {
+  background:
+    linear-gradient(180deg, rgba(58, 44, 30, 0.94), rgba(40, 30, 21, 0.96)),
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.18) 0 2px,
+      rgba(255, 255, 255, 0.03) 2px 5px,
+      rgba(0, 0, 0, 0.12) 5px 9px
+    );
+  border: 2px solid #4a3a28;
+  border-radius: 4px;
+  box-shadow:
+    inset 0 0 0 2px rgba(0, 0, 0, 0.45),
+    inset 0 6px 14px rgba(0, 0, 0, 0.55),
+    inset 0 -2px 0 rgba(255, 220, 170, 0.08),
+    0 8px 20px rgba(0, 0, 0, 0.65);
+  position: relative;
+}
+
+/* 钉子 */
+.inv-panel::before,
+.inv-panel::after {
+  content: "";
+  position: absolute;
+  top: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #b9b3a4, #4a4a44);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.inv-panel::before {
+  left: 5px;
+}
+
+.inv-panel::after {
+  right: 5px;
+}
+
+.inv-cell {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.32));
+  border: 1px solid rgba(150, 120, 80, 0.35);
+  box-shadow:
+    inset 0 3px 9px rgba(0, 0, 0, 0.9),
+    inset 0 0 0 1px rgba(255, 220, 170, 0.05);
+}
+
+.inv-cell .inv-ico img,
+.inv-cell .inv-ico svg {
+  width: 38px !important;
+  height: 38px !important;
+}
+
+.inv-num {
+  font-size: 19px !important;
+}
