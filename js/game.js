@@ -17,6 +17,48 @@ SF.SUPPLIES = [
   var T = C.traits;
   var seq = 0;
 
+  /* 生活化文案：同一件事随机抽一句，别让它像表格 */
+  var FLAVOR = {
+    eat: [
+      '{n}默默咽下冰冷的罐头，把剩下的一点汤底推给了旁边的人。',
+      '{n}吃得很慢，像是想把这一口多留一会儿。',
+      '{n}把罐头刮得干干净净，铁皮上一点油星都没剩。'
+    ],
+    eatHard: [
+      '{n}一口吞下两份口粮，连手指上的汤汁都舔干净了，可看着空荡荡的桌面，胃里还是像火烧一样。',
+      '{n}狼吞虎咽到差点噎住，最后只是把空罐头捏扁，扔进墙角。'
+    ],
+    drink: [
+      '{n}小口小口地抿着水，喉咙滚动了一下，才终于敢大口喘气。',
+      '{n}把瓶子举到眼前晃了晃，确认还剩最后几滴，才舍得咽下去。'
+    ],
+    sick: [
+      '{n}裹紧了破旧的外套，半夜压抑的咳嗽声让所有人无法安睡。脸色苍白得吓人。',
+      '{n}缩在角落里发抖，额头上全是汗，嘴唇没有一点血色。'
+    ],
+    hurt: [
+      '{n}咬着牙用破布自己包扎，血把布条一层层浸透。',
+      '{n}的伤口又裂开了，他一声没吭，只是把袖子拉下来盖住。'
+    ],
+    mad: [
+      '{n}突然把桌上的东西全扫到地上，尖叫着说我们都会死在这里。',
+      '{n}抱着头蹲在墙角，嘴里反反复复念着同一个名字。'
+    ],
+    calm: [
+      '难得的安静夜晚，你们没有听到枪声。铁柱靠着墙打起了呼噜，陈默看着桌上的收音机发呆。',
+      '风从门缝里钻进来，四个人谁也没说话。至少有屋顶，至少还有明天。',
+      '这一夜什么都没发生。安静得让人有点不习惯。'
+    ]
+  };
+
+  function flavor(key, s) {
+    var list = FLAVOR[key] || FLAVOR.calm;
+    var line = list[Math.floor(Math.random() * list.length)];
+    return line.replace(/\{n\}/g, s && s.name ? s.name : '他');
+  }
+
+  SF.flavor = flavor;
+
   function clamp(v, lo, hi) {
     if (v < lo) return lo;
     if (v > hi) return hi;
@@ -259,7 +301,7 @@ SF.SUPPLIES = [
       m.eat = true;
       s.hunger = clamp(s.hunger - C.meal.restore, 0, C.maxStat);
 
-      SF.addLog(state, '给 ' + s.name + ' 分了食物，他的饥饿缓过来不少。');
+      SF.addLog(state, flavor(s.hunger > 60 ? 'eatHard' : 'eat', s));
       return { ok: true, msg: s.name + ' 吃了一份食物，饥饿 −' + C.meal.restore + '。' };
     }
 
@@ -276,7 +318,7 @@ SF.SUPPLIES = [
       m.drink = true;
       s.thirst = clamp(s.thirst - C.meal.restore, 0, C.maxStat);
 
-      SF.addLog(state, '给 ' + s.name + ' 分了水，他看上去缓过来了。');
+      SF.addLog(state, flavor('drink', s));
       return { ok: true, msg: s.name + ' 喝了一份水，口渴 −' + C.meal.restore + '。' };
     }
 
@@ -559,10 +601,9 @@ SF.SUPPLIES = [
       }
 
       if (protector) {
-        result.lines.push('在' + loc.name + '遇到了流浪狗，' + victim.name +
-          '为了保护' + protector.name + '被咬伤了。');
+        result.lines.push(flavor('hurt', victim) + ' 是为了护住 ' + protector.name + '。');
       } else {
-        result.lines.push('在' + loc.name + '遇到了流浪狗，' + victim.name + '被咬伤了。');
+        result.lines.push(flavor('hurt', victim));
       }
     }
 
@@ -1017,16 +1058,14 @@ SF.SUPPLIES = [
         }
         list.push({
           id: 'mad',
-          text: who.name + ' 因为长期缺水，精神崩溃，' + stolen +
-            '。他的心情反而好了一点，其他人被吓得不轻。'
+          text: flavor('mad', who) + '（砸了 1 份物资，他心情 +10，其他人心情 −10。）'
         });
       } else if (kind === 'sick') {
         var sickOne = pickOne(alive);
         sickOne.sick = true;
         list.push({
           id: 'sick',
-          text: '半夜，' + sickOne.name + ' 开始剧烈咳嗽，似乎发烧了。' +
-            '如果不吃药，他的血会一夜一夜地掉。'
+          text: flavor('sick', sickOne) + '（不吃药的话，夜里还会掉 20 点血。）'
         });
       } else if (kind === 'fight') {
         var a = pickOne(alive);
@@ -1063,6 +1102,12 @@ SF.SUPPLIES = [
     }
 
     for (i = 0; i < list.length; i++) SF.addLog(state, list[i].text);
+
+    if (!list.length) {
+      var calm = flavor('calm');
+      list.push({ id: 'calm', text: calm });
+      SF.addLog(state, calm);
+    }
 
     return list;
   };

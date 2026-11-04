@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v23';
+  var BUILD = 'v24';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -410,7 +410,8 @@
           : (heldItem === 'medicine' ? !!s.sick : false));
 
       var mealMarks = '';
-      if (m.eat) mealMarks += '<span class="mini-fed">食</span>';
+      if (m.eat) mealMarks += '<span class="mini-fed">饱</span>';
+      else mealMarks += '<span class="mini-fed is-missing">饿</span>';
       if (m.drink) mealMarks += '<span class="mini-fed">水</span>';
       if (s.sick) mealMarks += '<span class="mini-fed is-bad">病</span>';
 
@@ -503,15 +504,13 @@
 
   function dayHint() {
     var alive = SF.aliveAll(state);
-    if (!alive.length) return '【避难所里没有活人了】';
+    if (!alive.length) return '';
 
-    if (allFed()) return '【全员已进食，可以结束今天】';
-
-    if ((state.supplies.food || 0) > 0 || (state.supplies.water || 0) > 0) {
-      return '【请点击右上角物资投喂】';
+    if ((state.supplies.food || 0) <= 0 && (state.supplies.water || 0) <= 0) {
+      return '【物资耗尽，必须出门】';
     }
 
-    return '【请选择行动：探索或休息】';
+    return '';
   }
 
   function allFed() {

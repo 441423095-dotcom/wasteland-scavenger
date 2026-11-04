@@ -2998,3 +2998,41 @@ body {
 .equip-verdict.is-bad {
   color: #e79080;
 }
+
+
+
+/* ============ v24：广播跑马灯 + 名片微标 ============ */
+
+.ticker {
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 6px 0;
+  background: #050705;
+  border-bottom: 2px solid rgba(190, 205, 180, 0.4);
+}
+
+.ticker-text {
+  display: inline-block;
+  padding: 0;
+  padding-left: 100%;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #cdeb6d;
+  white-space: nowrap;
+  animation: ticker-run 30s linear infinite;
+}
+
+.mini-fed.is-missing {
+  color: #20261f;
+  background: #6d7768;
+}
+
+.hintbar:empty {
+  margin: 0;
+  padding: 0;
+  min-height: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
