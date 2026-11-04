@@ -1321,6 +1321,19 @@
   }
 
   function openGear(key) {
+    var owned = true;
+
+    if (key === 'flashlight') owned = !!state.items.flashlight;
+    else if (key === 'weapon') owned = !!state.items.weapon;
+    else if (key === 'radio') owned = !!state.items.radio;
+    else if (key === 'mask' || key === 'gasMask') owned = !!state.items.gasMask;
+    else if (state.supplies[key] !== undefined) owned = (state.supplies[key] || 0) > 0;
+
+    if (!owned) {
+      showCenterTip('【未知物品：还没搜到，暂时用不上】', false);
+      return;
+    }
+
     showCenterTip(itemDesc(key) || '这件东西暂时没用。', false);
   }
 
