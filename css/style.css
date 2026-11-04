@@ -4117,3 +4117,73 @@ body {
     inset 0 0 12px rgba(255, 215, 0, 0.15),
     0 3px 10px rgba(0, 0, 0, 0.6);
 }
+
+
+
+/* ============ v59：名片压缩到左上角 ============ */
+
+.people-panel {
+  left: 6px;
+  top: 34px;
+  bottom: auto;
+  width: 142px;
+  min-width: 0;
+  max-width: 148px;
+  gap: 3px;
+  padding-left: 0;
+}
+
+.mini-card {
+  padding: 3px 5px;
+  gap: 5px;
+  border-radius: 5px;
+}
+
+.mini-fig .portrait-img {
+  width: 40px !important;
+  height: 40px !important;
+  border-width: 1.5px;
+  box-shadow:
+    0 0 5px rgba(90, 208, 106, 0.6),
+    0 0 0 1.5px rgba(0, 0, 0, 0.55);
+}
+
+.mini-name {
+  font-size: 11px;
+  letter-spacing: 0.3px;
+}
+
+.mini-main {
+  gap: 1px;
+}
+
+.mrow {
+  height: 9px;
+  gap: 2px;
+}
+
+.mtrack {
+  height: 4px;
+  border-radius: 2px;
+}
+
+.mkey {
+  width: 9px;
+  font-size: 8px;
+}
+
+.mini-ap {
+  width: 5px;
+  height: 5px;
+  margin-right: 2px;
+}
+
+.mini-fed {
+  padding: 0 1px;
+  font-size: 7px;
+  line-height: 1.1;
+}
+
+.mini-mood {
+  transform: scale(0.75);
+}
