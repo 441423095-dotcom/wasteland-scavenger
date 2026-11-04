@@ -5777,3 +5777,46 @@ button.inv-ghost {
   right: 14px;
   font-size: 11.5px;
 }
+
+
+
+/* ============ v84：提示再下移，物资更大更紧 ============ */
+
+.center-tip {
+  top: 53%;
+  right: 12px;
+  max-width: 240px;
+  font-size: 11.5px;
+}
+
+.inv {
+  width: 244px;
+  right: 10px;
+  top: 68px;
+}
+
+.shelf-row {
+  gap: 2px;
+  min-height: 58px;
+  padding-left: 0;
+}
+
+.shelf-sec {
+  margin-bottom: 5px;
+}
+
+.inv .inv-cell .inv-ico img,
+.inv .inv-cell .inv-ico svg {
+  width: 50px !important;
+  height: 50px !important;
+}
+
+.inv .inv-cell {
+  padding: 0 1px;
+}
+
+.shelf-label {
+  font-size: 10.5px;
+  padding: 1px 8px;
+  margin-bottom: 2px;
+}
