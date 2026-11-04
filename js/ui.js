@@ -248,10 +248,9 @@
         (showNum ? '<span class="inv-num">' + Math.round(n) + '</span>' : '');
 
       if (kind === 'info' && n <= 0) {
-        // 没获得：极暗轮廓 + 虚线空槽，没有数字、没有文字
+        // 没获得：只显示一个问号
         return '<button type="button" class="inv-cell is-empty-slot" data-item="' + key + '">' +
-          '<span class="inv-ico" style="opacity:.22;filter:grayscale(1)">' +
-          SF.itemSvg(key, 26) + '</span></button>';
+          '<span class="q-mark">?</span></button>';
       }
 
       if (kind === 'hold') {
