@@ -3819,3 +3819,27 @@ body {
   top: 0;
   bottom: 30%;
 }
+
+
+
+/* ============ v53：围坐图缩到中间空白区，保证不被遮挡 ============ */
+
+.scene {
+  left: 10%;
+  right: 10%;
+  top: 34%;
+  bottom: 20%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+
+.scene-img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  margin: 0 auto;
+}
