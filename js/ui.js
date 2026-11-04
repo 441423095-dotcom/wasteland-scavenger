@@ -1020,7 +1020,7 @@
     if (r.loot.length) {
       html += '<div class="loot-row">';
       for (i = 0; i < r.loot.length; i++) {
-        html += '<span class="loot-chip">' + SF.icon(r.loot[i].key, 15) +
+        html += '<span class="loot-chip">' + SF.itemSvg(r.loot[i].key, 18) +
           '<span>' + r.loot[i].name + '</span>' +
           '<span class="loot-qty">×' + r.loot[i].qty + '</span></span>';
       }
@@ -1035,7 +1035,7 @@
     for (var tk in raidTotals) {
       if (!raidTotals.hasOwnProperty(tk) || raidTotals[tk] <= 0) continue;
       totalCount += raidTotals[tk];
-      totalChips += '<span class="loot-chip is-total">' + SF.icon(tk, 15) +
+      totalChips += '<span class="loot-chip is-total">' + SF.itemSvg(tk, 18) +
         '<span class="loot-qty">×' + raidTotals[tk] + '</span></span>';
     }
 
