@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v17';
+  var BUILD = 'v18';
 
   // 货架上固定摆这四层
   var SHELF_ITEMS = ['food', 'water', 'medicine', 'material'];
@@ -508,15 +508,36 @@
     }
 
     var hungry = 0;
+    var noFood = 0;
+    var noWater = 0;
     var i;
+
     for (i = 0; i < alive.length; i++) {
       var m = (state.meal && state.meal[alive[i].id]) || {};
+      if (!m.eat) noFood += 1;
+      if (!m.drink) noWater += 1;
       if (!m.eat || !m.drink) hungry += 1;
     }
 
-    if (!hungry) return '今天所有人都吃过了，点「结束今天」睡觉。 · ' + BUILD;
+    if (!hungry) return '所有人都已进食，点「结束今天」睡觉。 · ' + BUILD;
 
-    return '点右上角的食物、水或药品，再点人。还有 ' + hungry + ' 人没吃没喝。 · ' + BUILD;
+    if (noFood && noWater) {
+      return '点右上角的食物或水，再点人投喂。还有 ' + hungry + ' 人没吃没喝。 · ' + BUILD;
+    }
+    if (noFood) return '还有 ' + noFood + ' 人没吃东西，点一下食物再点他。 · ' + BUILD;
+
+    return '还有 ' + noWater + ' 人没喝水，点一下水再点他。 · ' + BUILD;
+  }
+
+  function allFed() {
+    var alive = SF.aliveAll(state);
+    if (!alive.length) return false;
+
+    for (var i = 0; i < alive.length; i++) {
+      var m = (state.meal && state.meal[alive[i].id]) || {};
+      if (!m.eat || !m.drink) return false;
+    }
+    return true;
   }
 
   function renderShelter() {
@@ -1175,6 +1196,10 @@
     bar.style.fontWeight = '';
     bar.textContent = message || dayHint();
 
+    if (!message && allFed()) {
+      bar.style.color = '#7fd16a';
+    }
+
     if (message) {
       hintTimer = window.setTimeout(function () {
         hintTimer = 0;
@@ -1340,12 +1365,12 @@
     }
 
     html += '<div class="need-row">' + SF.icon('food', 15) +
-      '<span>食物</span><span class="need-num">−' + n.foodUsed + '</span>' +
-      '<span class="need-left">剩 ' + (state.supplies.food || 0) + '</span></div>';
+      '<span>今天手动喂了</span><span class="need-num">' + n.foodUsed + '</span>' +
+      '<span class="need-left">库存 ' + (state.supplies.food || 0) + '</span></div>';
 
     html += '<div class="need-row">' + SF.icon('water', 15) +
-      '<span>水</span><span class="need-num">−' + n.waterUsed + '</span>' +
-      '<span class="need-left">剩 ' + (state.supplies.water || 0) + '</span></div>';
+      '<span>今天手动喂了</span><span class="need-num">' + n.waterUsed + '</span>' +
+      '<span class="need-left">库存 ' + (state.supplies.water || 0) + '</span></div>';
 
     if (n.shortage) {
       html += '<div class="alert bad">有人没分到吃的或喝的，饿着睡了。</div>';

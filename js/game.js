@@ -710,18 +710,13 @@ SF.SUPPLIES = [
       report.foodNeed += need;
       report.waterNeed += waterRation;
 
-      if (plan.eat[a1.id] && (prepaid || (state.supplies.food || 0) >= need)) {
-        if (!prepaid) {
-          state.supplies.food -= need;
-        }
+      // 结算只认“白天手动喂过的”，绝不在这里再扣一次库存
+      if (plan.eat[a1.id]) {
         report.foodUsed += need;
         fed = true;
       }
 
-      if (plan.drink[a1.id] && (prepaid || (state.supplies.water || 0) >= waterRation)) {
-        if (!prepaid) {
-          state.supplies.water = Math.max(0, Math.round((state.supplies.water || 0) - waterRation));
-        }
+      if (plan.drink[a1.id]) {
         report.waterUsed = Math.round(report.waterUsed + waterRation);
         drank = true;
       }
@@ -729,10 +724,9 @@ SF.SUPPLIES = [
       rowData[a1.id] = { fed: fed, drank: drank };
     }
 
-    if (prepaid) {
-      report.foodUsed = Math.round(state.todayFood || 0);
-      report.waterUsed = Math.round(state.todayWater || 0);
-    }
+    // 用量就是白天手动喂掉的
+    report.foodUsed = Math.round(state.todayFood || 0);
+    report.waterUsed = Math.round(state.todayWater || 0);
 
     report.foodNeed = Math.round(report.foodNeed);
     report.waterNeed = Math.round(report.waterNeed);
