@@ -4720,3 +4720,79 @@ button.inv-ghost {
   line-height: 0 !important;
   color: transparent !important;
 }
+
+
+
+/* ============ v66：4 列悬浮货架，去掉大底板 ============ */
+
+.inv {
+  right: 10px;
+  top: 24px;
+  width: 344px;
+  max-width: 80vw;
+  padding: 0;
+  background: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.inv-title {
+  display: none;
+}
+
+.shelf-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.shelf-tag {
+  flex: 0 0 30px;
+  min-height: 0;
+  font-size: 10px;
+  line-height: 1.1;
+  letter-spacing: 0;
+  color: #b6c7ad;
+  text-shadow: 0 1px 2px #000;
+}
+
+.shelf-line .inv-grid,
+.shelf-line:first-of-type .inv-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+}
+
+.shelf-line .inv-cell {
+  min-height: 60px;
+  padding: 2px;
+  background: rgba(0, 0, 0, 0.38);
+  border: 1px solid rgba(120, 140, 120, 0.35);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.6),
+    0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.shelf-line .inv-num {
+  font-size: 20px !important;
+}
+
+.shelf-line .inv-ico img,
+.shelf-line .inv-ico svg,
+.inv-tool .inv-ico img,
+.inv-tool .inv-ico svg {
+  width: 40px !important;
+  height: 40px !important;
+}
+
+button.inv-ghost {
+  background: rgba(0, 0, 0, 0.22) !important;
+  border: 1px dashed rgba(120, 135, 120, 0.4) !important;
+  box-shadow: none !important;
+}

@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v65';
+  var BUILD = 'v66';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -259,12 +259,9 @@
       { key: 'weapon', label: '武器', tip: '武器 - 警局必备，也可在探索中当撬棍。', has: state.items.weapon, worn: gearWorn('weapon') }
     ];
 
-    html += '<div class="shelf-line"><span class="shelf-tag">特殊道具</span><span class="inv-grid">';
+    html += '<div class="shelf-line"><span class="shelf-tag">装备</span><span class="inv-grid">';
     html += shelfSlot(slots[0]);
     html += shelfSlot(slots[1]);
-    html += '</span></div>';
-
-    html += '<div class="shelf-line"><span class="shelf-tag">武器装备</span><span class="inv-grid">';
     html += shelfSlot(slots[2]);
     html += shelfSlot(slots[3]);
     html += '</span></div>';
