@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v36';
+  var BUILD = 'v37';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -1967,11 +1967,10 @@
 
   /* ---------------- 片头 ---------------- */
   var INTRO_LINES = [
-    '那场灾难来得毫无预兆。楼下传来第一声惨叫时，你们四个合租的室友正围在桌前，为了谁该去倒垃圾而争吵。',
-    '仅仅过了十分钟，整座城市就沦陷了。公寓的防盗门被彻底焊死，门外是游荡的死者和刺鼻的血腥味，而你们的冰箱里，只剩下最后半箱泡面和三瓶矿泉水。',
-    '14 天后，军方承诺的救援直升机将抵达楼顶。在这之前，你们必须在这个不足六十平米的房间里，活下去。',
-    '不管以前你们是程序员、考研党、健身教练还是美妆博主，现在，你们只有一个共同的身份——幸存者。',
-    '在这间末日公寓里，一口水，就能决定谁能看到明天的太阳。'
+    '灾难爆发十分钟，整座城市沦陷。你们四个室友刚把防盗门死死焊住。',
+    '一架满载难民、仓皇撤离的运输机从楼顶掠过。为了减重，他们把大量物资箱直接抛向街道。',
+    '这是活下去的唯一机会。不管以前是程序员还是健身教练，现在立刻冲下去，抢！',
+    '撑过 14 天，楼顶的救援直升机才会来。在这之前，一口水，就能决定谁能看到明天的太阳。'
   ];
 
   var introTimer = 0;
@@ -2159,12 +2158,20 @@
 
     var text = $('mini-over-text');
     if (text) {
-      text.textContent = '你抱回了 🍖 ' + miniCounts.food + ' 份食物、💧 ' +
-        miniCounts.water + ' 瓶水、🪵 ' + miniCounts.material + ' 块木板。';
+      text.textContent = '你拖着接满物资的地毯，赶在尸群包围前逃回了房间。（食物 x' +
+        miniCounts.food + '，水 x' + miniCounts.water + '，木板 x' + miniCounts.material + '）';
+    }
+
+    var flash = $('mini-flash');
+    if (flash) {
+      flash.classList.add('is-on');
+      window.setTimeout(function () { flash.classList.remove('is-on'); }, 220);
     }
 
     var over = $('mini-over');
-    if (over) over.classList.add('is-on');
+    if (over) {
+      window.setTimeout(function () { over.classList.add('is-on'); }, 180);
+    }
   }
 
   function miniFinish() {

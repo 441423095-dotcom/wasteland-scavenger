@@ -3384,3 +3384,102 @@ body {
   line-height: 1.7;
   color: #e8e8e4;
 }
+
+
+
+/* ============ v37：运输机 / 破地毯 / 结算遮罩 ============ */
+
+.mini-sky {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 34px;
+  height: 46px;
+  overflow: hidden;
+  z-index: 2;
+}
+
+.mini-plane {
+  position: absolute;
+  top: 4px;
+  font-size: 30px;
+  line-height: 1;
+  color: #b9c6b2;
+  text-shadow: 0 2px 6px #000;
+  animation: plane-run 9s linear infinite;
+}
+
+@keyframes plane-run {
+  0% { left: 105%; }
+  100% { left: -20%; }
+}
+
+#mini-basket {
+  width: 96px;
+  height: 26px;
+  font-size: 11px;
+  color: #e8dcc0;
+  background: repeating-linear-gradient(135deg, #5b4630 0 6px, #6d5538 6px 12px);
+  border: 2px dashed #2f2317;
+  border-radius: 3px;
+}
+
+.mini-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mini-flash.is-on {
+  animation: black-flash 0.22s linear;
+}
+
+@keyframes black-flash {
+  0% { opacity: 0; }
+  40% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.debug-panel .dbg-btn,
+.modal .btn {
+  /* 保留原样 */
+}
+
+.mini-over {
+  background: rgba(0, 0, 0, 0.92);
+  gap: 18px;
+}
+
+.mini-over-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: #8c1f16;
+  text-shadow: 0 0 14px rgba(140, 31, 22, 0.6);
+}
+
+.mini-over-text {
+  max-width: 300px;
+  font-size: 12px;
+  line-height: 1.9;
+  color: #d9d9d4;
+}
+
+.mini-over-btn {
+  padding: 9px 22px;
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #c9d3bf;
+  background: #0d0f0d;
+  border: 1px solid #4a5a44;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.mini-over-btn:active {
+  background: #1a1e1a;
+}
