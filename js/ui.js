@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v25';
+  var BUILD = 'v26';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -629,7 +629,7 @@
   var raidIds = [];
   var raidDepth = 1;
 
-  function gearButtons(s) {
+  function gearButtons(s, locId) {
     var defs = [
       { key: 'mask', label: '面具', has: s.hasMask, own: state.items.gasMask },
       { key: 'torch', label: '手电', has: s.hasTorch, own: state.items.flashlight },
@@ -641,7 +641,8 @@
       var d = defs[i];
       if (!d.has && !d.own) continue;
       html += '<button type="button" class="gear-chip' + (d.has ? ' is-on' : '') + '"' +
-        ' data-act="equip" data-gear="' + d.key + '" data-id="' + s.id + '">' +
+        ' data-act="equip" data-gear="' + d.key + '" data-id="' + s.id + '"' +
+        ' data-loc="' + (locId || '') + '">' +
         d.label + (d.has ? ' ✓' : '') + '</button>';
     }
     return html;
@@ -772,25 +773,29 @@
     var html = '<div class="modal-head">' +
       '<span class="modal-title">' + loc.name + '</span>' +
       '<span class="modal-sub">派谁去？（最多 ' + C.party.maxMembers + ' 人）</span>' +
-      '</div>';
+      '</div>' +
+      '<div class="res-text">点在名字上选人，右边的装备点一下就能穿上；选好直接出发。</div>';
 
     for (var i = 0; i < alive.length; i++) {
       var s = alive[i];
       if (s.mad || s.ap < 1) continue;
 
       var on = !!partyPick[s.id];
-      var weak = s.mood < C.explore.refuseMoodBelow;
+      var v = SF.verdictFor(state, loc, s);
 
-      html += '<button type="button" class="pick-row' + (on ? ' is-on' : '') +
-        (s.id === state.leaderId ? ' is-lead' : '') +
-        '" data-act="pick-toggle" data-id="' + s.id + '" data-loc="' + loc.id + '">' +
+      html += '<div class="pick-row' + (on ? ' is-on' : '') + '">' +
+        '<button type="button" class="pick-hit" data-act="pick-toggle" data-id="' +
+        s.id + '" data-loc="' + loc.id + '">' +
         '<span class="pick-check' + (on ? ' is-on' : '') + '"></span>' +
         '<span class="pick-fig">' + portraitHtml(s, 30, 40) + '</span>' +
         '<span class="pick-main"><b>' + s.name + '</b>' +
-        '<span class="pick-role">' + s.role + ' · ' + s.trait + '</span></span>' +
-        '<span class="pick-mood' + (weak ? ' is-bad' : '') + '">心情 ' +
-        Math.round(s.mood) + (weak ? ' 崩溃' : '') + '</span>' +
-        '</button>';
+        '<span class="pick-role">' + s.role + ' · ' + s.trait + '</span>' +
+        '<span class="pick-trait">' + s.traitText + '</span>' +
+        '<span class="pick-verdict' + (v.good ? ' is-good' : ' is-bad') + '">' +
+        v.text + '</span></span>' +
+        '</button>' +
+        '<div class="pick-gear">' + gearButtons(s, loc.id) + '</div>' +
+        '</div>';
     }
 
     var count = partyCount();
@@ -1536,7 +1541,7 @@
       openDetail(id);
     } else if (act === 'equip') {
       SF.toggleGear(state, id, el.getAttribute('data-gear'));
-      openEquipment(raidLoc, raidIds);
+      renderPartyPicker(el.getAttribute('data-loc') || raidLoc);
     } else if (act === 'depart') {
       depart();
     } else if (act === 'deeper') {
@@ -1576,7 +1581,18 @@
 
       var goLoc = el.getAttribute('data-loc');
       state.leaderId = ids[0];
-      openEquipment(goLoc, ids);
+
+      for (var pi = 0; pi < ids.length; pi++) {
+        var ps = SF.find(state, ids[pi]);
+        if (ps) ps.ap = 0;
+      }
+
+      raidLoc = goLoc;
+      raidIds = ids;
+      partyPick = {};
+      closeModal();
+      renderShelter();
+      startSearch(goLoc, ids);
     } else if (act === 'log-choice') {
       SF.applyExploreChoice(state, lastReport, el.getAttribute('data-key'));
       renderLog();
