@@ -5408,3 +5408,81 @@ button.inv-ghost {
   background: rgba(255, 215, 0, 0.1) !important;
   box-shadow: 0 0 10px rgba(255, 215, 0, 0.85) !important;
 }
+
+
+
+/* ============ v75：中央说明文字 + 空槽虚线 ============ */
+
+.inv {
+  right: 34px;
+  top: 26px;
+  width: 214px;
+  max-width: 58vw;
+}
+
+.shelf-sec {
+  position: relative;
+  padding-top: 13px;
+  margin-bottom: 8px;
+}
+
+.shelf-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: rgba(225, 235, 215, 0.7);
+}
+
+.shelf-row {
+  justify-content: space-between;
+  gap: 0;
+  min-height: 48px;
+}
+
+.inv-cell .inv-ico img,
+.inv-cell .inv-ico svg {
+  width: 36px !important;
+  height: 36px !important;
+}
+
+.inv-num {
+  font-size: 12px !important;
+}
+
+.inv-cell.is-empty-slot {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px dashed rgba(150, 165, 150, 0.4) !important;
+  background: rgba(0, 0, 0, 0.25) !important;
+  box-shadow: none !important;
+}
+
+.center-tip {
+  position: absolute;
+  left: 50%;
+  top: 33%;
+  transform: translateX(-50%);
+  z-index: 12;
+  max-width: 74%;
+  padding: 6px 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+  color: #ffe9a8;
+  background: rgba(0, 0, 0, 0.62);
+  border: 1px solid rgba(255, 215, 120, 0.35);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 1px 2px #000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s linear;
+}
+
+.center-tip.is-on {
+  opacity: 1;
+}

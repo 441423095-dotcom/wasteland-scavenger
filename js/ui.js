@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v74';
+  var BUILD = 'v75';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -247,6 +247,12 @@
         (heldItem === key ? ' is-held' : '');
       var inner = '<span class="inv-ico">' + SF.itemSvg(key, 40) + '</span>' +
         (showNum ? '<span class="inv-num">' + Math.round(n) + '</span>' : '');
+
+      if (kind === 'info' && n <= 0) {
+        // 没获得：只留一个很小的虚线空槽，没有图标、没有数字、没有文字
+        return '<button type="button" class="inv-cell is-empty-slot" data-item="' + key +
+          '" style="transform:rotate(' + rot + 'deg)"></button>';
+      }
 
       if (kind === 'hold') {
         return '<button type="button" id="hold-' + key + '" class="' + cls +
@@ -1279,19 +1285,50 @@
     openGear(gear.getAttribute('data-item'));
   }
 
+  var tipTimer = 0;
+
+  function showCenterTip(text, sticky) {
+    var el = $('center-tip');
+    if (!el) return;
+
+    el.textContent = text;
+    el.classList.add('is-on');
+
+    if (tipTimer) {
+      window.clearTimeout(tipTimer);
+      tipTimer = 0;
+    }
+
+    if (!sticky) {
+      tipTimer = window.setTimeout(function () {
+        tipTimer = 0;
+        el.classList.remove('is-on');
+      }, 3000);
+    }
+  }
+
+  function hideCenterTip() {
+    var el = $('center-tip');
+    if (tipTimer) {
+      window.clearTimeout(tipTimer);
+      tipTimer = 0;
+    }
+    if (el) el.classList.remove('is-on');
+  }
+
+  function itemDesc(key) {
+    if (key === 'food') return '【食物】：吃下去恢复 50 点饥饿，铁柱一次要吃两份。';
+    if (key === 'water') return '【饮用水】：饮用后恢复 50 点口渴值。';
+    if (key === 'medicine') return '【药品】：治好生病并恢复 30 点血量。';
+    if (key === 'material') return '【木板】：修补窗户、钉死大门、生火取暖，探索时也能搭桥。';
+    if (key === 'flashlight') return '【手电筒】：装备后探索仓库等暗处，物资收益增加。';
+    if (key === 'weapon') return '【武器】：警局必备，也能在探索里当撬棍换零件。';
+    if (key === 'radio') return '【收音机】：修好后能收到军方救援情报，也是进入警局的前提。';
+    return '';
+  }
+
   function openGear(key) {
-    if (key === 'radio') openBroadcast();
-    else if (key === 'radioBroken') tryRepair();
-    else if (key === 'pesticide') openPesticide();
-    else if (key === 'cards') openGearInfo('扑克牌', '只要它在避难所里，所有人每天的心情恢复都会更快。');
-    else if (key === 'food') openGearInfo('食物', '罐头或面包。点它再点人即可投喂：恢复 50 点饥饿。铁柱一次要吃两份。');
-    else if (key === 'water') openGearInfo('水', '干净的水。点它再点人即可投喂：恢复 50 点口渴。');
-    else if (key === 'medicine') openGearInfo('药品', '止疼药与抗生素。点它再点生病的人：治好生病并恢复 30 点血量。');
-    else if (key === 'material') openGearInfo('木板', '重要的建筑材料，夜里可以用来修补漏风的窗户、钉死大门，探索时也能搭桥或当撬棍。');
-    else if (key === 'flashlight') openGearInfo('手电筒', '装备后探索仓库等暗处，物资收益增加。出发前给队员穿上。');
-    else if (key === 'gasMask') openGearInfo('防毒面具', '进入废弃医院的必需品，也能防止探索时染病。');
-    else if (key === 'weapon') openGearInfo('武器', '警局必备；也可以在探索里当撬棍换零件。');
-    else if (key === 'mask') openGearInfo('防毒面具', '出发前给队员戴上，医院里不会被毒气伤到。');
+    showCenterTip(itemDesc(key) || '这件东西暂时没用。', false);
   }
 
   /* ---------------- 物资兑换（占位） ---------------- */
@@ -1522,29 +1559,28 @@
     return '药品';
   }
 
-  /* 点物资图标：消耗品可以拿起来，同时所有物资都会弹说明 */
   function pickItem(key) {
     var now = Date.now();
-    // 一次点击只处理一次，避免冒泡和直接绑定各触发一遍
     if (now - lastPickAt < 260) return;
     lastPickAt = now;
 
     if (heldItem === key) {
       heldItem = null;
       renderShelter();
-      openGear(key);
+      hideCenterTip();
       return;
     }
 
     if ((state.supplies[key] || 0) <= 0) {
-      openGear(key);
+      showCenterTip(itemDesc(key));
       return;
     }
 
     heldItem = key;
     renderShelter();
     updateHint();
-    openGear(key);
+    hideCenterTip();
+    showCenterTip(itemDesc(key), true);
     if (SF.sfx && SF.sfx.pick) SF.sfx.pick();
   }
 
@@ -1580,6 +1616,7 @@
 
     renderShelter();
     updateHint();
+    hideCenterTip();
 
     window.setTimeout(function () {
       if (flashId === id) flashId = null;
