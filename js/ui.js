@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v42';
+  var BUILD = 'v43';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -215,7 +215,7 @@
   /* ---------------- 避难所渲染 ---------------- */
 
   function renderShelf() {
-    var html = '<div class="inv-title">库存</div><div class="inv-grid">';
+    var html = '<div class="inv-title">背包</div><div class="inv-grid">';
 
     for (var i = 0; i < SF.SUPPLIES.length; i++) {
       var key = SF.SUPPLIES[i].key;
@@ -225,23 +225,47 @@
       if (canFeed) {
         html += '<button type="button" id="hold-' + key + '" class="inv-cell' +
           (n <= 0 ? ' is-empty' : '') + '" data-hold="' + key + '">' +
-          '<span class="inv-ico">' + SF.itemSvg(key, 40) + '</span>' +
-          '<span class="inv-meta">' +
+          '<span class="inv-ico">' + SF.itemSvg(key, 30) + '</span>' +
           '<span class="inv-num">' + Math.round(n) + '</span>' +
-          '<span class="inv-name">' + SF.SUPPLIES[i].name + '</span>' +
-          '</span></button>';
+          '</button>';
       } else {
-        html += '<button type="button" class="inv-cell' + (n <= 0 ? ' is-empty' : '') + '" disabled>' +
-          '<span class="inv-ico">' + SF.itemSvg(key, 40) + '</span>' +
-          '<span class="inv-meta">' +
+        html += '<div class="inv-cell' + (n <= 0 ? ' is-empty' : '') + '">' +
+          '<span class="inv-ico">' + SF.itemSvg(key, 30) + '</span>' +
           '<span class="inv-num">' + Math.round(n) + '</span>' +
-          '<span class="inv-name">' + SF.SUPPLIES[i].name + '</span>' +
-          '</span></button>';
+          '</div>';
       }
     }
 
-    html += '</div><div class="inv-gear" id="gear"></div>';
+    // 四个工具槽：手电 / 面具 / 武器 / 收音机
+    var slots = [
+      { key: 'flashlight', name: '手电筒', icon: 'flashlight', has: state.items.flashlight, worn: gearWorn('torch'), tip: '手电筒 - 可在城郊仓库大幅增加收益。' },
+      { key: 'gasMask', name: '防毒面具', icon: 'mask', has: state.items.gasMask, worn: gearWorn('mask'), tip: '防毒面具 - 进入废弃医院的必需品。' },
+      { key: 'weapon', name: '武器', icon: 'weapon', has: state.items.weapon, worn: gearWorn('weapon'), tip: '武器 - 警局必备，也可在探索中当撬棍。' },
+      { key: 'radio', name: '收音机', icon: 'radio', has: state.items.radio, worn: false, tip: '收音机 - 修好后能收到军方救援情报。' }
+    ];
+
+    for (var si = 0; si < slots.length; si++) {
+      var sl = slots[si];
+      html += '<button type="button" class="inv-cell inv-tool' +
+        (sl.has ? ' is-on' : ' is-empty') + '"' +
+        ' data-item="' + sl.key + '" title="' + sl.tip + '">' +
+        '<span class="inv-ico">' + (sl.has ? SF.icon(sl.icon, 26) : '?') + '</span>' +
+        (sl.has && sl.worn ? '<i class="inv-dot"></i>' : '') +
+        '</button>';
+    }
+
+    html += '</div>';
     $('shelf').innerHTML = html;
+  }
+
+  function gearWorn(kind) {
+    var alive = SF.aliveAll(state);
+    for (var i = 0; i < alive.length; i++) {
+      if (kind === 'torch' && alive[i].hasTorch) return true;
+      if (kind === 'mask' && alive[i].hasMask) return true;
+      if (kind === 'weapon' && alive[i].hasWeapon) return true;
+    }
+    return false;
   }
 
   function renderMatChip() {
@@ -1204,7 +1228,10 @@
     else if (key === 'radioBroken') tryRepair();
     else if (key === 'pesticide') openPesticide();
     else if (key === 'cards') openGearInfo('扑克牌', '只要它在避难所里，所有人每天的心情恢复都会更快。');
-    else if (key === 'mask') openGearInfo('防毒面具', '出发前在装备界面把它分给某个人，他生病也不会影响探索成功率。');
+    else if (key === 'flashlight') openGearInfo('手电筒', '可在城郊仓库大幅增加收益。出发前给队员穿上。');
+    else if (key === 'gasMask') openGearInfo('防毒面具', '进入废弃医院的必需品，也能防止探索时染病。');
+    else if (key === 'weapon') openGearInfo('武器', '警局必备；也可以在探索里当撬棍换零件。');
+    else if (key === 'mask') openGearInfo('防毒面具', '出发前给队员戴上，医院里不会被毒气伤到。');
   }
 
   /* ---------------- 物资兑换（占位） ---------------- */

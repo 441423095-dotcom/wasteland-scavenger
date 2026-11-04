@@ -3536,3 +3536,80 @@ body {
 .log-line {
   color: #eceee8;
 }
+
+
+
+/* ============ v43：极简背包网格 ============ */
+
+.inv {
+  right: 8px;
+  top: 30px;
+  width: 232px;
+  max-width: 62vw;
+  padding: 6px;
+}
+
+.inv-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.inv-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  padding: 4px 2px;
+  min-height: 44px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.inv-cell .inv-ico svg,
+.inv-cell .inv-ico img {
+  width: 26px;
+  height: 26px;
+}
+
+.inv-num {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  color: #f0e4b8;
+}
+
+.inv-cell.is-empty {
+  opacity: 0.45;
+}
+
+.inv-tool {
+  font-size: 14px;
+  font-weight: 700;
+  color: #6b7566;
+  cursor: pointer;
+}
+
+.inv-tool.is-on {
+  color: #cfe3c2;
+  background: rgba(127, 178, 103, 0.14);
+  border-color: rgba(156, 201, 122, 0.45);
+}
+
+.inv-tool .inv-ico {
+  line-height: 0;
+}
+
+.inv-dot {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #7fd16a;
+  box-shadow: 0 0 5px rgba(127, 209, 106, 0.9);
+}
