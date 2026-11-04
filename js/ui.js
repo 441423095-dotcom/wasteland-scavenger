@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v35';
+  var BUILD = 'v36';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -1976,13 +1976,10 @@
 
   var introTimer = 0;
 
-  function playIntro(done) {
+  function playIntro() {
     var box = $('intro-text');
     var btn = $('btn-intro-go');
-    if (!box || !btn) {
-      done();
-      return;
-    }
+    if (!box || !btn) return;
 
     box.innerHTML = '';
     btn.classList.add('is-hidden');
@@ -2306,14 +2303,18 @@
 
     showScreen('screen-intro');
 
-    playIntro(function () {
-      $('btn-intro-go').onclick = function (ev) {
+    playIntro();
+
+    var introBtn = $('btn-intro-go');
+    if (introBtn) {
+      introBtn.onclick = function (ev) {
         if (ev) ev.stopPropagation();
+        introBtn.classList.remove('is-hidden');
         if (introTimer) window.clearTimeout(introTimer);
         introTimer = 0;
         startMiniGame();
       };
-    });
+    }
 
     bindMiniInput();
   }
