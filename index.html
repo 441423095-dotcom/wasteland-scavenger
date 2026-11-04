@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b0e0b">
 <title>末日公寓</title>
-<link rel="stylesheet" href="css/style.css?v=88">
+<link rel="stylesheet" href="css/style.css?v=121">
 </head>
 <body>
 <div id="app">
@@ -43,10 +43,30 @@
     </div>
   </section>
 
+  <!-- ================= 死亡结算（中途阵亡） ================= -->
+  <section class="screen" id="screen-death">
+    <div class="go-inner">
+      <span class="go-tag" id="go-tag">结局 · 中途阵亡</span>
+      <h2 class="go-title" id="go-title">全员阵亡</h2>
+      <div class="go-days" id="go-days">撑了 <b>1</b> <span>天</span></div>
+      <p class="go-line" id="go-line"></p>
+      <div class="go-stats" id="go-stats"></div>
+      <p class="go-who" id="go-who"></p>
+      <div class="go-rule"></div>
+      <p class="go-ask">要不要重新开始？</p>
+      <div class="go-buts">
+        <button type="button" class="btn btn-main go-restart" data-act="newrun">重新开始</button>
+        <button type="button" class="btn go-log" data-act="log">看看日记</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ================= 页面一：避难所 ================= -->
   <section class="screen is-active" id="screen-shelter">
 
     <div class="ticker"><span class="ticker-text" id="ticker-text"></span></div>
+
+    <div class="day-big" id="day-big">生存第 <b>1</b> 天</div>
 
     <aside class="people-panel" id="people"></aside>
 
@@ -69,11 +89,13 @@
 
     <div class="hud-top">
       <div class="day-badge">第 <b id="day-num">1</b> 天</div>
+      <button type="button" class="event-btn is-hidden" id="btn-event">门口有人</button>
       <div class="rescue-tag" id="rescue-tag"></div>
     </div>
 
     <div class="bottom-hud">
       <div class="hintbar" id="hintbar"></div>
+      <div class="quest" id="quest"></div>
       <div class="actions">
         <button type="button" class="btn btn-main" id="btn-explore">出门探索</button>
         <button type="button" class="btn" id="btn-clean">浴室</button>
@@ -88,17 +110,22 @@
   <!-- ================= 页面二：外出地图 ================= -->
   <section class="screen" id="screen-map">
 
+    <!-- 底图 + 隐形热区：热区按整张图的百分比定位 -->
+    <div class="map-stage" id="map-stage">
+      <img class="map-bg" id="map-bg" src="assets/map-bg.jpg?v=1" alt="小区地图">
+      <div class="map-hotspots" id="map-grid"></div>
+    </div>
+
     <div class="map-head">
       <div class="day-badge">第 <b id="day-num-map">1</b> 天</div>
       <div class="lead-tag">带队：<b id="lead-name">陈默</b></div>
     </div>
 
-    <div class="map-wrap" id="map-wrap">
-      <div class="map-path" id="map-path"></div>
-      <div class="map-nodes" id="map-grid"></div>
+    <div class="map-risk" id="map-risk">
+      <span class="map-risk-pill" id="map-risk-text">点地图上的地点，再选谁去</span>
     </div>
 
-    <div class="map-foot">点一个地方，再选谁去。</div>
+    <button type="button" class="map-info-btn" id="btn-map-info" aria-label="地图图例">?</button>
 
     <div class="actions">
       <button type="button" class="btn" id="btn-go-home">带回避难所</button>
@@ -130,7 +157,27 @@
     </div>
 
     <div class="dbg-row">
+      <button type="button" class="dbg-btn dbg-wide" data-dbg="stock">物资全满</button>
+    </div>
+
+    <div class="dbg-row">
       <button type="button" class="dbg-btn dbg-wide" data-dbg="event">强制触发夜间事件</button>
+    </div>
+
+    <div class="dbg-row">
+      <button type="button" class="dbg-btn dbg-wide" data-dbg="day">强制触发白天事件</button>
+    </div>
+
+    <div class="dbg-row">
+      <button type="button" class="dbg-btn dbg-wide" data-dbg="day29">跳到救援前（带信号弹）</button>
+    </div>
+
+    <div class="dbg-row">
+      <button type="button" class="dbg-btn dbg-wide" data-dbg="config">数值自检</button>
+    </div>
+
+    <div class="dbg-row">
+      <button type="button" class="dbg-btn dbg-wide" data-dbg="testpage">打开测试台</button>
     </div>
 
     <div class="dbg-row">
@@ -148,11 +195,12 @@
 
 </div>
 
-<script src="js/config.js?v=87"></script>
-<script src="js/game.js?v=87"></script>
-<script src="js/art.js?v=87"></script>
-<script src="js/sfx.js?v=87"></script>
-<script src="js/save.js?v=87"></script>
-<script src="js/ui.js?v=87"></script>
+<script src="js/config.js?v=121"></script>
+<script src="js/balance.js?v=121"></script>
+<script src="js/game.js?v=121"></script>
+<script src="js/art.js?v=121"></script>
+<script src="js/sfx.js?v=121"></script>
+<script src="js/save.js?v=121"></script>
+<script src="js/ui.js?v=121"></script>
 </body>
 </html>

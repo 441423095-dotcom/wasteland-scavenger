@@ -5927,3 +5927,1710 @@ button.inv-ghost {
 .loot-chip span {
   line-height: 1.2;
 }
+
+
+
+/* ============ v89：门口有人（白天事件） ============ */
+
+.hud-top .event-btn {
+  pointer-events: auto;
+  padding: 4px 10px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #1b1408;
+  background: linear-gradient(180deg, #ffe9a8, #d9b243);
+  border: 1px solid #ffeeb4;
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(255, 214, 90, 0.55);
+  white-space: nowrap;
+  cursor: pointer;
+  animation: dayEvPulse 1.5s ease-in-out infinite;
+}
+
+.hud-top .event-btn.is-hidden {
+  display: none;
+}
+
+@keyframes dayEvPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 8px rgba(255, 214, 90, 0.35);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 0 16px rgba(255, 214, 90, 0.8);
+  }
+}
+
+
+
+/* ============ v90：早晨事件的按钮置灰 + 红色缺少提示 ============ */
+
+.modal-actions.modal-actions-col {
+  flex-direction: column;
+  gap: 6px;
+}
+
+.opt-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+}
+
+.opt-row .btn {
+  width: 100%;
+  flex: none;
+}
+
+.opt-lack {
+  padding-left: 3px;
+  font-size: 11px;
+  line-height: 1.3;
+  color: #ff5a46;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.modal-actions .btn:disabled {
+  color: #5d665a;
+  background: #171b17;
+  border-color: #2c332c;
+  opacity: 0.78;
+  box-shadow: none;
+}
+
+
+
+/* ============ v91：今日状况 + 主线清单常驻 ============ */
+
+.quest {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 5px;
+}
+
+.quest-cond {
+  padding: 2px 6px;
+  font-size: 10px;
+  line-height: 1.3;
+  white-space: nowrap;
+  color: #ffd76a;
+  background: rgba(255, 214, 90, 0.12);
+  border: 1px solid rgba(255, 214, 90, 0.45);
+  border-radius: 4px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.quest-chip {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 5px;
+  font-family: inherit;
+  font-size: 9.5px;
+  line-height: 1.3;
+  white-space: nowrap;
+  color: #78836f;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+}
+
+.quest-chip .quest-ico {
+  display: flex;
+  align-items: center;
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+.quest-chip .quest-ico img,
+.quest-chip .quest-ico svg {
+  width: 13px !important;
+  height: 13px !important;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.quest-chip.is-done {
+  color: #ffe9a8;
+  background: rgba(255, 214, 90, 0.14);
+  border-color: rgba(255, 214, 90, 0.6);
+}
+
+.quest-chip.is-done .quest-ico {
+  opacity: 1;
+  filter: none;
+}
+
+.quest-chip.is-new {
+  animation: questPop 0.9s ease-out 1;
+}
+
+.quest-count {
+  font-size: 9.5px;
+  color: #b9c6af;
+}
+
+@keyframes questPop {
+  0% { transform: scale(1); }
+  35% {
+    transform: scale(1.22);
+    box-shadow: 0 0 14px rgba(255, 214, 90, 0.9);
+  }
+  100% { transform: scale(1); }
+}
+
+
+
+/* ============ v92：第一层三选一 + 背包上限 ============ */
+
+.opt-desc {
+  padding-left: 3px;
+  font-size: 11px;
+  line-height: 1.35;
+  color: #cbbd8a;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+
+
+/* ============ v93：负重 / 超载网格 ============ */
+
+.gear-item .gear-num {
+  font-size: 10px;
+  color: #ffe9a8;
+}
+
+.modal-bag {
+  max-width: 340px;
+}
+
+.bag-warn {
+  margin: 6px 0 2px;
+  padding: 6px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #ffd7cf;
+  background: rgba(190, 40, 30, 0.22);
+  border: 1px solid rgba(255, 90, 70, 0.65);
+  border-radius: 6px;
+}
+
+.bag-sub {
+  margin-bottom: 6px;
+  font-size: 11px;
+  color: #ff9b8c;
+}
+
+.bag-good,
+.bag-ok {
+  margin: 6px 0;
+  font-size: 12px;
+  color: #9fe08a;
+}
+
+.bag-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 4px;
+}
+
+.bag-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(200, 220, 190, 0.55);
+  border-radius: 6px;
+}
+
+.bag-slot img,
+.bag-slot svg {
+  width: 26px !important;
+  height: 26px !important;
+  object-fit: contain;
+}
+
+.bag-slot.is-empty {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(200, 220, 190, 0.25);
+}
+
+.bag-slot.is-over {
+  border: 2px dashed #ff4b3a;
+  background: rgba(255, 75, 58, 0.14);
+  box-shadow: 0 0 10px rgba(255, 75, 58, 0.45);
+  cursor: pointer;
+  animation: bagOverBlink 1.2s ease-in-out infinite;
+}
+
+@keyframes bagOverBlink {
+  0%, 100% { box-shadow: 0 0 6px rgba(255, 75, 58, 0.35); }
+  50% { box-shadow: 0 0 14px rgba(255, 75, 58, 0.85); }
+}
+
+
+
+/* ============ v94：电子零件实物图标 ============ */
+
+.gear-item img {
+  width: 22px !important;
+  height: 22px !important;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.65));
+}
+
+.gear-big-ico {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 6px;
+}
+
+.gear-big-ico img {
+  width: 64px !important;
+  height: 64px !important;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(255, 214, 90, 0.45));
+}
+
+
+
+/* ============ v96：自由丢弃 + 逐层超载检查 ============ */
+
+button.bag-slot {
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+button.bag-slot:active {
+  transform: scale(0.94);
+  border-color: #ffe9a8;
+}
+
+.bag-confirm {
+  margin-top: 8px;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 214, 90, 0.45);
+  border-radius: 8px;
+}
+
+.bag-confirm-text {
+  font-size: 12px;
+  color: #ffe9c0;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.bag-confirm-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.bag-confirm-actions .btn {
+  flex: 1;
+}
+
+
+
+/* =====================================================================
+   v97：暗黑战术风（已停用，用户要求回到 v96 的样子）
+   下面整段被包在永远不会命中的媒体查询里，不再影响界面。
+   以后想重新启用，把这一行的 @media 和文件结尾的 } 删掉即可。
+   ===================================================================== */
+@media (max-width: 0px) {
+
+:root {
+  --tk-panel: rgba(20, 20, 20, 0.9);
+  --tk-panel-solid: rgba(14, 15, 16, 0.96);
+  --tk-cyan: #7fe9ff;
+  --tk-cyan-dim: rgba(120, 220, 255, 0.35);
+  --tk-gold: #ffe66a;
+  --tk-gold-dim: rgba(255, 214, 90, 0.4);
+  --tk-text: #c9d6d2;
+  --tk-text-dim: #8b9a95;
+  --tk-red: #ff4b3a;
+}
+
+/* ---------- 1. 全局压暗 ---------- */
+
+html,
+body {
+  background: #050706 !important;
+}
+
+body,
+.screen {
+  color: var(--tk-text);
+}
+
+.ticker {
+  background: linear-gradient(180deg, rgba(10, 12, 12, 0.96), rgba(6, 8, 8, 0.99)) !important;
+  border-bottom: 1px solid rgba(120, 220, 255, 0.22) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.85);
+}
+
+.people-panel,
+.inv,
+.gear,
+.debug-panel {
+  background: var(--tk-panel) !important;
+  border: 1px solid rgba(120, 220, 255, 0.16) !important;
+  border-radius: 10px !important;
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.75),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.bottom-hud {
+  background: linear-gradient(180deg, rgba(8, 10, 10, 0) 0%, rgba(8, 10, 10, 0.9) 45%, rgba(5, 6, 6, 0.98) 100%) !important;
+  border-top: 1px solid rgba(120, 220, 255, 0.12);
+}
+
+.hintbar {
+  color: var(--tk-text) !important;
+  background: rgba(16, 18, 18, 0.85) !important;
+  border: 1px solid rgba(120, 220, 255, 0.16) !important;
+}
+
+/* 去掉旧的亮绿残留 */
+.shelf-label {
+  color: var(--tk-cyan) !important;
+  background: rgba(10, 30, 36, 0.75) !important;
+  border: 1px solid rgba(120, 220, 255, 0.3) !important;
+  text-shadow: 0 0 8px rgba(90, 220, 255, 0.5);
+}
+
+/* ---------- 2. 霓虹字体 ---------- */
+
+.ticker-text {
+  color: var(--tk-cyan) !important;
+  text-shadow:
+    0 0 8px rgba(90, 220, 255, 0.55),
+    0 0 2px rgba(255, 255, 255, 0.35) !important;
+}
+
+.mini-name {
+  color: #e6f7ff !important;
+  text-shadow:
+    0 0 9px rgba(120, 225, 255, 0.45),
+    0 1px 2px #000 !important;
+}
+
+.inv-num,
+.loot-qty {
+  color: var(--tk-gold) !important;
+  text-shadow:
+    0 0 9px rgba(255, 214, 90, 0.75),
+    0 1px 2px #000 !important;
+  font-weight: 700;
+}
+
+.day-badge,
+.day-badge b {
+  color: var(--tk-gold) !important;
+  text-shadow: 0 0 10px rgba(255, 214, 90, 0.45), 0 1px 2px #000 !important;
+}
+
+.rescue-tag,
+.story-line {
+  color: #9fd8e6 !important;
+  text-shadow: 0 0 6px rgba(90, 200, 230, 0.25);
+  background: rgba(16, 18, 18, 0.75) !important;
+  border: 1px solid rgba(120, 220, 255, 0.14) !important;
+}
+
+.quest-cond {
+  color: var(--tk-gold) !important;
+  background: rgba(255, 214, 90, 0.1) !important;
+  border: 1px solid rgba(255, 214, 90, 0.4) !important;
+  text-shadow: 0 0 8px rgba(255, 214, 90, 0.45);
+}
+
+.quest-chip {
+  color: #8fa8a4 !important;
+  background: rgba(20, 22, 22, 0.9) !important;
+  border: 1px solid rgba(120, 220, 255, 0.14) !important;
+}
+
+.quest-chip.is-done {
+  color: var(--tk-cyan) !important;
+  background: rgba(20, 45, 50, 0.75) !important;
+  border-color: rgba(120, 220, 255, 0.45) !important;
+  text-shadow: 0 0 8px rgba(90, 220, 255, 0.45);
+}
+
+.quest-count {
+  color: #9fd8e6 !important;
+}
+
+/* ---------- 3. 按钮：更扁、深灰、极细亮边、按住发光 ---------- */
+
+.btn,
+.actions .btn,
+.actions .btn-main,
+.btn-sub,
+.dbg-btn,
+.mini-over-btn {
+  background: linear-gradient(180deg, rgba(30, 33, 33, 0.96), rgba(16, 18, 18, 0.98)) !important;
+  border: 1px solid rgba(120, 220, 255, 0.26) !important;
+  border-radius: 6px !important;
+  color: #cfe9ee !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 2px 0 rgba(0, 0, 0, 0.55) !important;
+  text-shadow: 0 0 6px rgba(90, 220, 255, 0.25);
+  transition: border-color 0.14s linear, box-shadow 0.14s linear, background 0.14s linear;
+}
+
+.actions .btn,
+.actions .btn-main {
+  padding: 8px 6px !important;
+  font-size: 12.5px !important;
+}
+
+.btn:hover,
+.btn:active,
+.actions .btn:hover,
+.actions .btn:active {
+  border-color: rgba(120, 235, 255, 0.9) !important;
+  background: linear-gradient(180deg, rgba(38, 44, 45, 0.98), rgba(22, 26, 27, 0.99)) !important;
+  box-shadow:
+    0 0 12px rgba(90, 220, 255, 0.45),
+    inset 0 0 14px rgba(90, 220, 255, 0.12) !important;
+}
+
+.btn-main {
+  color: var(--tk-gold) !important;
+  border-color: rgba(255, 214, 90, 0.42) !important;
+  text-shadow: 0 0 8px rgba(255, 214, 90, 0.4);
+}
+
+.btn-main:hover,
+.btn-main:active {
+  border-color: rgba(255, 232, 140, 0.95) !important;
+  box-shadow:
+    0 0 14px rgba(255, 214, 90, 0.5),
+    inset 0 0 14px rgba(255, 214, 90, 0.12) !important;
+}
+
+.btn:disabled,
+.actions .btn:disabled {
+  color: #5f6b68 !important;
+  border-color: rgba(120, 220, 255, 0.1) !important;
+  background: rgba(14, 16, 16, 0.9) !important;
+  box-shadow: none !important;
+  opacity: 0.75;
+}
+
+/* ---------- 4. 弹窗：机密档案 ---------- */
+
+.overlay.is-on {
+  background: rgba(0, 0, 0, 0.72) !important;
+}
+
+.modal {
+  background: var(--tk-panel-solid) !important;
+  border: 1px solid var(--tk-gold-dim) !important;
+  border-radius: 10px !important;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.9),
+    0 22px 60px rgba(0, 0, 0, 0.92),
+    0 0 26px rgba(255, 214, 90, 0.1) !important;
+}
+
+.modal::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  top: 5px;
+  bottom: 5px;
+  border: 1px solid rgba(120, 220, 255, 0.14);
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+.modal-title {
+  color: var(--tk-gold) !important;
+  text-shadow: 0 0 10px rgba(255, 214, 90, 0.5), 0 1px 2px #000 !important;
+}
+
+.modal-sub {
+  color: #8fb6be !important;
+  text-shadow: 0 0 6px rgba(90, 220, 255, 0.25);
+}
+
+.modal-x {
+  color: var(--tk-cyan) !important;
+  border-color: rgba(120, 220, 255, 0.3) !important;
+  background: rgba(16, 20, 20, 0.9) !important;
+}
+
+.log-entry,
+.res-text,
+.night-story,
+.res-line {
+  color: var(--tk-text) !important;
+}
+
+.warn-line,
+.alert.bad {
+  color: #ff9b8c !important;
+  text-shadow: 0 0 8px rgba(255, 75, 58, 0.35);
+}
+
+/* ---------- 5. 人物条：发光玻璃管 ---------- */
+
+.mtrack {
+  background: #04070a !important;
+  border: 1px solid rgba(120, 220, 255, 0.16) !important;
+  box-shadow:
+    inset 0 1px 4px #000,
+    0 0 6px rgba(90, 220, 255, 0.08) !important;
+}
+
+.mfill.hp {
+  background: linear-gradient(90deg, #5c0d0a 0%, #ff3b2f 55%, #ffb0a0 100%) !important;
+  box-shadow:
+    0 0 9px rgba(255, 64, 48, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+
+.mfill.thirst {
+  background: linear-gradient(90deg, #06324f 0%, #2fa8ff 55%, #b9ecff 100%) !important;
+  box-shadow:
+    0 0 9px rgba(80, 190, 255, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+
+.mfill.hunger {
+  background: linear-gradient(90deg, #4a2400 0%, #ff9d1f 55%, #ffe0a0 100%) !important;
+  box-shadow:
+    0 0 9px rgba(255, 160, 40, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.mfill.mood {
+  background: linear-gradient(90deg, #123b33 0%, #35c9a8 55%, #b6ffe8 100%) !important;
+  box-shadow:
+    0 0 9px rgba(70, 220, 180, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.mkey {
+  color: #7f9aa0 !important;
+}
+
+/* ---------- 6. 物资格 / 背包 -------------------- */
+
+.inv-cell {
+  background: rgba(18, 20, 20, 0.9) !important;
+  border-color: rgba(120, 220, 255, 0.14) !important;
+}
+
+.inv-cell.is-held {
+  background: rgba(40, 34, 12, 0.92) !important;
+}
+
+.bag-slot {
+  background: rgba(18, 20, 20, 0.92) !important;
+  border: 2px solid rgba(255, 214, 90, 0.42) !important;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.7);
+}
+
+.bag-slot.is-empty {
+  border: 1px dashed rgba(120, 220, 255, 0.18) !important;
+}
+
+.bag-slot.is-over {
+  border: 2px dashed var(--tk-red) !important;
+  background: rgba(60, 12, 10, 0.75) !important;
+  box-shadow: 0 0 12px rgba(255, 75, 58, 0.5) !important;
+}
+
+.bag-warn {
+  background: rgba(60, 12, 10, 0.7) !important;
+  border: 1px solid rgba(255, 90, 70, 0.6) !important;
+  color: #ffd7cf !important;
+}
+
+.bag-ok {
+  color: var(--tk-cyan) !important;
+  text-shadow: 0 0 8px rgba(90, 220, 255, 0.35);
+}
+
+.bag-confirm {
+  background: rgba(10, 12, 12, 0.95) !important;
+  border: 1px solid var(--tk-gold-dim) !important;
+}
+
+.bag-confirm-text {
+  color: var(--tk-gold) !important;
+}
+
+/* ---------- 7. 其它小件 ---------- */
+
+.gear-item {
+  background: rgba(18, 20, 20, 0.9) !important;
+  border: 1px solid rgba(120, 220, 255, 0.16) !important;
+  color: #cfe4e8 !important;
+}
+
+.gear-item.is-static {
+  color: #93a8ab !important;
+}
+
+.center-tip {
+  background: rgba(10, 12, 12, 0.92) !important;
+  border: 1px solid var(--tk-gold-dim) !important;
+  color: var(--tk-gold) !important;
+}
+
+.debug-btn {
+  color: #9fd8e6 !important;
+  background: rgba(18, 20, 20, 0.92) !important;
+  border: 1px solid rgba(120, 220, 255, 0.2) !important;
+}
+
+.event-btn {
+  color: #1b1408 !important;
+  background: linear-gradient(180deg, #ffe9a8, #d9b243) !important;
+  border-color: #ffeeb4 !important;
+  box-shadow: 0 0 12px rgba(255, 214, 90, 0.45) !important;
+}
+
+
+
+/* v97 补：人物名片统一成中性深灰，去掉原来的暗绿底色 */
+.mini-card {
+  background: rgba(20, 20, 20, 0.9) !important;
+  border: 1px solid rgba(120, 220, 255, 0.2) !important;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
+}
+
+.mini-card:hover {
+  border-color: rgba(120, 235, 255, 0.55) !important;
+}
+
+.mini-card.is-lead {
+  background: rgba(28, 25, 15, 0.92) !important;
+  border-color: rgba(255, 214, 90, 0.55) !important;
+  box-shadow:
+    0 0 16px rgba(255, 214, 90, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.mini-card.is-ready {
+  border-color: rgba(255, 214, 90, 0.8) !important;
+  box-shadow:
+    0 0 12px rgba(255, 214, 90, 0.45),
+    inset 0 0 10px rgba(255, 214, 90, 0.1) !important;
+}
+
+.mini-fed {
+  color: #9fd8e6 !important;
+  background: rgba(20, 40, 44, 0.9) !important;
+}
+
+
+}
+
+
+/* ============ v99：主线引导 + 每日日记 ============ */
+
+.quest {
+  row-gap: 5px;
+}
+
+.quest-chip {
+  padding: 3px 7px !important;
+  font-size: 11px !important;
+  border-radius: 5px;
+}
+
+.quest-chip .quest-ico img,
+.quest-chip .quest-ico svg {
+  width: 15px !important;
+  height: 15px !important;
+}
+
+/* 下一件要拿的东西：金色高亮 + 呼吸光 */
+.quest-chip.is-next {
+  color: #14110a !important;
+  background: linear-gradient(180deg, #ffe9a8, #d9b243) !important;
+  border-color: #ffeeb4 !important;
+  text-shadow: none !important;
+  animation: questNextPulse 1.6s ease-in-out infinite;
+}
+
+.quest-chip.is-next .quest-ico {
+  opacity: 1;
+  filter: none;
+}
+
+@keyframes questNextPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(255, 214, 90, 0.35); }
+  50% { box-shadow: 0 0 16px rgba(255, 214, 90, 0.85); }
+}
+
+.quest-next {
+  flex-basis: 100%;
+  font-size: 10.5px;
+  line-height: 1.4;
+  color: #ffe9a8;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.quest-next b {
+  color: #ffffff;
+}
+
+.quest-next.is-done {
+  color: #8fe6a8;
+}
+
+/* 日记：一天一篇 */
+.day-note {
+  margin: 9px 0;
+  padding: 9px 11px;
+  background: rgba(0, 0, 0, 0.34);
+  border-left: 3px solid rgba(255, 214, 90, 0.55);
+  border-radius: 0 6px 6px 0;
+}
+
+.day-note-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffd76a;
+}
+
+.day-note-head span {
+  font-size: 10px;
+  font-weight: 400;
+  color: #9fb2ac;
+}
+
+.day-note p {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: #c9d6d2;
+}
+
+.day-note.is-today {
+  border-left-color: rgba(120, 220, 255, 0.65);
+}
+
+.day-note.is-today .day-note-head {
+  color: #7fe9ff;
+}
+
+.day-note.is-today p {
+  color: #a9bdc2;
+}
+
+
+
+/* ============ v100：背景图绝不再露白底 ============ */
+
+/* 抠完之前先不显示，避免闪一下原图的白底 */
+.scene-img {
+  opacity: 0;
+}
+
+.scene-img.is-keyed {
+  opacity: 1;
+}
+
+/* 万一抠图失败：用混合模式把白底化掉，也绝不显示白框 */
+.scene-img.is-raw {
+  opacity: 1;
+  mix-blend-mode: multiply;
+  filter: brightness(1.1) contrast(1.05);
+}
+
+
+
+/* 日记本图标：万一抠图失败，也用混合模式吃掉白底 */
+.diary-img.is-raw {
+  mix-blend-mode: multiply;
+  filter: brightness(1.12) contrast(1.05);
+}
+
+
+
+/* ============ v101：底部只留一行主线文字引导 ============ */
+
+.quest {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 4px;
+  padding: 0 2px;
+}
+
+.quest-next {
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #ffd76a;
+  text-shadow: 0 0 8px rgba(255, 214, 90, 0.35), 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+.quest-next b {
+  color: #fff3c4;
+}
+
+/* 格子已经删掉，这些尺寸只做兜底，不再生效 */
+.quest-chip,
+.quest-cond,
+.quest-count {
+  display: none !important;
+}
+
+
+
+/* ============ v103：醒目的求生天数 + 死亡结算 ============ */
+
+/* 顶部左边的小天数、倒计时都不再显示 */
+.hud-top .day-badge,
+.hud-top .rescue-tag {
+  display: none !important;
+}
+
+/* 屏幕上方居中：大大的“第 N 天 / 主线天数” */
+.day-big {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 30px;
+  z-index: 8;
+  text-align: center;
+  pointer-events: none;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: #ffe9a8;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+}
+
+.day-big b {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffe66a;
+  text-shadow:
+    0 0 14px rgba(255, 214, 90, 0.55),
+    0 2px 4px rgba(0, 0, 0, 0.95);
+}
+
+.day-big span {
+  font-size: 12px;
+  color: #b9c6af;
+  letter-spacing: 1px;
+}
+
+/* 死亡遮罩更黑 */
+.overlay.is-on.is-death {
+  background: rgba(0, 0, 0, 0.9) !important;
+}
+
+/* 死亡结算面板 */
+.modal.modal-gameover {
+  max-width: 340px;
+  padding: 22px 18px 18px;
+  text-align: center;
+  background: rgba(8, 8, 8, 0.96) !important;
+  border: 1px solid rgba(190, 40, 30, 0.75) !important;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.9),
+    0 0 34px rgba(180, 30, 20, 0.45),
+    0 24px 60px rgba(0, 0, 0, 0.95) !important;
+}
+
+.go-title {
+  margin: 6px 0 14px;
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  color: #e01d14;
+  text-shadow:
+    0 0 16px rgba(255, 40, 25, 0.75),
+    0 2px 6px rgba(0, 0, 0, 0.95);
+}
+
+.go-days {
+  margin-bottom: 12px;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #ffffff;
+}
+
+.go-days b {
+  font-size: 26px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+}
+
+.go-line {
+  margin: 0 4px 18px;
+  padding-top: 12px;
+  font-size: 12px;
+  line-height: 1.75;
+  color: #9fa8a0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.modal-gameover .modal-actions {
+  margin-top: 0;
+}
+
+.go-btn {
+  width: 100%;
+  padding: 13px 10px !important;
+  font-size: 15px !important;
+  letter-spacing: 2px;
+}
+
+
+
+/* ============ v104：求生成功的结算背景 ============ */
+
+.overlay.is-on.is-victory {
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0.72) 100%),
+    url("../assets/victory-bg.jpg") center center / cover no-repeat !important;
+}
+
+.overlay.is-victory .modal.modal-over {
+  background: rgba(8, 10, 8, 0.66) !important;
+  border: 1px solid rgba(255, 214, 90, 0.7) !important;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.85),
+    0 0 34px rgba(255, 214, 90, 0.22),
+    0 24px 60px rgba(0, 0, 0, 0.95) !important;
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(2px);
+}
+
+.overlay.is-victory .modal-title {
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: #ffe9a8;
+  text-shadow: 0 0 14px rgba(255, 214, 90, 0.5), 0 2px 4px #000;
+}
+
+.vic-days {
+  margin: 4px 0 12px;
+  text-align: center;
+  font-size: 13px;
+  color: #ffe9a8;
+  text-shadow: 0 1px 3px #000;
+}
+
+.vic-days b {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffe66a;
+  text-shadow: 0 0 16px rgba(255, 214, 90, 0.6), 0 2px 4px #000;
+}
+
+
+
+/* ============ v106：死亡结算（整屏背景图） ============ */
+
+#screen-death {
+  position: absolute;
+  z-index: 60;
+  overflow: hidden;
+  color: #f2efe6;
+  background-color: #050505;
+  background-image: url("../assets/death-bg.jpg?v=1");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* 上面略暗、下面压黑，保证底部的字和按钮看得清 */
+#screen-death::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(3, 4, 4, 0.60) 0%,
+    rgba(3, 4, 4, 0.12) 26%,
+    rgba(3, 4, 4, 0.66) 56%,
+    rgba(0, 0, 0, 0.94) 100%
+  );
+}
+
+/* 和片头一致的扫描线 */
+#screen-death::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.035) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+.death-inner,
+.go-inner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 0 22px calc(26px + env(safe-area-inset-bottom));
+  max-width: 520px;
+  margin: 0 auto;
+  animation: go-in 620ms ease-out both;
+}
+
+@keyframes deathIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes go-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#screen-death .go-tag {
+  padding: 3px 9px;
+  font-size: 10px;
+  line-height: 1.5;
+  letter-spacing: 3px;
+  color: #ffb3ab;
+  background: rgba(140, 20, 12, 0.26);
+  border: 1px solid rgba(255, 74, 58, 0.55);
+  border-radius: 2px;
+  text-shadow: 0 1px 3px #000;
+}
+
+#screen-death .go-title {
+  margin: 2px 0 0;
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: 5px;
+  color: #ff3b2e;
+  text-shadow:
+    0 0 22px rgba(255, 45, 30, 0.55),
+    0 3px 10px rgba(0, 0, 0, 0.95);
+}
+
+#screen-death .go-days {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #d8d2c6;
+  text-shadow: 0 2px 6px #000;
+}
+
+#screen-death .go-days b {
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow:
+    0 0 20px rgba(255, 255, 255, 0.28),
+    0 2px 6px rgba(0, 0, 0, 0.95);
+}
+
+#screen-death .go-days span {
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: #b7b0a3;
+}
+
+#screen-death .go-line {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 13px;
+  line-height: 1.8;
+  color: #cfc8bb;
+  text-shadow: 0 2px 8px #000;
+}
+
+#screen-death .go-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.go-chip {
+  padding: 3px 9px;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #d8d2c6;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  text-shadow: 0 1px 3px #000;
+}
+
+.go-chip b {
+  color: #ffe9a8;
+  font-weight: 700;
+}
+
+.go-chip.is-off {
+  color: #ff9c92;
+  border-color: rgba(255, 90, 70, 0.45);
+}
+
+#screen-death .go-who {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: #9fa8a0;
+  text-shadow: 0 2px 6px #000;
+}
+
+#screen-death .go-rule {
+  width: 100%;
+  height: 1px;
+  margin: 4px 0 2px;
+  background: linear-gradient(90deg, rgba(255, 90, 70, 0.55), rgba(255, 90, 70, 0));
+}
+
+#screen-death .go-ask {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #ffe9a8;
+  text-shadow: 0 2px 8px #000;
+  animation: go-ask 1.9s ease-in-out infinite;
+}
+
+@keyframes go-ask {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+
+#screen-death .go-buts {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+#screen-death .btn {
+  flex: 1;
+  padding: 14px 10px;
+  font-family: inherit;
+  font-size: 15px;
+  letter-spacing: 2px;
+  color: #e8e2d4;
+  background: rgba(20, 22, 20, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 6px;
+  box-shadow: none;
+  text-shadow: 0 1px 3px #000;
+  cursor: pointer;
+}
+
+#screen-death .btn:active {
+  transform: translateY(1px);
+  background: rgba(34, 38, 34, 0.92);
+}
+
+#screen-death .btn-main,
+#screen-death .btn.go-restart {
+  color: #ffffff;
+  background: linear-gradient(180deg, #d21f13, #8d0d06);
+  border: 1px solid rgba(255, 130, 110, 0.75);
+  box-shadow: 0 0 24px rgba(220, 40, 25, 0.45);
+}
+
+#screen-death .btn-main:active,
+#screen-death .btn.go-restart:active {
+  background: linear-gradient(180deg, #e02a1c, #9a1207);
+}
+
+#screen-death .btn.go-log {
+  flex: 0 0 38%;
+}
+
+/* 死了以后把测试按钮收起来，别挡着结算 */
+body.is-dead .debug-btn {
+  display: none !important;
+}
+
+@media (max-height: 640px) {
+  #screen-death .go-title { font-size: 26px; }
+  #screen-death .go-days b { font-size: 38px; }
+}
+
+
+
+/* ============ v109：地图换成手绘底图 + 隐形热区 ============ */
+
+#screen-map {
+  padding: 0;
+  overflow: hidden;
+  background: #05070a;
+}
+
+#screen-map.is-active {
+  display: block;
+}
+
+/* 底图按 cover 铺满：宽高由 JS 算好，热区的百分比和图完全对齐 */
+.map-stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  background: #05070a;
+}
+
+.map-bg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* 上下压暗，顶部天数和底部按钮才看得清 */
+.map-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(4, 7, 10, 0.62) 0%,
+    rgba(4, 7, 10, 0.10) 16%,
+    rgba(4, 7, 10, 0) 42%,
+    rgba(4, 7, 10, 0.55) 88%,
+    rgba(4, 7, 10, 0.92) 100%
+  );
+}
+
+.map-hotspots {
+  position: absolute;
+  inset: 0;
+}
+
+/* 透明热区：平时完全看不见，悬停 / 按下才亮起来 */
+.map-spot {
+  position: absolute;
+  padding: 0;
+  margin: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  box-shadow: none;
+  outline: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 0.14s linear,
+    border-color 0.14s linear,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease,
+    filter 0.18s ease;
+}
+
+.map-spot:active,
+.map-spot.is-selected {
+  background: rgba(255, 214, 90, 0.22);
+  border-color: rgba(255, 232, 140, 0.95);
+  box-shadow:
+    0 0 26px rgba(255, 214, 90, 0.55),
+    inset 0 0 30px rgba(255, 214, 90, 0.22);
+}
+
+@media (hover: hover) {
+  .map-spot:hover {
+    background: rgba(255, 214, 90, 0.16);
+    border-color: rgba(255, 232, 140, 0.8);
+    box-shadow: 0 0 18px rgba(255, 214, 90, 0.4);
+  }
+}
+
+/* 还没解锁：平时也不显眼，按下时整块压暗 */
+.map-spot.is-locked {
+  opacity: 1;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .map-spot.is-locked:hover {
+    background: rgba(180, 60, 50, 0.14);
+    border-color: rgba(255, 120, 100, 0.55);
+    box-shadow: 0 0 16px rgba(220, 70, 50, 0.35);
+  }
+}
+
+.map-spot.is-locked:active {
+  background: rgba(0, 0, 0, 0.32);
+  border-color: rgba(255, 255, 255, 0.2);
+  filter: grayscale(1) brightness(0.55);
+  box-shadow: none;
+}
+
+.map-spot:focus-visible {
+  border-color: rgba(255, 232, 140, 0.8);
+}
+
+/* 顶部天数 / 底部按钮浮在图上 */
+#screen-map .map-head {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 3;
+  margin: 0;
+  padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
+}
+
+#screen-map .map-foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(60px + env(safe-area-inset-bottom));
+  z-index: 3;
+  margin: 0;
+  text-align: center;
+  font-size: 11px;
+  color: #cfd8c6;
+  text-shadow: 0 1px 4px #000;
+  pointer-events: none;
+}
+
+#screen-map .actions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  margin: 0;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(5, 7, 10, 0) 0%, rgba(5, 7, 10, 0.85) 60%);
+}
+
+#screen-map .actions .btn {
+  max-width: 320px;
+  margin: 0 auto;
+  padding: 11px 10px;
+}
+
+
+
+/* ============ v111：地图透明热区 · 顶部风险提示 ============ */
+
+#screen-map .map-risk {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: calc(50px + env(safe-area-inset-top));
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+#screen-map .map-risk-pill {
+  max-width: 92%;
+  padding: 5px 12px;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+  color: #b9c4b0;
+  background: rgba(6, 9, 8, 0.62);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  text-shadow: 0 1px 3px #000;
+  transition:
+    color 0.15s linear,
+    border-color 0.15s linear,
+    background 0.15s linear,
+    box-shadow 0.18s ease;
+}
+
+#screen-map .map-risk.is-on .map-risk-pill {
+  color: #ffe9a8;
+  border-color: rgba(255, 214, 90, 0.7);
+  background: rgba(38, 29, 9, 0.85);
+  box-shadow: 0 0 18px rgba(255, 214, 90, 0.35);
+}
+
+/* 没解锁的地点用偏红的提示色 */
+#screen-map .map-risk.is-bad .map-risk-pill {
+  color: #ffb0a4;
+  border-color: rgba(255, 120, 100, 0.6);
+  background: rgba(42, 14, 10, 0.85);
+  box-shadow: 0 0 18px rgba(200, 60, 45, 0.3);
+}
+
+
+
+/* ============ v113：货架数字贴回图标脚下 ============ */
+
+/* 三排物资：格子等宽居中，图标放大，数字固定紧贴图标下方 */
+#shelf .shelf-sec {
+  display: block;
+  margin: 0 0 6px;
+}
+
+#shelf .shelf-label {
+  display: block;
+  margin: 0 0 3px;
+}
+
+#shelf .shelf-row {
+  display: flex !important;
+  justify-content: center;
+  align-items: stretch;
+  gap: 4px !important;
+  min-height: 0 !important;
+}
+
+#shelf .inv-cell {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 1px !important;
+  flex: 0 0 44px;
+  width: 44px !important;
+  height: 62px !important;
+  min-height: 0 !important;
+  max-height: 62px;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box;
+}
+
+#shelf .inv-cell .inv-ico {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 42px;
+  flex: 0 0 42px;
+  line-height: 0;
+}
+
+#shelf .inv-cell .inv-ico img,
+#shelf .inv-cell .inv-ico svg {
+  width: 38px !important;
+  height: 38px !important;
+  max-width: 38px !important;
+  max-height: 38px !important;
+  object-fit: contain;
+}
+
+#shelf .inv-cell .inv-num {
+  position: static !important;
+  display: block;
+  width: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0 3px;
+  font-size: 12px !important;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  color: #ffe9a8;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  text-shadow: 0 1px 3px #000;
+}
+
+
+
+/* ============ v113：弹窗永远压在最上层（白天事件必须看得见） ============ */
+.overlay {
+  z-index: 200 !important;
+}
+
+.modal.modal-day-event {
+  z-index: 201;
+}
+
+
+
+/* ============ v115：货架面板加宽（配合更大的图标） ============ */
+.inv {
+  width: 272px;
+  max-width: 74vw;
+  right: 8px;
+  top: 64px;
+}
+
+
+
+/* ============ v120：单槽装备 ============ */
+
+/* 左侧名片上的小装备槽 */
+.mini-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 16px;
+  margin-left: 4px;
+  padding: 0 3px;
+  font-size: 9px;
+  line-height: 14px;
+  color: #7c8676;
+  border: 1px dashed rgba(255, 255, 255, 0.24);
+  border-radius: 3px;
+  vertical-align: middle;
+}
+
+.mini-slot.is-on {
+  color: #ffe9a8;
+  border: 1px solid rgba(255, 214, 90, 0.55);
+  background: rgba(255, 214, 90, 0.14);
+}
+
+.mini-slot svg {
+  display: block;
+  width: 11px;
+  height: 11px;
+}
+
+/* 选人面板里的槽位提示 */
+.gear-slot-now {
+  display: inline-block;
+  margin-right: 6px;
+  font-size: 10px;
+  color: #ffe9a8;
+}
+
+.gear-chip.is-taken {
+  opacity: 0.5;
+}
+
+/* 地图上没解锁的区域：锁起来 */
+.map-spot.is-locked {
+  border: 1px dashed rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.map-spot.is-locked::after {
+  content: "未解锁";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.55);
+  text-shadow: 0 1px 3px #000;
+  pointer-events: none;
+}
+
+
+
+/* ============ v121：地图图例 ============ */
+.map-info-btn {
+  position: absolute;
+  right: 12px;
+  bottom: calc(74px + env(safe-area-inset-bottom));
+  z-index: 4;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffe9a8;
+  background: rgba(8, 12, 10, 0.75);
+  border: 1px solid rgba(255, 214, 90, 0.55);
+  border-radius: 50%;
+  box-shadow: 0 0 14px rgba(255, 214, 90, 0.25);
+  cursor: pointer;
+}
+
+.map-info-btn:active {
+  background: rgba(40, 32, 10, 0.85);
+}
+
+.map-info-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.map-info-name {
+  flex: 0 0 100%;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffe9a8;
+}
+
+.map-info-risk {
+  font-size: 10px;
+  color: #ff9c92;
+}
+
+.map-info-loot {
+  font-size: 10px;
+  color: #b9c4b0;
+}
+
+.map-info-rec {
+  font-size: 10px;
+  color: #8fd0e6;
+}
+
+.map-info-lock {
+  font-size: 10px;
+  color: #ff8f80;
+}

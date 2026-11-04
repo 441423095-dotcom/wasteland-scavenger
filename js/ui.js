@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v80';
+  var BUILD = 'v121';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -21,6 +21,51 @@
 
   // 去白底：把接近白色的像素判为透明，结果缓存起来
   var KEYED = {};
+
+  /*
+   * 场景图专用抠白底：
+   * 1) 把接近白色的像素整片清掉（阈值比人物头像更宽一点，JPEG 压缩的白也会被吃掉）；
+   * 2) 再沿着轮廓向内收一圈，把残留的浅灰毛边直接清掉。
+   */
+  function keyScenePixels(px, w, h) {
+    var i;
+    var lo;
+    var hi;
+
+    for (i = 0; i < px.length; i += 4) {
+      lo = Math.min(px[i], px[i + 1], px[i + 2]);
+      hi = Math.max(px[i], px[i + 1], px[i + 2]);
+
+      // 有明显颜色的像素（人物、桌椅）一律不动
+      if (hi - lo > 40) continue;
+
+      if (lo >= 226) {
+        px[i + 3] = 0;
+      } else if (lo >= 196) {
+        px[i + 3] = Math.round(px[i + 3] * (226 - lo) / 30);
+      }
+    }
+
+    // 去毛边：紧挨着透明区的浅色像素直接清掉
+    for (i = 0; i < px.length; i += 4) {
+      if (px[i + 3] === 0) continue;
+
+      lo = Math.min(px[i], px[i + 1], px[i + 2]);
+      hi = Math.max(px[i], px[i + 1], px[i + 2]);
+      if (hi - lo > 50 || lo < 205) continue;
+
+      var idx = i / 4;
+      var x = idx % w;
+      var y = (idx - x) / w;
+      var edge =
+        (x > 0 && px[i - 4 + 3] === 0) ||
+        (x < w - 1 && px[i + 4 + 3] === 0) ||
+        (y > 0 && px[i - w * 4 + 3] === 0) ||
+        (y < h - 1 && px[i + w * 4 + 3] === 0);
+
+      if (edge) px[i + 3] = 0;
+    }
+  }
 
   function keyWhite(src, done) {
     if (KEYED[src]) {
@@ -54,35 +99,53 @@
         var data = ctx.getImageData(0, 0, w, h);
         var px = data.data;
 
-        for (var i = 0; i < px.length; i += 4) {
-          var r = px[i];
-          var g = px[i + 1];
-          var b = px[i + 2];
-          var lo = Math.min(r, g, b);
-          var hi = Math.max(r, g, b);
+        if (src.indexOf('scene') >= 0) {
+          keyScenePixels(px, w, h);
+        } else {
+          for (var i = 0; i < px.length; i += 4) {
+            var r = px[i];
+            var g = px[i + 1];
+            var b = px[i + 2];
+            var lo = Math.min(r, g, b);
+            var hi = Math.max(r, g, b);
 
-          if (hi - lo <= 26) {
-            if (lo >= 234) {
-              px[i + 3] = 0;
-            } else if (lo >= 210) {
-              px[i + 3] = Math.round(px[i + 3] * (234 - lo) / 24);
+            if (hi - lo <= 26) {
+              if (lo >= 234) {
+                px[i + 3] = 0;
+              } else if (lo >= 210) {
+                px[i + 3] = Math.round(px[i + 3] * (234 - lo) / 24);
+              }
             }
           }
         }
 
         ctx.putImageData(data, 0, 0);
         out = canvas.toDataURL('image/png');
+
+        // 检查一下抠完还剩多少不透明的白色；剩太多就当没抠成功
+        if (src.indexOf('scene') >= 0) {
+          var leftWhite = 0;
+          var opaqueAll = 0;
+          for (var q = 0; q < px.length; q += 4) {
+            if (px[q + 3] < 20) continue;
+            opaqueAll += 1;
+            var l2 = Math.min(px[q], px[q + 1], px[q + 2]);
+            var h2 = Math.max(px[q], px[q + 1], px[q + 2]);
+            if (l2 >= 220 && h2 - l2 <= 30) leftWhite += 1;
+          }
+          if (opaqueAll && leftWhite / opaqueAll > 0.03) out = '';
+        }
       } catch (err) {
         out = '';
       }
 
       KEYED[src] = out || src;
-      done(KEYED[src]);
+      done(KEYED[src], !!(out && out.indexOf('data:') === 0));
     };
 
     img.onerror = function () {
       KEYED[src] = src;
-      done(src);
+      done(src, false);
     };
 
     img.src = src;
@@ -125,19 +188,23 @@
       hasTransparentCorner(src, function (transparent) {
         if (transparent) {
           sceneImg.className = 'scene-img is-keyed';
+          sceneImg.style.opacity = '1';
           return;
         }
-        keyWhite(src, function (url) {
+        keyWhite(src, function (url, ok) {
           sceneImg.src = url;
-          sceneImg.className = 'scene-img is-keyed';
+          // 只有真的抠干净了才用正常显示；否则退回旧方案（靠混合模式吃掉白底）
+          sceneImg.className = 'scene-img ' + (ok ? 'is-keyed' : 'is-raw');
+          sceneImg.style.opacity = '1';
         });
       });
     }
 
     var diaryImg = $('diary-img');
     if (diaryImg) {
-      keyWhite(diaryImg.getAttribute('src'), function (url) {
+      keyWhite(diaryImg.getAttribute('src'), function (url, ok) {
         diaryImg.src = url;
+        if (!ok) diaryImg.classList.add('is-raw');
       });
     }
 
@@ -194,12 +261,24 @@
     modal.className = 'modal' + (extraClass ? ' ' + extraClass : '');
     modal.innerHTML = '<button type="button" class="modal-x" data-act="close">×</button>' + html;
     modal.scrollTop = 0;
+    $('overlay').classList.remove('is-death');
+    $('overlay').classList.remove('is-victory');
     $('overlay').classList.add('is-on');
   }
 
   function closeModal() {
     $('overlay').classList.remove('is-on');
+    $('overlay').classList.remove('is-death');
+    $('overlay').classList.remove('is-victory');
     $('modal').innerHTML = '';
+
+    // 关掉「派谁去」时，把地图上亮着的热区一起灭掉
+    mapSelected = '';
+    var spots = document.querySelectorAll('.map-spot.is-selected');
+    for (var i = 0; i < spots.length; i++) {
+      spots[i].classList.remove('is-selected');
+    }
+    hideMapRisk();
   }
 
   /* ---------------- 状态条 ---------------- */
@@ -270,13 +349,15 @@
     basics += cell('medicine', state.supplies.medicine || 0, 'hold');
     basics += cell('material', state.supplies.material || 0, 'count');
 
-    gear += cell('flashlight', state.items.flashlight ? 1 : 0, 'info');
     gear += cell('weapon', state.items.weapon ? 1 : 0, 'info');
     gear += cell('pesticide', state.items.pesticide ? 1 : 0, 'info');
 
-    special += cell('radio', state.items.radio ? 1 : 0, 'info');
-    special += cell('flare', state.items.flare ? 1 : 0, 'info');
+    // 主线道具全部并进“特殊道具”：手电 / 收音机（含破损）/ 面具 / 信号弹
+    special += cell('flashlight', state.items.flashlight ? 1 : 0, 'info');
+    special += cell('radio',
+      (state.items.radio || state.items.radioBroken) ? 1 : 0, 'info');
     special += cell('mask', state.items.gasMask ? 1 : 0, 'info');
+    special += cell('flare', state.items.flare ? 1 : 0, 'info');
     special += cell('cards', state.items.cards ? 1 : 0, 'info');
 
     html += '<div class="shelf-sec"><span class="shelf-label">基础物资</span>' +
@@ -327,9 +408,8 @@
   }
 
   function renderMatChip() {
-    $('rescue-tag').textContent = state.rescueLeft > 0
-      ? '救援倒计时 ' + state.rescueLeft + ' 天'
-      : '救援没来';
+    // 倒计时从顶上挪走了，这里只留空，不再重复天数
+    $('rescue-tag').textContent = '';
   }
 
   /* 面板下方：特殊道具 */
@@ -364,6 +444,22 @@
         SF.icon('mask', 22) + '<span>面具</span></button>';
     }
 
+    if (state.items.flare) {
+      row += '<span class="gear-item is-static">' +
+        SF.itemSvg('flare', 22) + '<span>信号弹</span></span>';
+    }
+
+    if (state.items.backpack) {
+      row += '<button type="button" class="gear-item" data-item="backpack">' +
+        SF.itemSvg('backpack', 22) + '<span>双肩包</span></button>';
+    }
+
+    if (state.parts > 0) {
+      row += '<button type="button" class="gear-item" data-item="parts">' +
+        SF.itemSvg('parts', 22) +
+        '<span>零件</span><span class="gear-num">×' + state.parts + '</span></button>';
+    }
+
     var gear = $('gear');
     if (!gear) return;
 
@@ -373,16 +469,128 @@
       '</div>';
   }
 
+  /* ---------------- 主线清单 ---------------- */
+
+  var QUEST_ITEMS = [
+    {
+      key: 'flashlight', name: '手电', tip: '车库里黑得伸手不见五指，得带手电才敢下去（楼下便利店偶尔也能翻到）。',
+      where: '公寓地下车库',
+      say: '地下车库黑得要命，先弄支手电，不然下去也是白跑。'
+    },
+    {
+      key: 'radio', name: '收音机', tip: '修好收音机，才听得到军方频道的信号。',
+      where: '公寓地下车库（坏了带回避难所修）',
+      say: '没有收音机，我们连外面还有没有人活着都不知道。'
+    },
+    {
+      key: 'mask', name: '面具', tip: '社区卫生站里全是消毒水和腐臭味，没面具进不去。',
+      where: '受伤的邻居 / 隔壁社区卫生站',
+      say: '卫生站那股味儿，没面具进去就是送死。'
+    },
+    {
+      key: 'weapon', name: '武器', tip: '保安亭和门口的暴徒都吃这一套。',
+      where: '公寓地下车库 / 小区保安亭',
+      say: '保安亭那帮人不讲道理，空手去等于送命。'
+    },
+    {
+      key: 'flare', name: '信号弹', tip: '信号弹一响，第二天一早直升机就来。',
+      where: '小区保安亭',
+      say: '信号弹一响，第二天直升机就落在楼顶，我们只要撑到那一刻。'
+    }
+  ];
+
+  var questSeen = null;
+
+  function questOwned(key) {
+    if (key === 'flashlight') return !!state.items.flashlight || gearWorn('torch');
+    if (key === 'radio') return !!state.items.radio;
+    if (key === 'mask') return !!state.items.gasMask || gearWorn('mask');
+    if (key === 'weapon') return !!state.items.weapon || gearWorn('weapon');
+    if (key === 'flare') return !!state.items.flare;
+    return false;
+  }
+
+  function renderQuest() {
+    var box = $('quest');
+    if (!box) return;
+
+    var now = {};
+    var next = null;
+    var i;
+
+    for (i = 0; i < QUEST_ITEMS.length; i++) {
+      var q = QUEST_ITEMS[i];
+      var has = questOwned(q.key);
+      now[q.key] = has;
+      if (!has && !next) next = q;
+    }
+
+    // 刚拿到某件主线道具：记进日记、提示一下（不再画格子）
+    if (questSeen) {
+      for (i = 0; i < QUEST_ITEMS.length; i++) {
+        var it = QUEST_ITEMS[i];
+        if (now[it.key] && questSeen[it.key] === false) {
+          if (SF.noteQuest) SF.noteQuest(state, it.name);
+          (function (got) {
+            window.setTimeout(function () {
+              updateHint('【主线推进】' + got.name + ' 到手：' + got.tip);
+            }, 0);
+          })(it);
+        }
+      }
+    }
+
+    box.innerHTML = '<span class="quest-next">' +
+      (next
+        ? '下一步：<b>' + next.name + '</b> · 去' + next.where
+        : '主线全齐，守着信号弹等救援日') +
+      '</span>';
+
+    // 每天第一次进主界面，让陈默说一句下一步该找什么
+    if (next && state.hintDay !== state.day) {
+      state.hintDay = state.day;
+      window.setTimeout(function () {
+        showBubble('chen', next.say);
+      }, 500);
+    }
+
+    questSeen = now;
+  }
+
+  function onQuestClick(ev) {
+    var el = elementFrom(ev.target, $('quest'), 'data-quest');
+    if (!el) return;
+
+    var key = el.getAttribute('data-quest');
+    var item = null;
+
+    for (var i = 0; i < QUEST_ITEMS.length; i++) {
+      if (QUEST_ITEMS[i].key === key) item = QUEST_ITEMS[i];
+    }
+    if (!item) return;
+
+    updateHint(questOwned(key)
+      ? '【' + item.name + '】已到手：' + item.tip
+      : '【缺少' + item.name + '】' + item.tip + ' 大概在：' + item.where);
+  }
+
   /* 顶部广播栏：一眼看清今天发生了什么 */
   function renderTicker() {
     var parts = [];
-    var left = state.rescueLeft > 0 ? state.rescueLeft : 0;
+    var cond = SF.condFor ? SF.condFor(state) : null;
 
-    if (state.items && state.items.flare) {
-      parts.push('已取得信号弹 · 救援倒计时 ' + left + ' 天');
+    if (cond) parts.push('今日状况：' + cond.name + '（' + cond.desc + '）');
+
+    parts.push('生存第 ' + state.day + ' 天');
+
+    if (state.rescueDay) {
+      parts.push('救援：第 ' + state.rescueDay + ' 天');
+    } else if (state.items && state.items.radio) {
+      parts.push('救援：等待军方指令');
     } else {
-      parts.push('军方警告：救援倒计时 ' + left + ' 天。未持有信号弹者将被抛弃');
+      parts.push('救援：未知（先修好收音机）');
     }
+    parts.push(state.items && state.items.flare ? '信号弹已到手' : '还没有信号弹');
 
     if (loadNoticeDay) {
       parts.push('已读取第 ' + loadNoticeDay + ' 天存档');
@@ -508,7 +716,12 @@
         '<span class="mini-fig">' + portraitHtml(s, 42, 42) + moodTag + '</span>' +
         '<span class="mini-main">' +
         '<span class="mini-name"><span class="mini-ap' + (s.ap > 0 ? ' is-on' : '') +
-        '"></span>' + s.name + mealMarks + '</span>' +
+        '"></span>' + s.name + mealMarks +
+        '<span class="mini-slot' + (SF.gearOf && SF.gearOf(s) ? ' is-on' : '') + '">' +
+        (SF.gearOf && SF.gearOf(s)
+          ? SF.icon({ torch: 'flashlight', mask: 'mask', pack: 'backpack', weapon: 'weapon' }[SF.gearOf(s)], 12)
+          : '空') +
+        '</span></span>' +
         microRow(s.id, '血', 'hp', 'hp', s.hp) +
         microRow(s.id, '水', 'thirst', 'thirst', 100 - s.thirst) +
         microRow(s.id, '食', 'hunger', 'hunger', 100 - s.hunger) +
@@ -561,21 +774,36 @@
     box.innerHTML = html;
   }
 
-  /* 日志按钮：半屏面板，看得清 */
+  /* 日志按钮：每天一篇总结，而不是流水账 */
   function openLog() {
-    var lines = state.logs.slice().reverse();
+    var notes = (state.dayNotes || []).slice().reverse();
     var html = '<div class="modal-head">' +
       '<span class="modal-title">避难所日志</span>' +
       '<span class="modal-sub">第 ' + state.day + ' 天</span>' +
       '</div>' +
       '<div class="log-summary">' + summaryText() + '</div>';
 
-    if (!lines.length) {
-      html += '<div class="empty-text">还没有发生什么。</div>';
+    if (!notes.length) {
+      html += '<div class="empty-text">第一篇日记还没写完，先撑过今晚。</div>';
     }
 
-    for (var i = 0; i < lines.length; i++) {
-      html += '<div class="log-entry">' + lines[i] + '</div>';
+    for (var i = 0; i < notes.length; i++) {
+      var n = notes[i];
+      html += '<div class="day-note">' +
+        '<div class="day-note-head">第 ' + n.day + ' 天' +
+        (n.cond ? '<span>' + n.cond + '</span>' : '') +
+        '</div>' +
+        '<p>' + n.text + '</p>' +
+        '</div>';
+    }
+
+    var today = state.dayLog || [];
+    if (today.length) {
+      var tail = today.slice(-3);
+      html += '<div class="day-note is-today">' +
+        '<div class="day-note-head">第 ' + state.day + ' 天 · 还没结束</div>' +
+        '<p>' + tail.join(' ') + '</p>' +
+        '</div>';
     }
 
     html += '<div class="modal-actions">' +
@@ -590,6 +818,11 @@
 
     if ((state.supplies.food || 0) <= 0 && (state.supplies.water || 0) <= 0) {
       return '【物资耗尽，必须出门】';
+    }
+
+    var ev = currentDayEvent();
+    if (ev) {
+      return '【门口有人：' + ev.title + '，点上面的金色按钮】';
     }
 
     return '';
@@ -607,19 +840,32 @@
   }
 
   function storyText() {
-    if (state.items && state.items.flare) return '信号弹到手，准备撤离';
-    if (state.day <= 5) return '军方封锁中，先活下去';
-    if (state.day <= 10) return '去废弃警局找信号弹';
-    if (state.day <= 15) return '没有信号弹，直升机看不到我们';
-    return '最后冲刺';
+    if (state.rescueDay && state.items.flare) {
+      return '守到第 ' + state.rescueDay + ' 天，信号弹已备好';
+    }
+    if (!state.items.radio) return '修好收音机，才知道救援哪天来';
+    if (!state.rescueDay) return '收音机：等待军方的下一步指令';
+    if (!state.items.flare) return '救援日第 ' + state.rescueDay + ' 天，还缺信号弹';
+    return '救援日第 ' + state.rescueDay + ' 天';
   }
 
   function renderShelter() {
+    // 兜底：手里的物资已经没了就自动松手，绝不让黄框卡在屏幕上
+    if (heldItem && (state.supplies[heldItem] || 0) <= 0) {
+      heldItem = null;
+    }
+
+    var dayBig = $('day-big');
+    if (dayBig) {
+      dayBig.innerHTML = '生存第 <b>' + state.day + '</b> 天';
+    }
+
     $('day-num').textContent = String(state.day);
 
     renderShelf();
     renderMatChip();
     renderGear();
+    renderQuest();
     renderTicker();
     renderPeople();
 
@@ -627,6 +873,7 @@
     var exploreBtn = $('btn-explore');
     var anyAp = SF.anyAp(state);
     var scout = SF.canExplore ? SF.canExplore(state) : null;
+    var pendingEv = currentDayEvent();
 
     if (!alive.length) {
       exploreBtn.disabled = true;
@@ -635,74 +882,202 @@
     } else {
       $('btn-night').disabled = false;
 
-      // 只有血量低于 20 才算虚弱；饿、渴、心情差都不锁按钮
-      exploreBtn.disabled = !scout;
-      exploreBtn.textContent = scout ? '出门探索' : '今天都动不了了';
+      if (pendingEv) {
+        // 门口有人：只有「派谁去」那种弹窗真的开着时才锁按钮，
+        // 弹窗没弹出来（或者被关掉了）也要让玩家点得动，绝不锁死
+        var evModalOpen = $('overlay').classList.contains('is-on') &&
+          $('modal').classList.contains('modal-day-event');
+
+        if (evModalOpen) {
+          exploreBtn.disabled = true;
+          exploreBtn.textContent = '先处理门口的事';
+        } else {
+          exploreBtn.disabled = !scout;
+          exploreBtn.textContent = scout ? '门口有人（点这里）' : '今天都动不了了';
+        }
+      } else {
+        // 只有血量低于 20 才算虚弱；饿、渴、心情差都不锁按钮
+        exploreBtn.disabled = !scout;
+        exploreBtn.textContent = scout ? '出门探索' : '今天都动不了了';
+      }
     }
 
     $('btn-clean').disabled = !anyAp || (state.supplies.water || 0) < 1;
 
-    // 底部主线状态
+    // 底部主线状态（不再重复天数 / 倒计时）
     var storyLine = $('story-line');
     if (storyLine) {
+      var condNow = SF.condFor ? SF.condFor(state) : null;
       var flareText = state.items.flare ? '信号弹：已到手' : '信号弹：还没有';
-      storyLine.textContent = '第 ' + state.day + ' / 15 天 · ' +
-        (state.rescueLeft > 0 ? '军方倒计时 ' + state.rescueLeft + ' 天' : '救援没来') +
-        ' · ' + storyText() + ' · ' + flareText;
+      storyLine.textContent = '今日：' + (condNow ? condNow.name : '死寂') +
+        ' · ' + storyText() + ' · ' + flareText + ' · ' + BUILD;
+    }
+
+    // 门口有人：有事件才亮出来，点开就能重新看
+    var evBtn = $('btn-event');
+    if (evBtn) {
+      var ev = null;
+      try {
+        ev = SF.dayEventFor ? SF.dayEventFor(state) : null;
+      } catch (e) {
+        ev = null;
+      }
+
+      if (ev) {
+        evBtn.classList.remove('is-hidden');
+      } else {
+        evBtn.classList.add('is-hidden');
+      }
     }
 
     // 直接给图标和名片绑点击，再按当前选中的物资刷一遍样式
     paintHold();
     bindFastTaps();
     updateHint();
+
+    // 全员阵亡 / 主角倒下：无论从哪条路走到这里，都立刻弹死亡结算
+    if (state.over && !state.won && !gameOverLock) {
+      if (!state.overDay) state.overDay = state.day;
+      openGameOver();
+      return;
+    }
+
+    if (!alive.length && !gameOverLock) {
+      if (!state.overDay) state.overDay = state.day;
+      state.over = true;
+      openGameOver();
+    }
   }
 
   /* ---------------- 地图 ---------------- */
+
+  /*
+   * 热区位置：百分比是按整张底图算的（left / top 是左上角，w / h 是宽高）。
+   * 觉得哪块没盖住图上文字，只改这几个数字就行。
+   */
+  var MAP_SPOTS = {
+    store: { left: 2, top: 8, w: 42, h: 18 },     // 楼下便利店：左上角
+    guard: { left: 56, top: 8, w: 42, h: 18 },    // 小区保安亭：右上角
+    green: { left: 2, top: 38, w: 42, h: 18 },    // 小区绿化带：左侧中间
+    clinic: { left: 56, top: 38, w: 42, h: 18 },  // 隔壁社区卫生站：右侧中间
+    garage: { left: 22, top: 66, w: 56, h: 22 },  // 公寓地下车库：正下方
+    vault: { left: 32, top: 88, w: 36, h: 11 }    // 车库暗门：藏在最下面
+  };
+
+  // 当前点亮的那个地点
+  var mapSelected = '';
+
+  /* 底图按 cover 铺满画面：宽高都算好，热区的百分比才对得上图 */
+  function sizeMapStage() {
+    var host = $('screen-map');
+    var stage = $('map-stage');
+    var img = $('map-bg');
+    if (!host || !stage) return;
+
+    var iw = (img && img.naturalWidth) || 563;
+    var ih = (img && img.naturalHeight) || 1002;
+    var w = host.clientWidth || 1;
+    var h = host.clientHeight || 1;
+
+    var scale = Math.max(w / iw, h / ih);
+    stage.style.width = Math.round(iw * scale) + 'px';
+    stage.style.height = Math.round(ih * scale) + 'px';
+  }
 
   function renderMap() {
     $('day-num-map').textContent = String(state.day);
     var lead = SF.find(state, state.leaderId);
     $('lead-name').textContent = lead ? lead.name : '—';
 
+    sizeMapStage();
+
     var html = '';
-    var paths = '';
+
+    for (var i = 0; i < C.locations.length; i++) {
+      var loc = C.locations[i];
+      if (loc.hidden && !state.vaultUnlocked) continue;
+
+      var spot = MAP_SPOTS[loc.id] || MAP_SPOTS.garage;
+      var gate = SF.gateFor(state, loc);
+      var locked = !gate.ok;
+
+      html += '<button type="button" class="map-spot' +
+        (locked ? ' is-locked' : '') +
+        (mapSelected === loc.id ? ' is-selected' : '') + '"' +
+        ' style="left:' + spot.left + '%;top:' + spot.top +
+        '%;width:' + spot.w + '%;height:' + spot.h + '%"' +
+        (locked ? ' data-locked="' + loc.id + '"' : ' data-id="' + loc.id + '"') +
+        ' aria-label="' + loc.name + '"></button>';
+    }
+
+    $('map-grid').innerHTML = html;
+    hideMapRisk();
+  }
+
+  /* 地图图例：把所有地点的产出和推荐装备列出来 */
+  function openMapInfo() {
+    var html = '<div class="modal-head">' +
+      '<span class="modal-title">这块地方能搜到什么</span>' +
+      '<span class="modal-sub">推荐装备只占 1 个装备槽</span>' +
+      '</div>';
 
     for (var i = 0; i < C.locations.length; i++) {
       var loc = C.locations[i];
       if (loc.hidden && !state.vaultUnlocked) continue;
 
       var gate = SF.gateFor(state, loc);
-      var locked = !gate.ok;
 
-      paths += '<line x1="50" y1="82" x2="' + loc.mapX + '" y2="' + loc.mapY +
-        '" stroke="rgba(200,210,190,0.32)" stroke-width="0.45" stroke-dasharray="2 2"/>';
-
-      if (locked) {
-        html += '<button type="button" class="map-node is-locked" style="left:' + loc.mapX +
-          '%;top:' + loc.mapY + '%" data-locked="' + loc.id + '">' +
-          '<span class="node-ico">?</span>' +
-          '<span class="node-name">未知区域</span>' +
-          '<span class="node-risk risk-high">未解锁</span>' +
-          '</button>';
-        continue;
-      }
-
-      html += '<button type="button" class="map-node" style="left:' + loc.mapX +
-        '%;top:' + loc.mapY + '%" data-id="' + loc.id + '">' +
-        '<span class="node-ico">' + SF.icon(loc.icon, 26) + '</span>' +
-        '<span class="node-name">' + loc.name + '</span>' +
-        '<span class="node-risk risk-' + loc.riskLevel + '">' + loc.risk + '</span>' +
-        '</button>';
+      html += '<div class="map-info-row">' +
+        '<span class="map-info-name">' + loc.name + '</span>' +
+        '<span class="map-info-risk">' + loc.risk + '</span>' +
+        '<span class="map-info-loot">' + (loc.hint || '') + '</span>' +
+        '<span class="map-info-rec">推荐：' + (loc.rec || '—') + '</span>' +
+        (gate.ok ? '' : '<span class="map-info-lock">尚未解锁</span>') +
+        '</div>';
     }
 
-    html += '<div class="map-node is-home" style="left:50%;top:82%">' +
-      '<span class="node-ico">' + SF.icon('house', 26) + '</span>' +
-      '<span class="node-name">避难所</span>' +
-      '</div>';
+    html += '<div class="modal-actions">' +
+      '<button type="button" class="btn" data-act="close">知道了</button></div>';
 
-    $('map-path').innerHTML = '<svg viewBox="0 0 100 100" preserveAspectRatio="none">' +
-      paths + '</svg>';
-    $('map-grid').innerHTML = html;
+    openModal(html, 'modal-map-info');
+  }
+  function showMapRisk(locId, locked) {
+    var loc = SF.findLocation(locId);
+    var mapHint = $('map-risk');
+    var text = $('map-risk-text');
+    if (!mapHint || !text || !loc) return;
+
+    var line = loc.name + ' · ' + (loc.risk || '风险不明');
+    if (loc.hint) line += ' · ' + loc.hint;
+    if (loc.rec) line += ' · 推荐装备：' + loc.rec;
+    if (locked) line += ' · 尚未解锁';
+
+    text.textContent = line;
+    mapHint.classList.add('is-on');
+    if (locked) {
+      mapHint.classList.add('is-bad');
+    } else {
+      mapHint.classList.remove('is-bad');
+    }
+  }
+
+  function hideMapRisk() {
+    var mapHint = $('map-risk');
+    var text = $('map-risk-text');
+    if (!mapHint || !text) return;
+
+    text.textContent = '点地图上的地点，再选谁去';
+    mapHint.classList.remove('is-on');
+    mapHint.classList.remove('is-bad');
+  }
+
+  // 鼠标移开时：如果还点着某个地点，就继续显示它的风险
+  function showMapSelectedOrHide() {
+    if (mapSelected) {
+      showMapRisk(mapSelected, false);
+    } else {
+      hideMapRisk();
+    }
   }
 
   /* 出发前的装备界面 */
@@ -711,22 +1086,40 @@
   var raidDepth = 1;
   var raidTotals = {};
 
+  var GEAR_LABEL = { torch: '手电', mask: '面具', pack: '背包', weapon: '武器' };
+  var GEAR_ICON = { torch: 'flashlight', mask: 'mask', pack: 'backpack', weapon: 'weapon' };
+
+  /* 出发前的单槽装备：一个人只有一格，穿在别人身上就选不到 */
   function gearButtons(s, locId) {
     var defs = [
-      { key: 'mask', label: '面具', has: s.hasMask, own: state.items.gasMask },
-      { key: 'torch', label: '手电', has: s.hasTorch, own: state.items.flashlight },
-      { key: 'weapon', label: '武器', has: s.hasWeapon, own: state.items.weapon }
+      { key: 'torch', has: s.hasTorch, own: state.items.flashlight },
+      { key: 'mask', has: s.hasMask, own: state.items.gasMask },
+      { key: 'pack', has: s.hasPack, own: state.items.backpack },
+      { key: 'weapon', has: s.hasWeapon, own: state.items.weapon }
     ];
-    var html = '';
+
+    var cur = SF.gearOf ? SF.gearOf(s) : '';
+    var html = '<span class="gear-slot-now">槽位：' +
+      (cur ? GEAR_LABEL[cur] : '空') + '</span>';
 
     for (var i = 0; i < defs.length; i++) {
       var d = defs[i];
-      if (!d.has && !d.own) continue;
-      html += '<button type="button" class="gear-chip' + (d.has ? ' is-on' : '') + '"' +
+      var owner = d.has ? '' : (SF.gearOwner ? SF.gearOwner(state, d.key) : '');
+
+      if (!d.has && !d.own && !owner) continue;
+
+      var label = GEAR_LABEL[d.key];
+      var disabled = !d.has && (!d.own || owner) ? ' disabled' : '';
+
+      html += '<button type="button" class="gear-chip' +
+        (d.has ? ' is-on' : '') + (owner ? ' is-taken' : '') + '"' +
+        disabled +
         ' data-act="equip" data-gear="' + d.key + '" data-id="' + s.id + '"' +
         ' data-loc="' + (locId || '') + '">' +
-        d.label + (d.has ? ' ✓' : '') + '</button>';
+        label + (d.has ? ' ✓' : (owner ? '（' + owner + '用着）' : '')) +
+        '</button>';
     }
+
     return html;
   }
 
@@ -747,7 +1140,8 @@
       html += '<div class="equip-row">' +
         '<span class="equip-fig">' + portraitHtml(s, 34, 34) + '</span>' +
         '<span class="equip-main">' + s.name +
-        '<span class="equip-role">' + s.role + ' · ' + s.trait + '</span>' +
+        '<span class="equip-role">' + s.role + ' · ' + s.trait +
+        ' · 负重 ' + SF.carryOf(s) + ' 格</span>' +
         '<span class="equip-trait">' + s.traitText + '</span>' +
         '<span class="equip-verdict' +
         (SF.verdictFor(state, loc, s).good ? ' is-good' : ' is-bad') + '">' +
@@ -896,7 +1290,8 @@
         '<span class="pick-check' + (on ? ' is-on' : '') + '"></span>' +
         '<span class="pick-fig">' + portraitHtml(s, 30, 40) + '</span>' +
         '<span class="pick-main"><b>' + s.name + '</b>' +
-        '<span class="pick-role">' + s.role + ' · ' + traitName(s) + '</span>' +
+        '<span class="pick-role">' + s.role + ' · ' + traitName(s) +
+        ' · 负重 ' + SF.carryOf(s) + ' 格</span>' +
         '<span class="pick-trait">' + traitTextFor(s) + '</span>' +
         '<span class="pick-verdict' + (v.good ? ' is-good' : ' is-bad') + '">' +
         v.text + '</span></span>' +
@@ -981,10 +1376,25 @@
         raidTotals[lk] = (raidTotals[lk] || 0) + lastReport.loot[li].qty;
       }
 
+      // 已经死了（全员阵亡或主角倒下）：立刻弹结算，不许再继续
+      if (state.over && !state.won) {
+        openGameOver();
+        return;
+      }
+
       if (!SF.aliveAll(state).length) {
         state.over = true;
         state.overDay = state.day;
+        openGameOver();
+        return;
       }
+
+      // 第一 / 二层就超载：先逼玩家丢掉，丢完才能继续往里走
+      if (!state.over && raidDepth < 3 && SF.packState(state).over > 0) {
+        openBagCheck('trip');
+        return;
+      }
+
       renderLog();
     }, C.explore.searchDelay);
   }
@@ -1005,9 +1415,13 @@
     var r = lastReport;
     if (!r || !r.location) return;
 
+    var pk = SF.packState(state);
+
     var html = '<div class="modal-head">' +
       '<span class="modal-title">探险日志</span>' +
-      '<span class="modal-sub">' + r.location.name + '</span>' +
+      '<span class="modal-sub">' + r.location.name +
+      ' · 背包 ' + pk.total + '/' + pk.cap +
+      (pk.over > 0 ? '（超载 ' + pk.over + '）' : '') + '</span>' +
       '</div>';
 
     for (var i = 0; i < r.lines.length; i++) {
@@ -1061,12 +1475,17 @@
     if (r.choice) {
       html += '<div class="res-label">' + r.choice.title + '</div>' +
         '<div class="res-text">' + r.choice.text + '</div>' +
-        '<div class="modal-actions">';
+        '<div class="modal-actions modal-actions-col">';
 
       for (i = 0; i < r.choice.options.length; i++) {
-        html += '<button type="button" class="btn' + (i === 0 ? ' btn-main' : '') +
-          '" data-act="log-choice" data-key="' + r.choice.options[i].key + '">' +
-          r.choice.options[i].label + '</button>';
+        var op = r.choice.options[i];
+        html += '<div class="opt-row">' +
+          '<button type="button" class="btn' + (i === 0 ? ' btn-main' : '') + '"' +
+          (op.disabled ? ' disabled' : '') +
+          ' data-act="log-choice" data-key="' + op.key + '">' +
+          op.label + '</button>' +
+          (op.desc ? '<div class="opt-desc">' + op.desc + '</div>' : '') +
+          '</div>';
       }
       html += '</div>';
     } else {
@@ -1088,14 +1507,148 @@
 
   function backHome() {
     closeModal();
-    var alive = SF.aliveAll(state);
-    if (alive.length) state.leaderId = alive[0].id;
-    renderShelter();
-    showScreen('screen-shelter');
 
     if (state.over) {
       openGameOver();
+      return;
     }
+
+    checkPackThenHome();
+  }
+
+  /* ---------------- 负重结算（网格） ---------------- */
+
+  var bagLock = false;
+  var bagMode = 'return';
+  var bagPending = '';
+  var gameOverLock = false;
+
+  function bagUnits() {
+    var totals = state.tripTotals || {};
+    var order = ['food', 'water', 'medicine', 'material'];
+    var units = [];
+
+    for (var i = 0; i < order.length; i++) {
+      var n = totals[order[i]] || 0;
+      for (var j = 0; j < n; j++) units.push(order[i]);
+    }
+    return units;
+  }
+
+  function supplyLabel(key) {
+    for (var i = 0; i < SF.SUPPLIES.length; i++) {
+      if (SF.SUPPLIES[i].key === key) return SF.SUPPLIES[i].name;
+    }
+    return key;
+  }
+
+  function openBagCheck(mode) {
+    bagMode = mode || 'return';
+    bagPending = '';
+    renderBagModal();
+  }
+
+  function renderBagModal() {
+    var pk = SF.packState(state);
+    var units = bagUnits();
+    var i;
+
+    var html = '<div class="modal-head">' +
+      '<span class="modal-title">清点背包</span>' +
+      '<span class="modal-sub">' + pk.total + ' / ' + pk.cap + ' 格</span>' +
+      '</div>';
+
+    if (pk.over > 0) {
+      html += '<div class="bag-warn">背包超载！点任意一件物资就能丢掉</div>' +
+        '<div class="bag-sub">还要再丢掉 ' + pk.over + ' 件（红框里的只是提示，实线格里的也能丢）</div>';
+    } else if (bagMode === 'trip') {
+      html += '<div class="bag-ok">装得下了，可以继续往里搜。</div>';
+    } else {
+      html += '<div class="bag-ok">刚好装得下，可以带回避难所。</div>';
+    }
+
+    html += '<div class="bag-grid">';
+
+    // 实线格子 = 容量，里面的东西同样可以点
+    for (i = 0; i < pk.cap; i++) {
+      var k = units[i];
+
+      if (!k) {
+        html += '<div class="bag-slot is-empty"></div>';
+        continue;
+      }
+
+      html += '<button type="button" class="bag-slot" data-act="bag-pick"' +
+        ' data-key="' + k + '" title="点击丢弃 1 份' + supplyLabel(k) + '">' +
+        SF.itemSvg(k, 24) +
+        '</button>';
+    }
+
+    // 红色虚线格子 = 超载提示区（动态算出来的）
+    for (i = pk.cap; i < units.length; i++) {
+      var ok2 = units[i];
+      html += '<button type="button" class="bag-slot is-over" data-act="bag-pick"' +
+        ' data-key="' + ok2 + '" title="点击丢弃 1 份' + supplyLabel(ok2) + '">' +
+        SF.itemSvg(ok2, 24) +
+        '</button>';
+    }
+
+    html += '</div>';
+
+    // 点了一件东西：先确认
+    if (bagPending) {
+      html += '<div class="bag-confirm">' +
+        '<div class="bag-confirm-text">确定丢弃这 1 份' + supplyLabel(bagPending) + '吗？</div>' +
+        '<div class="bag-confirm-actions">' +
+        '<button type="button" class="btn btn-main" data-act="bag-drop"' +
+        ' data-key="' + bagPending + '">确定丢弃</button>' +
+        '<button type="button" class="btn" data-act="bag-cancel">取消</button>' +
+        '</div></div>';
+    } else {
+      html += '<div class="modal-actions">' +
+        '<button type="button" class="btn btn-main" data-act="bag-confirm"' +
+        (pk.over > 0 ? ' disabled' : '') + '>' +
+        (bagMode === 'trip' ? '继续' : '带回避难所') +
+        '</button>' +
+        '</div>';
+    }
+
+    // 搜到一半超载：必须清完才能继续，也不许顺手关掉
+    bagLock = (bagMode === 'trip') || pk.over > 0;
+
+    openModal(html, 'modal-bag');
+  }
+
+  function dropBagItem(key) {
+    if ((state.supplies[key] || 0) > 0) {
+      state.supplies[key] = Math.max(0, Math.round(state.supplies[key] - 1));
+    }
+    if (!state.tripTotals) state.tripTotals = {};
+    state.tripTotals[key] = Math.max(0, (state.tripTotals[key] || 0) - 1);
+
+    updateHint('丢掉了 1 份' + supplyLabel(key) + '。');
+  }
+
+  function finishTrip() {
+    bagLock = false;
+    bagPending = '';
+    state.tripTotals = {};
+    state.tripCap = 0;
+    state.tripMembers = [];
+
+    var alive = SF.aliveAll(state);
+    if (alive.length) state.leaderId = alive[0].id;
+
+    renderShelter();
+    showScreen('screen-shelter');
+  }
+
+  function checkPackThenHome() {
+    if (SF.packState(state).over > 0) {
+      openBagCheck('return');
+      return;
+    }
+    finishTrip();
   }
 
   /* ---------------- 人物 ---------------- */
@@ -1205,9 +1758,11 @@
     var list = C.broadcasts;
     var text = list[Math.floor(Math.random() * list.length)];
 
-    var left = state.rescueLeft > 0
-      ? '军方救援倒计时：' + state.rescueLeft + ' 天'
-      : '救援倒计时已经到了，外面却什么也没有。';
+    var left = state.rescueDay
+      ? '军方频道：救援日，第 ' + state.rescueDay + ' 天。'
+      : (state.items.radio
+        ? '军方频道：“保持静默，等待下一步指令。”'
+        : '收音机还没修好，听不到军方频道。');
 
     openModal('<div class="modal-head">' +
       '<span class="modal-title">收音机</span>' +
@@ -1318,16 +1873,38 @@
     if (key === 'medicine') return '【药品：治好生病并恢复 30 点血量】';
     if (key === 'material') return '【木板：修补窗户、钉死大门、生火取暖】';
     if (key === 'flashlight') return '【手电筒：探索暗处时物资收益增加】';
-    if (key === 'weapon') return '【武器：警局必备，也能当撬棍】';
+    if (key === 'weapon') return '【武器：保安亭必备，也能当撬棍】';
     if (key === 'radio') return '【收音机：修好后能收到军方情报】';
     if (key === 'flare') return '【信号弹：救援直升机靠它找到你们】';
-    if (key === 'mask') return '【防毒面具：进入废弃医院的必需品】';
+    if (key === 'mask') return '【防毒面具：进入隔壁社区卫生站的必需品】';
     if (key === 'cards') return '【扑克牌：避难所里每天心情恢复更快】';
     if (key === 'pesticide') return '【杀虫剂：清理通风口和床铺的虫子】';
+    if (key === 'backpack') return '【双肩包：给一个人背上，他的负重 +2 格】';
+    if (key === 'parts') return '【电子零件：修收音机用，不占负重】';
     return '';
   }
 
   function openGear(key) {
+    // 破收音机：用 1 枚电子零件修好
+    if (key === 'radioBroken') {
+      var parts = state.parts || 0;
+
+      openModal('<div class="modal-head">' +
+        '<span class="modal-title">破损的收音机</span>' +
+        '</div>' +
+        '<div class="gear-big-ico">' + SF.itemSvg('parts', 44) + '</div>' +
+        '<div class="res-text">外壳裂了，线圈也断了。陈默说，换一枚电子零件就能救回来。</div>' +
+        '<div class="res-text">现有电子零件：' + parts + ' / 1</div>' +
+        '<div class="modal-actions modal-actions-col">' +
+        '<button type="button" class="btn btn-main" data-act="repair-radio"' +
+        (parts < 1 ? ' disabled' : '') + '>修好它（零件 -1）</button>' +
+        (parts < 1 ? '<div class="opt-lack">【缺少电子零件】</div>' : '') +
+        '<button type="button" class="btn" data-act="close">先放着</button>' +
+        '</div>',
+        'modal-gear');
+      return;
+    }
+
     var owned = true;
 
     if (key === 'flashlight') owned = !!state.items.flashlight;
@@ -1418,17 +1995,16 @@
       return;
     }
 
-    showStoryIfAny();
     openNight();
   }
 
   /* 线性主线：进入新的一天时弹一次 */
   function showStoryIfAny() {
-    if (!SF.storyFor) return;
+    if (!SF.storyFor) return false;
 
     var st = SF.storyFor(state);
-    if (!st) return;
-    if (state.storySeenDay === state.day) return;
+    if (!st) return false;
+    if (state.storySeenDay === state.day) return false;
 
     state.storySeenDay = state.day;
 
@@ -1441,21 +2017,116 @@
       '<button type="button" class="btn btn-main" data-act="close">知道了</button>' +
       '</div>',
       'modal-story');
+
+    return true;
+  }
+
+  /* 关掉早晨的弹窗后，继续走早晨的队列 */
+  function afterModalClose() {
+    runMorningQueue();
+  }
+
+  /* ---------------- 白天突发事件 ---------------- */
+
+  function currentDayEvent() {
+    try {
+      return SF.dayEventFor ? SF.dayEventFor(state) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /* 门口来的人：有就弹窗，返回有没有弹 */
+  function openDayEvent() {
+    try {
+      var ev = currentDayEvent();
+      if (!ev || !ev.options) return false;
+
+      var html = '<div class="modal-head">' +
+        '<span class="modal-title">' + ev.title + '</span>' +
+        '<span class="modal-sub">第 ' + state.day + ' 天 · 一大早</span>' +
+        '</div>' +
+        '<div class="res-text">' + ev.text + '</div>' +
+        '<div class="modal-actions modal-actions-col">';
+
+      for (var i = 0; i < ev.options.length; i++) {
+        var op = ev.options[i];
+        var lack = op.disabled && ev.options[i].lack ? ev.options[i].lack : '';
+
+        html += '<div class="opt-row">' +
+          '<button type="button" class="btn' +
+          (i === 0 && !op.disabled ? ' btn-main' : '') + '"' +
+          (op.disabled ? ' disabled' : '') +
+          ' data-act="day-event" data-key="' + op.key + '">' +
+          op.label + '</button>' +
+          (lack ? '<div class="opt-lack">【' + lack + '】</div>' : '') +
+          '</div>';
+      }
+
+      html += '</div>';
+
+      openModal(html, 'modal-day-event');
+      return true;
+    } catch (e) {
+      // 兜底：事件本身出问题就直接跳过这一天，绝不把【出门探索】锁死
+      try {
+        state.dayEventDone = state.day;
+      } catch (e2) { }
+      return false;
+    }
+  }
+
+  /* 早晨：先把门口的人处理掉，再讲今天的剧情 */
+  var morningQueue = [];
+
+  function startNewDay() {
+    morningQueue = [];
+
+    if (currentDayEvent()) morningQueue.push('event');
+
+    var hasStory = false;
+    try {
+      hasStory = !!(SF.storyFor && SF.storyFor(state) &&
+        state.storySeenDay !== state.day);
+    } catch (e) {
+      hasStory = false;
+    }
+    if (hasStory) morningQueue.push('story');
+
+    renderShelter();
+    runMorningQueue();
+  }
+
+  function runMorningQueue() {
+    while (morningQueue.length) {
+      var step = morningQueue.shift();
+
+      if (step === 'event') {
+        if (openDayEvent()) return;
+        // 弹不出来：立刻重画一次，把【出门探索】解开
+        renderShelter();
+      } else if (step === 'story') {
+        if (showStoryIfAny()) return;
+      }
+    }
   }
 
   function openVictory() {
-    var days = state.overAtDay || 20;
+    var days = state.overAtDay || state.rescueDay || state.day;
+    var names = SF.aliveAll(state).map(function (s) { return s.name; }).join('、');
 
-    openModal('<div class="modal-head"><span class="modal-title">直升机来了</span></div>' +
-      '<div class="res-text">第 ' + days + ' 天的清晨，你们爬上楼顶，' +
-      '把最后一发信号弹打上天。螺旋桨的声音越来越近。</div>' +
-      '<div class="res-label">结局</div>' +
-      '<div class="res-text">活下来的人：' +
-      SF.aliveAll(state).map(function (s) { return s.name; }).join('、') + '</div>' +
+    openModal('<div class="modal-head"><span class="modal-title">逃出生天</span></div>' +
+      '<div class="vic-days">活到了第 <b>' + days + '</b> 天</div>' +
+      '<div class="res-text">信号弹升空的那晚，直升机记下了这栋楼。第二天清晨，' +
+      '螺旋桨的声音由远及近，最后停在头顶。</div>' +
+      '<div class="res-label">活下来的人</div>' +
+      '<div class="res-text">' + (names || '没有人') + '</div>' +
       '<div class="modal-actions">' +
       '<button type="button" class="btn btn-main" data-act="restart">再来一局</button>' +
       '</div>',
       'modal-over');
+
+    $('overlay').classList.add('is-victory');
   }
 
   /* ---------------- 主界面投喂 ---------------- */
@@ -1465,7 +2136,11 @@
   // 刚喂过的人：卡片闪一下
   var flashId = null;
   var hintTimer = 0;
-  var lastPickAt = 0;
+  // 上一次点名片的时间：只用来吃掉连点带出来的第二下
+  var lastCardTapId = '';
+  var lastCardTapAt = 0;
+  // 连点保护窗口（毫秒）
+  var TAP_GUARD = 220;
 
   function isInside(el, node) {
     while (el && el.nodeType === 1) {
@@ -1558,14 +2233,18 @@
 
     var cards = document.querySelectorAll('.mini-card');
     for (i = 0; i < cards.length; i++) {
-      (function (el) {
-        el.style.pointerEvents = 'auto';
-        el.onclick = function (ev) {
-          if (ev) ev.stopPropagation();
-          onPersonTap(el.getAttribute('data-id'));
-        };
-      })(cards[i]);
+      bindCardTap(cards[i], cards[i].getAttribute('data-id'));
     }
+  }
+
+  /* 名片：绑在自己的节点上，点一下就结算 */
+  function bindCardTap(el, id) {
+    el.style.pointerEvents = 'auto';
+
+    el.onclick = function (ev) {
+      if (ev && ev.stopPropagation) ev.stopPropagation();
+      onPersonTap(id);
+    };
   }
 
   function holdLabel(key) {
@@ -1574,19 +2253,21 @@
     return '药品';
   }
 
+  /* 点物资：选中 / 放下。没有冷却，连点也一定生效 */
   function pickItem(key) {
-    var now = Date.now();
-    if (now - lastPickAt < 260) return;
-    lastPickAt = now;
-
     if (heldItem === key) {
       heldItem = null;
       renderShelter();
+      updateHint();
       hideCenterTip();
       return;
     }
 
     if ((state.supplies[key] || 0) <= 0) {
+      heldItem = null;
+      renderShelter();
+      updateHint('没有' + holdLabel(key) + '了，先出门找回来。');
+      hideCenterTip();
       return;
     }
 
@@ -1603,42 +2284,76 @@
     renderShelter();
   }
 
-  /* 喂一个人 / 给他用药：库存当场扣掉，卡片闪一下 */
+  /* 喂一个人 / 给他用药：当场同步结算，然后无条件松手 */
   function feedPerson(id) {
-    if (!heldItem) return;
-
     var kind = heldItem;
-    var res = kind === 'medicine'
-      ? SF.useMedicineOn(state, id)
-      : SF.feed(state, id, kind);
+    if (!kind) return;
 
-    if (!res.ok) {
-      updateHint(res.msg || '不行。');
+    var label = holdLabel(kind);
+    var now = Date.now();
+
+    // 连点保护：同一个人 220 毫秒内的第二下直接吃掉，绝不多算一次
+    if (id === lastCardTapId && now - lastCardTapAt < TAP_GUARD) return;
+    lastCardTapId = id;
+    lastCardTapAt = now;
+
+    // 兜底：库存已经空了，立刻提示并取消选中，绝不拿着空气卡住
+    if ((state.supplies[kind] || 0) <= 0) {
+      heldItem = null;
+      renderShelter();
+      updateHint('没有' + label + '了');
+      showCenterTip('没有' + label + '了');
       return;
     }
 
-    heldItem = null; // 投喂完成自动放下
-    flashId = id;
+    var res;
 
-    if (SF.sfx) {
-      if (kind === 'food' && SF.sfx.eat) SF.sfx.eat();
-      else if (kind === 'water' && SF.sfx.drink) SF.sfx.drink();
-      else if (SF.sfx.pick) SF.sfx.pick();
+    try {
+      res = kind === 'medicine'
+        ? SF.useMedicineOn(state, id)
+        : SF.feed(state, id, kind);
+    } catch (e) {
+      res = { ok: false, msg: '这一下没结算成功，再点一次就好。' };
+    }
+
+    // 黄框必须立刻消失：不管成功还是失败
+    heldItem = null;
+    flashId = res && res.ok ? id : null;
+
+    if (res && res.ok && SF.sfx) {
+      try {
+        if (kind === 'food' && SF.sfx.eat) SF.sfx.eat();
+        else if (kind === 'water' && SF.sfx.drink) SF.sfx.drink();
+        else if (SF.sfx.pick) SF.sfx.pick();
+      } catch (e) {
+        /* 声音失败不影响结算 */
+      }
     }
 
     renderShelter();
-    updateHint();
     hideCenterTip();
 
-    window.setTimeout(function () {
-      if (flashId === id) flashId = null;
-    }, 700);
+    if (res && res.ok) {
+      updateHint(res.msg || '喂好了。');
+    } else {
+      updateHint((res && res.msg) ? res.msg : '现在没法给他' + label + '。');
+    }
+
+    var flashing = flashId;
+    if (flashing) {
+      window.setTimeout(function () {
+        if (flashId === flashing) flashId = null;
+      }, 700);
+    }
   }
 
   /* 点名片：手里有东西就喂，否则打开人物面板 */
   function onPersonTap(id) {
     var s = SF.find(state, id);
     if (!s || !s.alive) return;
+
+    // 连点保护：同一个人 220 毫秒内的第二下不重复处理
+    if (id === lastCardTapId && Date.now() - lastCardTapAt < TAP_GUARD) return;
 
     if (heldItem) {
       feedPerson(id);
@@ -1653,7 +2368,12 @@
   /* 「结束今天」：按今天已经喂过的人直接结算，不再弹分配窗 */
   function endDay() {
     var alive = SF.aliveAll(state);
-    if (!alive.length) return;
+    if (!alive.length) {
+      state.over = true;
+      if (!state.overDay) state.overDay = state.day;
+      openGameOver();
+      return;
+    }
 
     heldItem = null;
 
@@ -1690,6 +2410,15 @@
 
     html += '<div class="consume-line">今日消耗：食物 -' + (n.foodUsed || 0) +
       ' · 水 -' + (n.waterUsed || 0) + '</div>';
+
+    if (n.dayNote) {
+      html += '<div class="res-label">今天的总结</div>' +
+        '<div class="night-story">' + n.dayNote + '</div>';
+    }
+
+    if (n.condition) {
+      html += '<div class="night-story">明天早上的状况：' + n.condition + '</div>';
+    }
 
     if (n.milestone) {
       html += '<div class="warn-line">【主线警告】' + n.milestone + '</div>';
@@ -1754,18 +2483,98 @@
     openModal(html, 'modal-night');
   }
 
+  /*
+   * 死亡结算：一整屏的背景图 + 存活记录，
+   * 底下问一句「要不要重新开始」，选「重新开始」就回到片头那一幕。
+   */
   function openGameOver() {
-    var days = state.overDay || (state.day - 1);
+    var days = state.overDay || state.overAtDay || state.day;
     if (days < 1) days = 1;
 
-    openModal('<div class="modal-head"><span class="modal-title">避难所熄灯了</span></div>' +
-      '<div class="res-text">撑到了第 ' + days + ' 天。</div>' +
-      '<div class="res-label">最后</div>' +
-      '<div class="res-text">最后一盏灯灭了。铁门还锁着，门外再没有声音。</div>' +
-      '<div class="modal-actions">' +
-      '<button type="button" class="btn btn-main" data-act="restart">重新开始</button>' +
-      '</div>',
-      'modal-over');
+    var alive = SF.aliveAll(state);
+    var allDead = alive.length === 0;
+    // 撑到期限却没等到直升机：不是被打死，是没人来接
+    var noFlare = !allDead && !state.won && state.overAtDay > 0;
+    var title = allDead ? '全员阵亡' : (noFlare ? '直升机没有来' : '你没能活下去');
+
+    var lines = [
+      '大门被撞开的那一刻，一切都结束了。',
+      '最后一点食物在三天前就吃完了。',
+      '你们把最后一瓶水分着喝了，然后就没人再醒过来。',
+      '收音机最后响了一阵，之后就只剩下风声。',
+      '楼下的脚步声停了很久，你们也没再起来。'
+    ];
+    var line = noFlare
+      ? '直升机来了，可你们没能打出信号弹。它在楼顶盘旋了一圈，走了。'
+      : lines[Math.floor(Math.random() * lines.length)];
+
+    gameOverLock = true;
+
+    // 先把可能压在上面的弹窗收掉，再切到死亡这一屏
+    closeModal();
+
+    var tag = $('go-tag');
+    if (tag) tag.textContent = noFlare ? '结局 · 救援落空' : '结局 · 中途阵亡';
+
+    var titleEl = $('go-title');
+    if (titleEl) titleEl.textContent = title;
+
+    var daysEl = $('go-days');
+    if (daysEl) daysEl.innerHTML = '撑了 <b>' + days + '</b> <span>天</span>';
+
+    var lineEl = $('go-line');
+    if (lineEl) lineEl.textContent = line;
+
+    var chips = [];
+    chips.push('<span class="go-chip">幸存 <b>' + alive.length + '</b> / ' +
+      state.survivors.length + ' 人</span>');
+    chips.push('<span class="go-chip">生存 <b>' + days + '</b> 天</span>');
+    chips.push(state.items.flare
+      ? '<span class="go-chip">信号弹：到手</span>'
+      : '<span class="go-chip is-off">信号弹：没有</span>');
+
+    var statsEl = $('go-stats');
+    if (statsEl) statsEl.innerHTML = chips.join('');
+
+    var whoEl = $('go-who');
+    if (whoEl) {
+      whoEl.textContent = alive.length
+        ? '还活着的人：' + alive.map(function (s) { return s.name; }).join('、')
+        : '这间屋子里，再没有一个人站起来。';
+    }
+
+    document.body.classList.add('is-dead');
+    showScreen('screen-death');
+  }
+
+  /* 死了以后重开：清掉存档，回到片头那一幕重新讲一遍 */
+  function startFreshRun() {
+    if (timer) {
+      window.clearTimeout(timer);
+      timer = 0;
+    }
+    if (introTimer) {
+      window.clearTimeout(introTimer);
+      introTimer = 0;
+    }
+
+    searching = false;
+    lastReport = null;
+    nightReport = null;
+    gameOverLock = false;
+    heldItem = null;
+    loadNoticeDay = 0;
+
+    if (SF.clearSave) SF.clearSave();
+
+    state = SF.newGame();
+
+    closeModal();
+    document.body.classList.remove('is-dead');
+    bindIntroGo();
+    bindMiniInput();
+    showScreen('screen-intro');
+    playIntro();
   }
 
   function restart() {
@@ -1776,11 +2585,14 @@
     searching = false;
     lastReport = null;
     nightReport = null;
+    gameOverLock = false;
 
     state = SF.newGame();
     closeModal();
+    document.body.classList.remove('is-dead');
     renderShelter();
     showScreen('screen-shelter');
+    startNewDay();
   }
 
   /* ---------------- 事件 ---------------- */
@@ -1802,7 +2614,36 @@
     var id = el.getAttribute('data-id');
 
     if (act === 'close') {
+      if (bagLock) return;
       closeModal();
+      afterModalClose();
+    } else if (act === 'newrun') {
+      if (SF.clearSave) SF.clearSave();
+      window.location.href = 'index.html';
+      return;
+    } else if (act === 'bag-pick') {
+      bagPending = el.getAttribute('data-key') || '';
+      renderBagModal();
+    } else if (act === 'bag-cancel') {
+      bagPending = '';
+      renderBagModal();
+    } else if (act === 'bag-drop') {
+      dropBagItem(el.getAttribute('data-key'));
+      bagPending = '';
+      renderBagModal();
+    } else if (act === 'bag-confirm') {
+      if (SF.packState(state).over > 0) return;
+
+      if (bagMode === 'trip') {
+        bagLock = false;
+        closeModal();
+        renderLog();
+        return;
+      }
+
+      bagLock = false;
+      closeModal();
+      finishTrip();
     } else if (act === 'lead') {
       state.leaderId = id;
       closeModal();
@@ -1876,6 +2717,28 @@
         nightReport.event = null;
       }
       finishNight();
+    } else if (act === 'day-event') {
+      var dev = currentDayEvent();
+      var dkey = el.getAttribute('data-key');
+      var out = '';
+
+      try {
+        out = SF.resolveDayEvent(state, dev ? dev.id : '', dkey);
+      } catch (e) {
+        out = '';
+      }
+
+      closeModal();
+      if (SF.saveGame) SF.saveGame(state);
+      renderShelter();
+
+      if (out) updateHint(out);
+      afterModalClose();
+    } else if (act === 'repair-radio') {
+      var rr = SF.repairRadio ? SF.repairRadio(state) : { ok: false, msg: '' };
+      closeModal();
+      renderShelter();
+      updateHint(rr.msg || '');
     } else if (act === 'radio-listen') {
       openBroadcast();
     } else if (act === 'back-home') {
@@ -1884,6 +2747,8 @@
       closeModal();
       renderShelter();
       showScreen('screen-shelter');
+      if (SF.saveGame) SF.saveGame(state);
+      startNewDay();
     } else if (act === 'restart') {
       restart();
     }
@@ -1896,6 +2761,9 @@
     var id = el.getAttribute('data-id');
     var s = SF.find(state, id);
     if (!s || !s.alive) return;
+
+    // 连点保护：刚处理过的那个人，第二下直接吃掉
+    if (id === lastCardTapId && Date.now() - lastCardTapAt < TAP_GUARD) return;
 
     // 手里拿着东西：直接喂给他
     if (heldItem) {
@@ -1913,9 +2781,15 @@
     if (locked) {
       var loc = SF.findLocation(locked);
       var gate = SF.gateFor(state, loc);
-      openModal('<div class="modal-head"><span class="modal-title">' +
-        (loc ? loc.name : '未知区域') + '</span></div>' +
-        '<div class="res-text">' + (gate.reason || '没有情报，前往太危险。') + '</div>' +
+
+      // 点到没解锁的地方：先把别处的亮光灭掉，再弹「尚未解锁」
+      mapSelected = '';
+      var spots = $('map-grid').querySelectorAll('.map-spot.is-selected');
+      for (var i = 0; i < spots.length; i++) spots[i].classList.remove('is-selected');
+
+      openModal('<div class="modal-head"><span class="modal-title">尚未解锁</span>' +
+        '<span class="modal-sub">' + (loc ? loc.name : '未知区域') + '</span></div>' +
+        '<div class="res-text">' + (gate.reason || '这里还去不了。') + '</div>' +
         '<div class="modal-actions"><button type="button" class="btn" data-act="close">知道了</button></div>',
         'modal-action');
       return;
@@ -1923,7 +2797,16 @@
 
     var el = elementFrom(ev.target, $('map-grid'), 'data-id');
     if (!el) return;
-    openExplorerPicker(el.getAttribute('data-id'));
+
+    var locId = el.getAttribute('data-id');
+    mapSelected = locId;
+
+    // 点亮选中的那一块
+    var all = $('map-grid').querySelectorAll('.map-spot');
+    for (var j = 0; j < all.length; j++) all[j].classList.remove('is-selected');
+    el.classList.add('is-selected');
+
+    openExplorerPicker(locId);
   }
 
   /* 头顶气泡：0 陈默 · 1 林晓 · 2 铁柱 · 3 娜娜 */
@@ -1974,17 +2857,24 @@
 
   function onExplore() {
     if (!SF.aliveAll(state).length) return;
+
+    // 门口的事没处理完，先弹事件；弹不出来就直接放行，绝不卡死
+    if (currentDayEvent()) {
+      if (openDayEvent()) return;
+      state.dayEventDone = state.day;
+      renderShelter();
+    }
+
     if (!SF.canExplore(state)) return;
 
     closeModal();
-    renderMap();
     showScreen('screen-map');
+    renderMap();
   }
 
   function onGoHome() {
     closeModal();
-    renderShelter();
-    showScreen('screen-shelter');
+    checkPackThenHome();
   }
 
   /* ---------------- 开发者测试面板 ---------------- */
@@ -2064,6 +2954,12 @@
       state.supplies.medicine = 0;
       state.supplies.material = 0;
       msg = '物资已清空。';
+    } else if (action === 'stock') {
+      state.supplies.food = 20;
+      state.supplies.water = 20;
+      state.supplies.medicine = 20;
+      state.supplies.material = 20;
+      msg = '物资全满：食物 / 水 / 药品 / 木板 各 20。';
     } else if (action === 'event') {
       var ev = SF.makePersonalEvent ? SF.makePersonalEvent(state) : null;
       if (!ev) {
@@ -2084,6 +2980,80 @@
       } catch (e) {
         msg = '事件执行失败：' + e.message;
       }
+    } else if (action === 'day') {
+      var pool = ['merchant', 'neighbor', 'intel', 'thugs'];
+      state.dayEventId = pool[Math.floor(Math.random() * pool.length)];
+      state.dayEventIdDay = state.day;
+      state.dayEventDone = 0;
+
+      if (!openDayEvent()) {
+        updateHint('白天事件没弹出来，再点一下试试。');
+        return;
+      }
+      if (SF.saveGame) SF.saveGame(state);
+      return;
+    } else if (action === 'day29') {
+      // 跳到救援前一天：把收音机和信号弹都塞给你，好让结局两步就能看到
+      state.items.radio = true;
+      state.items.flare = true;
+      if (!state.parts) state.parts = 1;
+
+      state.rescueDay = state.day + 2;
+      state.rescueKnown = true;
+
+      var lastNight = state.day;
+      state.storySeenDay = state.day - 1;
+      state.dayEventDone = 0;
+      state.dayEventIdDay = 0;
+      state.dayEventId = '';
+      state.over = false;
+      state.won = false;
+
+      if (SF.saveGame) SF.saveGame(state);
+      closeDebug();
+      renderShelter();
+      updateHint('收音机报了日期：第 ' + state.rescueDay + ' 天撤离。信号弹在手，' +
+        '再点两次「结束今天」就能看到直升机。');
+      startNewDay();
+      return;
+    } else if (action === 'config') {
+      var rows = (SF.balance && SF.balance.summary) ? SF.balance.summary() : [];
+      var warns = (SF.balance && SF.balance.warnings) || [];
+      var changed = (SF.balance && SF.balance.applied) || [];
+      var html = '<div class="modal-head">' +
+        '<span class="modal-title">数值自检</span>' +
+        '<span class="modal-sub">改完 js/balance.js 刷新即可</span>' +
+        '</div>' +
+        '<div class="res-label">当前生效</div>';
+
+      for (var ri = 0; ri < rows.length; ri++) {
+        html += '<div class="res-line"><span>' + rows[ri].label + '</span>' +
+          '<span class="res-val">' + rows[ri].value + '</span></div>';
+      }
+
+      html += '<div class="res-label">你改过的项：' + changed.length + '</div>';
+
+      if (changed.length) {
+        html += '<div class="res-text">' + changed.join('、') + '</div>';
+      }
+
+      if (warns.length) {
+        html += '<div class="res-label">需要检查的地方</div>';
+        for (var wi = 0; wi < warns.length; wi++) {
+          html += '<div class="warn-line">' + warns[wi] + '</div>';
+        }
+      } else {
+        html += '<div class="res-text">没有发现问题。</div>';
+      }
+
+      html += '<div class="modal-actions">' +
+        '<button type="button" class="btn" data-act="close">关闭</button></div>';
+
+      openModal(html, 'modal-config');
+      return;
+    } else if (action === 'testpage') {
+      window.location.href = 'test.html';
+      return;
     } else if (action === 'restart') {
       if (SF.clearSave) SF.clearSave();
       window.location.reload();
@@ -2100,7 +3070,8 @@
     '灾难爆发十分钟，整座城市沦陷。你们四个室友刚把防盗门死死焊住。',
     '一架满载难民、仓皇撤离的运输机从楼顶掠过。为了减重，他们把大量物资箱直接抛向街道。',
     '这是活下去的唯一机会。不管以前是程序员还是健身教练，现在立刻冲下去，抢！',
-    '撑过 14 天，楼顶的救援直升机才会来。在这之前，一口水，就能决定谁能看到明天的太阳。'
+    '没人知道救援哪天来。修好一台收音机，军方才会在频道里报出日期。' +
+      '在那之前，一口水，就能决定谁能看到明天的太阳。'
   ];
 
   var introTimer = 0;
@@ -2149,6 +3120,20 @@
     nextChar();
   }
 
+  // 片头那颗按钮只绑一次：死了从结算页回到片头，它还得管用
+  function bindIntroGo() {
+    var btn = $('btn-intro-go');
+    if (!btn) return;
+
+    btn.onclick = function (ev) {
+      if (ev) ev.stopPropagation();
+      btn.classList.remove('is-hidden');
+      if (introTimer) window.clearTimeout(introTimer);
+      introTimer = 0;
+      startMiniGame();
+    };
+  }
+
   /* ---------------- 抢物资小游戏 ---------------- */
   var miniTimer = 0;
   var miniDropTimer = 0;
@@ -2158,6 +3143,7 @@
   var miniBasketX = 50;
   var miniLeft = 15;
   var miniRunning = false;
+  var miniBound = false;
 
   var MINI_DEFS = {
     food: { icon: '🍖', name: '食物' },
@@ -2323,12 +3309,14 @@
     closeModal();
     renderShelter();
     showScreen('screen-shelter');
-    showStoryIfAny();
+    startNewDay();
   }
 
   function bindMiniInput() {
     var screen = $('screen-mini');
     if (!screen) return;
+    if (miniBound) return;
+    miniBound = true;
 
     var move = function (clientX) {
       var rect = screen.getBoundingClientRect();
@@ -2387,13 +3375,91 @@
     $('btn-clean').addEventListener('click', openBath);
     $('btn-repair').addEventListener('click', function () { homeFortify('door'); });
     $('btn-log').addEventListener('click', openLog);
+
+    var evBtn = $('btn-event');
+    if (evBtn) {
+      evBtn.addEventListener('click', function (ev) {
+        if (ev) ev.stopPropagation();
+        openDayEvent();
+      });
+    }
     $('btn-go-home').addEventListener('click', onGoHome);
     $('people').addEventListener('click', onPeopleClick);
-    $('map-grid').addEventListener('click', onMapClick);
+    $('quest').addEventListener('click', onQuestClick);
+    var mapGrid = $('map-grid');
+    if (mapGrid) {
+      mapGrid.addEventListener('click', onMapClick);
+
+      // 悬停 / 按下 / 键盘聚焦时，在顶部显示这个地点的风险
+      var pointAt = function (target) {
+        var el = elementFrom(target, mapGrid, 'data-id') ||
+          elementFrom(target, mapGrid, 'data-locked');
+        if (!el) return;
+
+        var lockedId = el.getAttribute('data-locked');
+        showMapRisk(lockedId || el.getAttribute('data-id'), !!lockedId);
+      };
+
+      mapGrid.addEventListener('mouseover', function (ev) {
+        pointAt(ev.target);
+      });
+
+      mapGrid.addEventListener('mouseout', function (ev) {
+        if (ev.relatedTarget && mapGrid.contains(ev.relatedTarget)) return;
+        showMapSelectedOrHide();
+      });
+
+      mapGrid.addEventListener('touchstart', function (ev) {
+        pointAt(ev.target);
+      }, { passive: true });
+
+      mapGrid.addEventListener('focusin', function (ev) {
+        pointAt(ev.target);
+      });
+
+      mapGrid.addEventListener('focusout', function () {
+        showMapSelectedOrHide();
+      });
+    }
+
+    var mapInfoBtn = $('btn-map-info');
+    if (mapInfoBtn) mapInfoBtn.addEventListener('click', openMapInfo);
+
+    // 底图加载完 / 屏幕尺寸变了，重新算一次铺满尺寸，热区才不会偏
+    var mapImg = $('map-bg');
+    if (mapImg) {
+      mapImg.addEventListener('load', sizeMapStage);
+      if (mapImg.complete) sizeMapStage();
+    }
+
+    window.addEventListener('resize', function () {
+      var m = $('screen-map');
+      if (m && m.classList.contains('is-active')) sizeMapStage();
+    });
     $('modal').addEventListener('click', onModalClick);
 
+    // 死亡结算这一屏：重新开始 / 看看日记
+    var deathScreen = $('screen-death');
+    if (deathScreen) {
+      deathScreen.addEventListener('click', function (ev) {
+        var el = elementFrom(ev.target, deathScreen, 'data-act');
+        if (!el) return;
+
+        var act = el.getAttribute('data-act');
+        if (act === 'newrun') {
+          startFreshRun();
+        } else if (act === 'log') {
+          openLog();
+        }
+      });
+    }
+
     $('overlay').addEventListener('click', function (ev) {
-      if (ev.target === $('overlay')) closeModal();
+      if (bagLock) return;
+      if (ev.target === $('overlay')) {
+        closeModal();
+        afterModalClose();
+      }
     });
 
     $('btn-debug').addEventListener('click', function (ev) {
@@ -2435,28 +3501,31 @@
 
     showScreen('screen-shelter');
 
+    // 片头的按钮、抢物资的操作：不管有没有存档都先绑好
+    bindIntroGo();
+    bindMiniInput();
+
     if (loadNoticeDay) {
       updateHint('已读取第 ' + loadNoticeDay + ' 天存档');
-      showStoryIfAny();
+
+      // 读档时如果已经是结局状态，直接给结局，绝不重开
+      if (state.over) {
+        if (state.won) openVictory(); else openGameOver();
+        return;
+      }
+
+      if (!SF.aliveAll(state).length) {
+        openGameOver();
+        return;
+      }
+
+      startNewDay();
       return;
     }
 
     showScreen('screen-intro');
 
     playIntro();
-
-    var introBtn = $('btn-intro-go');
-    if (introBtn) {
-      introBtn.onclick = function (ev) {
-        if (ev) ev.stopPropagation();
-        introBtn.classList.remove('is-hidden');
-        if (introTimer) window.clearTimeout(introTimer);
-        introTimer = 0;
-        startMiniGame();
-      };
-    }
-
-    bindMiniInput();
   }
 
   if (document.readyState === 'loading') {

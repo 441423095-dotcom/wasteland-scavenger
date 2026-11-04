@@ -99,9 +99,11 @@ SF.CONFIG = {
     junkChanceNear: 0.2,      // 近点只搜到材料的概率
     junkLoot: [1, 3],
 
+    radioChance: 0.3,         // 车库 / 保安亭深层翻出破收音机的概率
+
     failLootFactor: 0.25,
 
-    injuryChanceFar: 0.3,     // 远点（药店/仓库）受伤概率
+    injuryChanceFar: 0.3,     // 远点（卫生站 / 车库 / 保安亭）受伤概率
     injuryChanceNear: 0.15,   // 近点失手受伤概率
     injuryHp: 30,             // 被流浪狗 / 强盗伤到：直接掉 30 血
     injuredPenalty: 0.5,      // 受伤的人成功率减半
@@ -178,8 +180,113 @@ SF.CONFIG = {
     theftWater: 1
   },
 
-  // ---------- 救援倒计时 ----------
-  rescueDays: 15,
+  // ---------- 负重 ----------
+  pack: {
+    base: 2,        // 每人基础负重：2 格（单槽装备）
+    heavy: 2,       // 保留字段：单槽之后不再有人额外多格
+    bagBonus: 2     // 背上双肩包 → 4 格
+  },
+
+  // 一次探索里，每种物资最多带回几件（超过会被压到这个数）
+  lootCaps: {
+    food: 2,
+    water: 2,
+    medicine: 1,
+    material: 3
+  },
+
+  // 进入地点后的第一层：三个入口，先选再搜
+  floorOne: [
+    {
+      key: 'front',
+      label: '翻外围货架（稳妥）',
+      desc: '六成空手，最多 1 件，不会受伤。',
+      items: 1,
+      empty: 0.6,
+      risk: 0,
+      hp: 0
+    },
+    {
+      key: 'back',
+      label: '走后门（有点动静）',
+      desc: '至少 1 件，偶尔 2 件，20% 概率受伤 −15 血。',
+      items: 1,
+      extra: 0.35,
+      risk: 0.2,
+      hp: 15
+    },
+    {
+      key: 'inner',
+      label: '摸最里面（赌一把）',
+      desc: '稳稳 2 件，偶尔 3 件，45% 概率受伤 −20 血。',
+      items: 2,
+      extra: 0.15,
+      risk: 0.45,
+      hp: 20
+    }
+  ],
+
+  // ---------- 救援（不再固定天数） ----------
+  // 修好收音机后，军方频道才会报出一个日期；
+  // 没修好收音机就永远等不到救援。
+  // rescueDelay = 从修好收音机那天算，再过多少天直升机到。
+  rescueDays: 0,
+  rescueDelay: { min: 8, max: 14 },
+
+  // ---------- 每日状况（每天醒来随机一个） ----------
+  conditions: [
+    {
+      id: 'calm',
+      name: '死寂',
+      desc: '街上没什么动静，今天可以专心搜刮。',
+      weight: 3
+    },
+    {
+      id: 'sand',
+      name: '沙尘暴',
+      desc: '能见度极低，今天带回来的东西会少 30%。',
+      lootMult: 0.7,
+      chanceDelta: -0.05
+    },
+    {
+      id: 'rain',
+      name: '暴雨',
+      desc: '接了小半桶雨水，可所有人都被浇透了。（水 +1，全员心情 -5）',
+      water: 1,
+      mood: -5
+    },
+    {
+      id: 'blackout',
+      name: '停电',
+      desc: '整片街区没电，手电也不太顶用。（探索成功率 -10%）',
+      chanceDelta: -0.10
+    },
+    {
+      id: 'horde',
+      name: '尸潮',
+      desc: '街上全是游荡的尸群，今晚一定会有东西来撞门。（夜间事件 +1，必有丧尸）',
+      nightExtra: 1,
+      forceNight: 'zombieDoor',
+      chanceDelta: -0.05
+    },
+    {
+      id: 'market',
+      name: '黑市开张',
+      desc: '楼下有人摆摊，今天门口一定有买卖。',
+      forceMerchant: true
+    }
+  ],
+
+  // ---------- 白天突发事件（门口来的人） ----------
+  dayEvents: {
+    chance: 0.5,           // 每天早上门口有人的概率
+    firstDay: 2,           // 第一天要抢物资，从第二天开始才有人敲门
+    radioDealDay: 6,       // 第 6~8 天：神秘人拿破损收音机来换
+    radioDealUntil: 8,
+    lootBonus: 2,          // 买了情报之后，当天搜刮数量翻倍
+    radioChance: 0.35,     // 前半段在地下车库能翻出破收音机的概率
+    radioChanceLate: 0.2   // 之后概率降低
+  },
 
   // ---------- 收音机广播 ----------
   broadcasts: [
@@ -189,7 +296,8 @@ SF.CONFIG = {
     '…重复一遍：不要相信自称救援队的人。他们没有编号，也没有车。',
     '…城区东侧的火还在烧。风向朝西，今晚关紧通风口。',
     '…有人听见孩子们在唱歌？那不是孩子。别回应，别开门。',
-    '…这里是军方中继站。保持无线电静默，等待下一次联络。'
+    '…这里是军方中继站。保持无线电静默，等待下一次联络。',
+    '…听好：直升机只在这个月来回一趟。信号弹响一次，第二天一早就走。'
   ],
 
   // ---------- 可带回的幸存者名字 ----------
@@ -201,7 +309,7 @@ SF.CONFIG = {
 
   // ---------- 组队与事件 ----------
   party: {
-    lootPerExtra: 0.35,    // 每多一个人，物资收益 +35%
+    lootPerExtra: 0.22,    // 每多一个人，物资收益 +22%
     riskPerExtra: 0.06,    // 每多一个人，队伍受伤概率 +6%
     maxMembers: 3          // 一次最多派几个人
   },
@@ -209,7 +317,8 @@ SF.CONFIG = {
   events: {
     nightChance: 0.55,     // 每晚触发事件的概率
     nightFoodSteal: 1,     // 强盗/老鼠带走的食物
-    feverHpLoss: 15
+    feverHpLoss: 15,
+    finalFrom: 11          // 从这天起进入最后冲刺，夜里事件更多
   },
 
   // 发疯与特殊事件
@@ -220,110 +329,115 @@ SF.CONFIG = {
     breakItems: true
   },
   special: {
-    chance: 0.22,          // 特定地点触发特殊事件的概率
+    chance: 0.16,          // 特定地点触发特殊事件的概率
     beggarReward: 0.6      // 给乞丐水之后，第二天送东西的概率
   },
 
-  // ---------- 四个探索地点 ----------
+  // ---------- 探索地点（都在这栋公寓附近） ----------
   locations: [
     {
-      id: 'market',
-      name: '超市',
+      id: 'store',
+      name: '楼下便利店',
       icon: 'shop',
       mapX: 22,
       mapY: 24,
       risk: '低风险',
       riskLevel: 'low',
       hint: '食物 · 水',
-      far: false,
-      chance: 0.9,
-      newcomerBonus: 0,
-      loot: {
-        food: [2, 3],
-        water: [1, 2],
-        medicine: [0, 0],
-        material: [0, 1]
-      },
-      okText: '货架被翻过很多遍，你在倒塌的收银台后面，还是摸到了几罐没过期的。',
-      badText: '过道里堆着倒下来的铁架，你被绊了一跤，东西撒了一地，只能匆忙抓两把。'
-    },
-    {
-      id: 'park',
-      name: '公园',
-      icon: 'tree',
-      mapX: 74,
-      mapY: 20,
-      risk: '中低风险',
-      riskLevel: 'low',
-      hint: '材料 · 水',
+      rec: '背包',
       far: false,
       chance: 0.84,
       newcomerBonus: 0,
       loot: {
-        food: [0, 0],
-        water: [2, 3],
+        food: [1, 2],
+        water: [1, 1],
         medicine: [0, 0],
-        material: [2, 4]
+        material: [0, 1]
       },
-      okText: '喷泉早干了，可地下水管里还存着水。你接了几瓶，又拖回一捆能烧的枯枝。',
-      badText: '草丛里窜出两条野狗，你扔下半袋东西往回跑，只剩手里还攥着几根柴。'
+      okText: '便利店的卷帘门被撬开一半，收银台后面还压着几罐没过期的八宝粥。',
+      badText: '货架东倒西歪，你被散落的购物筐绊了一跤，只抓了两把就往回跑。'
     },
     {
-      id: 'pharmacy',
-      name: '医院',
+      id: 'green',
+      name: '小区绿化带',
+      icon: 'tree',
+      mapX: 74,
+      mapY: 20,
+      risk: '低风险',
+      riskLevel: 'low',
+      hint: '水 · 木板',
+      rec: '背包',
+      far: false,
+      chance: 0.8,
+      newcomerBonus: 0,
+      loot: {
+        food: [0, 0],
+        water: [1, 2],
+        medicine: [0, 0],
+        material: [2, 3]
+      },
+      okText: '绿化带的浇花软管里还存着水，你接满几瓶，又把拆下来的木栅栏捆成一捆。',
+      badText: '灌木丛里窜出两条野狗，你扔下半袋东西往回跑，只剩腋下夹着几根木条。'
+    },
+    {
+      id: 'clinic',
+      name: '隔壁社区卫生站',
       icon: 'hospital',
       mapX: 20,
       mapY: 64,
-      risk: '中风险',
+      risk: '中高风险',
       riskLevel: 'mid',
       hint: '药品 · 少量食物',
+      rec: '防毒面具',
       far: true,
       unlockDay: 7,
-      chance: 0.8,
+      chance: 0.74,
       newcomerBonus: 0,
       loot: {
         food: [0, 1],
         water: [0, 1],
-        medicine: [2, 4],
+        medicine: [1, 2],
         material: [0, 0]
       },
-      okText: '玻璃碎了一地，你把柜台最里面那排抽屉整个拽出来，里面还有几盒没被拿走的东西。',
-      badText: '柜台后面被人拉了一根细线，你被绊倒的时候，整排货架跟着砸了下来。'
+      okText: '输液室的柜子翻得乱七八糟，你把最里层抽屉整个拽出来，还有几盒没拆封的药。',
+      badText: '走廊里挂着半截输液管，你被绊倒时整排药架跟着砸了下来。'
     },
     {
-      id: 'warehouse',
-      name: '仓库',
+      id: 'garage',
+      name: '公寓地下车库',
       icon: 'warehouse',
       mapX: 76,
       mapY: 58,
-      risk: '高风险',
-      riskLevel: 'high',
-      hint: '材料 · 大量物资',
+      risk: '中高风险',
+      riskLevel: 'mid',
+      hint: '木板 · 手电 · 坏收音机',
+      rec: '手电筒',
       far: true,
       unlockDay: 4,
-      chance: 0.68,
+      chance: 0.62,
       newcomerBonus: 0,
       loot: {
-        food: [1, 3],
+        food: [1, 2],
         water: [1, 2],
         medicine: [0, 1],
-        material: [2, 5]
+        material: [2, 4]
       },
-      okText: '你撬开仓库侧门，里面是成堆的木料和没拆封的箱子。你搬了两趟，才在天黑前回去。',
-      badText: '铁皮棚深处有东西在动。你只摸到门口的几个破箱子，就被逼着退了出来。'
+      okText: '你们从车库侧门钻进去，成堆的木板和没拆封的箱子还堆在最里面。',
+      badText: '车库深处有东西在动，你们只摸到门口几个破箱子，就被逼着退了出来。'
     },
     {
-      id: 'police',
-      name: '废弃警局',
-      icon: 'hospital',
+      id: 'guard',
+      name: '小区保安亭',
+      icon: 'house',
       mapX: 46,
       mapY: 70,
-      risk: '高风险',
+      risk: '极高风险',
       riskLevel: 'high',
-      hint: '信号弹 · 暴徒',
+      hint: '武器 · 信号弹',
+      rec: '武器',
       far: true,
-      unlockDay: 10,
-      chance: 0.72,
+      unlockDay: 8,
+      chance: 0.66,
       newcomerBonus: 0,
       loot: {
         food: [1, 2],
@@ -331,12 +445,12 @@ SF.CONFIG = {
         medicine: [1, 2],
         material: [1, 2]
       },
-      okText: '警局的枪柜被撬开过，地上散着几颗信号弹，你捡起还能用的那几发。',
-      badText: '刚摸进档案室就听见脚步，你们只能贴着墙退出来。'
+      okText: '保安亭的柜子早被撬开过，地上散着几颗信号弹，你捡起还能用的那几发。',
+      badText: '刚摸到保安亭背后就听见脚步，你们只能贴着墙退了出来。'
     },
     {
       id: 'vault',
-      name: '仓库暗门',
+      name: '车库暗门',
       icon: 'material',
       mapX: 52,
       mapY: 42,
@@ -344,16 +458,17 @@ SF.CONFIG = {
       risk: '高风险',
       riskLevel: 'high',
       hint: '隐藏地点',
+      rec: '手电筒',
       far: true,
-      chance: 0.7,
+      chance: 0.66,
       newcomerBonus: 0,
       loot: {
-        food: [1, 3],
-        water: [1, 2],
+        food: [1, 2],
+        water: [1, 1],
         medicine: [1, 2],
-        material: [2, 4]
+        material: [2, 3]
       },
-      okText: '暗门后面是间被封起来的小仓库，铁架上还压着没拆封的箱子。',
+      okText: '暗门后面是间被封起来的小储藏间，铁架上还压着没拆封的箱子。',
       badText: '暗门后面塌了一半，你只来得及抓了几样东西就退了出来。'
     }
   ]

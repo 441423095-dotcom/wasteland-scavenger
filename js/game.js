@@ -34,36 +34,66 @@ SF.SUPPLIES = [
       '{n}把瓶子举到眼前晃了晃，确认还剩最后几滴，才舍得咽下去。'
     ],
     hungry: [
-      '今天没有分配到食物。林晓饿得睡不着，只能抱着膝盖坐在角落里，听着其他人肚子里发出的咕噜声。',
-      '谁都没吃上东西。铁柱把皮带又收紧了一个扣，说这样能骗骗胃。'
+      '半夜，不知道谁的肚子叫得震天响。铁柱翻了个身，咽口水的声音在黑暗里特别清晰。',
+      '今天没人分到吃的。林晓把最后一点饼干渣倒进掌心，又分了一半给别人。',
+      '陈默说他不饿，然后悄悄把腰带又收紧了一格。',
+      '娜娜盯着天花板数羊，数到第三只就开始念烧烤菜单。'
+    ],
+    fed: [
+      '今天总算人人都吃上了东西，铁柱打了一个响亮的饱嗝。',
+      '晚饭难得安静，只有咀嚼声。陈默说，这声音比收音机好听。'
+    ],
+    thirsty: [
+      '水瓶被传了一圈，每人只抿了一口。林晓把瓶子倒过来晃了晃，一滴也没剩。',
+      '谁也没提渴这个字。可每个人都在默默舔自己干裂的嘴唇。'
     ],
     sick: [
-      '林晓半夜咳得很厉害，陈默找出一件破旧的大衣披在她身上，祈祷她明天能退烧。',
-      '{n}裹紧了破旧的外套，半夜压抑的咳嗽声让所有人无法安睡。脸色苍白得吓人。',
-      '{n}缩在角落里发抖，额头上全是汗，嘴唇没有一点血色。'
+      '林晓的咳嗽声越来越重，她把自己裹在被子里发抖，陈默叹了口气，把破大衣盖在了她身上。',
+      '{n}半夜咳得停不下来，谁都没睡好，早上谁也没提。',
+      '{n}缩在角落里发抖，额头上全是汗，嘴唇没有一点血色。',
+      '{n}把药盒拆开又合上，反复看了半天说明书，最后还是放了回去。'
     ],
     hurt: [
       '陈默踩中了废弃工厂里的捕兽夹，惨叫声回荡在空荡荡的走廊里。你们费了好大劲才把他的脚拔出来。',
-      '警局里的暴徒根本没给你们说话的机会。铁柱替林晓挡了一钢管，鲜血顺着额头流下来，你们只能拖着半箱物资仓皇逃窜。',
+      '保安亭里的暴徒根本没给你们说话的机会。铁柱替林晓挡了一钢管，鲜血顺着额头流下来，你们只能拖着半箱物资仓皇逃窜。',
       '{n}咬着牙用破布自己包扎，血把布条一层层浸透。',
       '{n}的伤口又裂开了，他一声没吭，只是把袖子拉下来盖住。'
     ],
     mad: [
-      '娜娜突然把桌上的空罐头瓶砸得粉碎，尖叫着说：“我们都会死在这里！”。陈默死死抱住她，铁柱在角落里一言不发。',
-      '{n}抱着头蹲在墙角，嘴里反反复复念着同一个名字。'
+      '娜娜突然坐起来，死死盯着大门的方向。“如果有丧尸进来，我先咬死你们。”她半开玩笑地说，但没人笑得出来。',
+      '{n}抱着头蹲在墙角，把同一句话念了一整夜。',
+      '铁柱开始跟墙上的裂缝说话，他说那边比这边安静。'
     ],
     calm: [
-      '今晚出奇的安静，甚至听不到远处的枪声。但没有人敢睡得太死，大门被堵得死死的，每个人都把武器放在手边。',
-      '难得的安静夜晚，你们没有听到枪声。铁柱靠着墙打起了呼噜，陈默看着桌上的收音机发呆。',
-      '风从门缝里钻进来，四个人谁也没说话。至少有屋顶，至少还有明天。'
+      '今晚出奇地安静，连远处的枪声都停了。四个人躺在地上，谁也没敢真睡。',
+      '难得的安静。铁柱靠着墙打呼噜，陈默盯着天花板发呆，林晓在数还剩几瓶水。',
+      '风从门缝钻进来，把墙上的日历吹得哗啦响——那上面还停在封城那天。',
+      '楼上传来拖椅子的声音。你们互相看了一眼，谁也没问那是谁。'
     ],
     empty: [
-      '除了满地的玻璃碴子和几只变异蟑螂，你们什么都没找到。林晓看着空荡荡的背包，深深叹了口气。',
-      '翻了半天，只翻出一张过期十年的彩票。陈默把它折好塞进口袋，说留着做个纪念。'
+      '除了满地的玻璃碴子和几只变异蟑螂，什么都没找到。林晓看着空荡荡的背包，深深叹了口气。',
+      '翻了半天，只翻出一张过期十年的彩票。陈默把它折好塞进口袋，说留着做个纪念。',
+      '货架上只剩半包受潮的纸巾和一本《装修指南》，你们还是把书带回去了——万一要堵窗户呢。'
+    ],
+    trip: [
+      '回程的时候，铁柱一路在骂那扇锈死的铁门。',
+      '路上遇到一只流浪猫，娜娜蹲下来跟它讲了十分钟道理，最后猫叼走了半根火腿肠。',
+      '你们在楼道里遇到一张被钉在墙上的通知：“请各位住户不要再往楼下扔丧尸。”',
+      '林晓回来的第一件事，是把背包里的东西按大小重新码了一遍。'
+    ],
+    leak: [
+      '楼上不知道哪家的水管爆了，脏水滴在你们的桌子上。今晚谁也别想睡好。',
+      '天花板又渗水了，滴滴答答敲了一整夜，像是有人在门外数秒。',
+      '墙角开始发霉，陈默用胶带贴了三次，第四次干脆放弃了。'
+    ],
+    fear: [
+      '娜娜半夜突然坐起来，死死盯着大门的方向。“如果有丧尸进来，我先咬死你们。”她半开玩笑地说，但没人笑得出来。',
+      '陈默把椅子挪到门边，说今晚他值夜。没人拆穿他其实也怕得手抖。',
+      '有人在小声念叨以前的事：火锅、地铁、吵死人的广场舞。念着念着就没人出声了。'
     ],
     winTie: [
-      '铁柱像推土机一样撞开了超市生锈的卷帘门，把能搬的东西全塞进了包里。林晓在后面气喘吁吁地喊：“慢点，那群野狗又要追来了！”',
-      '你们在仓库的角落发现了一辆废弃的购物车。铁柱二话不说扛起车就走，你们甚至觉得他比这车还能装。'
+      '铁柱像推土机一样撞开了便利店生锈的卷帘门，把能搬的东西全塞进了包里。林晓在后面气喘吁吁地喊：“慢点，那群野狗又要追来了！”',
+      '你们在便利店后门的角落发现了一辆废弃的购物车。铁柱二话不说扛起车就走，你们甚至觉得他比这车还能装。'
     ],
     nana: [
       '路口遇到三个拿着铁棍的暴徒。娜娜理了理头发走上前，十分钟后，暴徒不仅放了行，还塞给她半袋饼干。陈默在后面看呆了。',
@@ -146,6 +176,7 @@ SF.SUPPLIES = [
       hasMask: false,
       hasTorch: false,
       hasWeapon: false,
+      hasPack: false,
       ap: 1,
       hungerDays: 0,
       thirstDays: 0,
@@ -196,14 +227,18 @@ SF.SUPPLIES = [
         cards: false,
         gasMask: false,
         flashlight: false,
-        weapon: false
+        weapon: false,
+        backpack: false
       },
-      rescueLeft: C.rescueDays,
+      rescueLeft: 0,
+      rescueDay: 0,          // 救援日：修好收音机后随机抽出来；0 = 还不知道
+      rescueKnown: false,
       lastEvent: '',
       logs: [],
       vaultUnlocked: false,
       morningNews: '',
       defense: 0,
+      doorBroken: false,     // 铁柱梦游砸坏了门：当晚挡不住丧尸
       actionUsed: false,
       survivors: survivors,
       leaderId: player.id,
@@ -211,7 +246,22 @@ SF.SUPPLIES = [
       over: false,
       won: false,
       storySeenDay: 0,
-      overDay: 0
+      overDay: 0,
+      condition: 'calm',     // 今天的状况：沙尘暴 / 暴雨 / 停电 / 尸潮 / 黑市
+      conditionDay: 1,
+      tripTotals: {},        // 这一趟已经背了多少件
+      tripCap: 0,            // 这一趟小队的总负重
+      tripMembers: [],       // 这一趟出门的人
+      parts: 0,              // 电子零件（不占负重）
+      dayNotes: [],          // 每天一篇的日记（总结）
+      dayLog: [],            // 今天发生过的原话（用来写日记）
+      todayRecap: null,      // 今天出去过哪儿、带回了什么
+      questToday: [],        // 今天拿到的主线道具
+      hintDay: 0,            // 今天有没有提示过主线
+      dayEventId: '',        // 今天门口是谁（一天只抽一次）
+      dayEventIdDay: 0,      // 这个事件是哪一天抽的
+      dayEventDone: 0,       // 这一天的事件已经处理过了
+      lootBonus: 1           // 今天搜刮数量的倍数（情报贩子给的）
     };
   };
 
@@ -220,6 +270,17 @@ SF.SUPPLIES = [
     state.logs.push(text);
     if (state.logs.length > 12) state.logs.shift();
     state.lastEvent = text;
+
+    if (!state.dayLog) state.dayLog = [];
+    state.dayLog.push(text);
+    if (state.dayLog.length > 60) state.dayLog.shift();
+  };
+
+  // 今天拿到了哪件主线道具（写日记用）
+  SF.noteQuest = function (state, name) {
+    if (!name) return;
+    if (!state.questToday) state.questToday = [];
+    if (state.questToday.indexOf(name) === -1) state.questToday.push(name);
   };
 
   SF.aliveAll = function (state) {
@@ -276,34 +337,32 @@ SF.SUPPLIES = [
   SF.gateFor = function (state, loc, ids) {
     if (!loc) return { ok: false, reason: '没有这个地方的情报。' };
 
-    if (loc.id === 'warehouse') {
+    if (loc.id === 'garage') {
       if (wornBy(state, ids, 'torch')) return { ok: true };
       if (state.items.flashlight && !ids) return { ok: true };
       if (state.items.flashlight) {
-        return { ok: false, reason: '手电筒还在库存里，出发前先给一个人穿上。' };
+        return { ok: false, reason: '手电筒还在库存里，下去之前先给一个人穿上。' };
       }
-      return { ok: false, reason: '太黑了，看不清路，需要【手电筒】才能前往。' };
+      return { ok: false, reason: '车库里伸手不见五指，需要【手电筒】才能下去。' };
     }
 
-    if (loc.id === 'pharmacy') {
+    if (loc.id === 'clinic') {
       if (wornBy(state, ids, 'mask')) return { ok: true };
       if (state.items.gasMask && !ids) return { ok: true };
       if (state.items.gasMask) {
         return { ok: false, reason: '防毒面具还在库存里，出发前先给一个人戴上。' };
       }
-      return { ok: false, reason: '医院里弥漫着消毒水和尸体腐烂的毒气，需要【防毒面具】才能进入。' };
+      return { ok: false, reason: '社区卫生站里弥漫着消毒水和尸体腐烂的味道，需要【防毒面具】才能进去。' };
     }
 
-    if (loc.id === 'police') {
-      if (!state.items.radio) {
-        return { ok: false, reason: '还没收到军方情报，先把收音机修好。' };
-      }
+    if (loc.id === 'guard') {
+      // 保安亭不再卡「必须先有收音机」：它本身就是收音机的来源之一
       if (wornBy(state, ids, 'weapon')) return { ok: true };
       if (state.items.weapon && !ids) return { ok: true };
       if (state.items.weapon) {
         return { ok: false, reason: '武器还在库存里，出发前先给一个人拿上。' };
       }
-      return { ok: false, reason: '警局有暴徒，赤手空拳去等于送死，需要【武器】。' };
+      return { ok: false, reason: '保安亭那边有一伙暴徒，赤手空拳去等于送死，需要【武器】。' };
     }
 
     return { ok: true };
@@ -359,6 +418,844 @@ SF.SUPPLIES = [
     return C.meal.waterCost;
   };
 
+  /* ---------- 每日状况 ---------- */
+
+  SF.condFor = function (state) {
+    var list = C.conditions || [];
+    var id = state && state.condition ? state.condition : 'calm';
+
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) return list[i];
+    }
+    return list[0] || { id: 'calm', name: '死寂', desc: '' };
+  };
+
+  // 每天早上换一个状况：按 weight 抽，抽到之后立刻结算水/心情
+  function rollDailyCondition(state) {
+    var list = C.conditions || [];
+    if (!list.length) return SF.condFor(state);
+
+    var total = 0;
+    var i;
+
+    for (i = 0; i < list.length; i++) total += (list[i].weight || 1);
+
+    var r = Math.random() * total;
+    var cond = list[0];
+
+    for (i = 0; i < list.length; i++) {
+      r -= (list[i].weight || 1);
+      if (r <= 0) {
+        cond = list[i];
+        break;
+      }
+    }
+
+    state.condition = cond.id;
+    state.conditionDay = state.day;
+
+    if (cond.water) {
+      state.supplies.water = (state.supplies.water || 0) + cond.water;
+    }
+
+    if (cond.mood) {
+      var alive = SF.aliveAll(state);
+      for (i = 0; i < alive.length; i++) {
+        alive[i].mood = clamp(alive[i].mood + cond.mood, 0, C.maxStat);
+      }
+    }
+
+    if (cond.water || cond.mood) {
+      SF.addLog(state, '今日状况：' + cond.name + '。' + cond.desc);
+    }
+
+    return cond;
+  }
+
+  SF.rollDailyCondition = rollDailyCondition;
+
+  /* ---------- 白天突发事件 ---------- */
+
+  function canPay(state, key, n) {
+    return (state.supplies[key] || 0) >= n;
+  }
+
+  function paySupply(state, key, n) {
+    state.supplies[key] = Math.max(0, Math.round((state.supplies[key] || 0) - n));
+  }
+
+  // 全员心情微调（白天事件用）
+  function moodAll(state, delta) {
+    var list = SF.aliveAll(state);
+    for (var i = 0; i < list.length; i++) {
+      list[i].mood = clamp(list[i].mood + delta, 0, C.maxStat);
+    }
+    return list.length;
+  }
+
+  function moodOne(state, charId, delta) {
+    var s = SF.findChar ? SF.findChar(state, charId) : null;
+    if (!s || !s.alive) return;
+    s.mood = clamp(s.mood + delta, 0, C.maxStat);
+  }
+
+  function hpAll(state, delta) {
+    var list = SF.aliveAll(state);
+    for (var i = 0; i < list.length; i++) {
+      list[i].hp = clamp(list[i].hp + delta, 0, C.maxStat);
+    }
+    return list.length;
+  }
+
+  SF.dayEventFor = function (state) {
+    if (!state) return null;
+    if (state.dayEventDone === state.day) return null;
+    if (state.day < (C.dayEvents.firstDay || 2)) return null;
+
+    // 一天只抽一次种类；之后每次都按种类重建，好让价格和库存保持同步
+    if (state.dayEventIdDay !== state.day) {
+      state.dayEventIdDay = state.day;
+      state.dayEventId = pickDayEventId(state);
+    }
+
+    return dayEventById(state, state.dayEventId);
+  };
+
+  function pickDayEventId(state) {
+    // 第 6~8 天：还没收音机就一定有神秘人来敲门
+    if (state.day >= (C.dayEvents.radioDealDay || 6) &&
+        state.day <= (C.dayEvents.radioDealUntil || 8) &&
+        !state.items.radio && !state.items.radioBroken) {
+      return 'radioDeal';
+    }
+
+    // 第 10 天还没收音机：保底事件，绝不让主线断掉
+    if (state.day >= 10 && !state.items.radio) return 'pityRadio';
+
+    // 今日状况是黑市开张：门口一定有商人
+    if (SF.condFor(state).forceMerchant) return 'merchant';
+
+    if (!roll(C.dayEvents.chance)) return '';
+
+    // 公寓邻居们的日常：能讲得通（对应的人还在）才进池子
+    var pool = [
+      'merchant', 'neighbor', 'intel', 'thugs',
+      'plaza', 'postgrad', 'maskSeller', 'nurse',
+      'waterPump', 'elevator', 'pigeon',
+      'linClean', 'nanaLipstick', 'chenNet', 'tieDream'
+    ];
+
+    var ok = [];
+    for (var i = 0; i < pool.length; i++) {
+      if (dayEventById(state, pool[i])) ok.push(pool[i]);
+    }
+
+    return ok.length ? pickOne(ok) : '';
+  }
+
+  // 队里有没有能用的武器（库存里的也算）
+  function hasWeapon(state) {
+    if (state.items && state.items.weapon) return true;
+
+    for (var i = 0; i < state.survivors.length; i++) {
+      var s = state.survivors[i];
+      if (s.alive && s.hasWeapon) return true;
+    }
+    return false;
+  }
+
+  SF.hasWeapon = hasWeapon;
+
+  /*
+   * 救援日：修好收音机之后才随机抽出来。
+   * 没修好收音机，玩家永远等不到救援——只会等到死。
+   */
+  SF.setRescueDay = function (state) {
+    if (!state) return 0;
+    if (state.rescueDay > 0) return state.rescueDay;
+
+    var R = C.rescueDelay || { min: 8, max: 14 };
+    var extra = rnd(R.min, R.max);
+
+    state.rescueDay = state.day + extra;
+    state.rescueKnown = true;
+
+    return state.rescueDay;
+  };
+
+  SF.rescueNews = function (state) {
+    if (!state || !state.rescueDay) {
+      return '军方频道还在重复同一句话：“保持静默，等待下一步指令。”';
+    }
+
+    return '军方频道报了一个日期：救援直升机将在第 ' + state.rescueDay +
+      ' 天抵达。你们把它写在了墙上。';
+  };
+
+  // 破收音机可以用 1 枚电子零件修好
+  SF.repairRadio = function (state) {
+    if (!state.items.radioBroken) return { ok: false, msg: '没有要修的东西。' };
+
+    if ((state.parts || 0) < 1) {
+      return { ok: false, msg: '缺少电子零件，修不了。' };
+    }
+
+    state.parts = Math.max(0, (state.parts || 0) - 1);
+    state.items.radioBroken = false;
+    state.items.radio = true;
+    SF.setRescueDay(state);
+
+    var news = SF.rescueNews(state);
+    SF.addLog(state, '换上电子零件，收音机终于有声音了。' + news);
+    return { ok: true, msg: '收音机修好了。（零件 -1）' + news };
+  };
+
+  // 缺什么就直说，好让按钮旁边能写红字
+  function lackOf(state, needs) {
+    for (var i = 0; i < needs.length; i++) {
+      var n = needs[i];
+      if ((state.supplies[n.key] || 0) < n.n) return n.label;
+    }
+    return '';
+  }
+
+  // 身上还能拿出去换 / 被抢的装备（库存里的和穿在人身上的都算）
+  function spareGearList(state) {
+    var list = [];
+
+    if (state.items.flashlight) list.push('手电筒');
+    if (state.items.gasMask) list.push('防毒面具');
+    if (state.items.backpack) list.push('双肩包');
+    if (state.items.weapon) list.push('武器');
+
+    for (var i = 0; i < state.survivors.length; i++) {
+      var s = state.survivors[i];
+      if (!s.alive) continue;
+      if (s.hasTorch) list.push('手电筒');
+      if (s.hasMask) list.push('防毒面具');
+      if (s.hasWeapon) list.push('武器');
+    }
+
+    return list;
+  }
+
+  // 拿走一件装备，返回它的名字（没有就返回空串）
+  function spendGear(state) {
+    var i;
+
+    if (state.items.flashlight) { state.items.flashlight = false; return '手电筒'; }
+    if (state.items.gasMask) { state.items.gasMask = false; return '防毒面具'; }
+    if (state.items.backpack) { state.items.backpack = false; return '双肩包'; }
+    if (state.items.weapon) { state.items.weapon = false; return '武器'; }
+
+    for (i = 0; i < state.survivors.length; i++) {
+      var s = state.survivors[i];
+      if (!s.alive) continue;
+      if (s.hasTorch) { s.hasTorch = false; return s.name + ' 的手电筒'; }
+      if (s.hasMask) { s.hasMask = false; return s.name + ' 的防毒面具'; }
+      if (s.hasWeapon) { s.hasWeapon = false; return s.name + ' 的武器'; }
+    }
+
+    return '';
+  }
+
+  function dayEventById(state, id) {
+    if (!id) return null;
+
+    if (id === 'radioDeal') {
+      var radioLack = lackOf(state, [
+        { key: 'food', n: 2, label: '食物不足' },
+        { key: 'water', n: 1, label: '水不足' }
+      ]);
+      var gearList = spareGearList(state);
+
+      return {
+        id: 'radioDeal',
+        title: '门外的神秘人',
+        text: '一个裹着雨衣的人敲门，说他手上有一台破损的收音机，愿意换 2 份食物和 1 瓶水。' +
+          '这是唯一能听到军方频道的办法。',
+        options: [
+          {
+            key: 'deal',
+            label: '换（食物 -2，水 -1）',
+            disabled: !!radioLack,
+            lack: radioLack
+          },
+          {
+            key: 'gear',
+            label: '拿身上的装备换（失去 1 件装备）',
+            disabled: !gearList.length,
+            lack: gearList.length ? '' : '身上没有可换的装备'
+          },
+          { key: 'rob', label: '直接抢（可能挨一刀）' },
+          { key: 'no', label: '不换（放弃这台收音机）' }
+        ]
+      };
+    }
+
+    if (id === 'pityRadio') {
+      var hadBroken = !!state.items.radioBroken;
+
+      return {
+        id: 'pityRadio',
+        title: '楼道里的收音机',
+        text: hadBroken
+          ? '3 楼那户人家的门一直开着，里面已经没人了。你在尸体旁翻到一个零件盒，' +
+            '里面有一颗还能用的电子元件。'
+          : '3 楼那户人家的门一直开着，里面已经没人了。尸体旁搁着一台摔坏的收音机，' +
+            '旁边还有一个零件盒——也许还能修。',
+        options: [
+          {
+            key: 'take',
+            label: hadBroken ? '收下零件（电子零件 +1）' : '收下（破损的收音机 + 电子零件）'
+          }
+        ]
+      };
+    }
+
+    if (id === 'merchant') {
+      var merchantLack = lackOf(state, [
+        { key: 'food', n: 3, label: '食物不足' }
+      ]);
+      var mGear = spareGearList(state);
+
+      return {
+        id: 'merchant',
+        title: '黑市商人',
+        text: '商人掀开大衣，里面挂着几瓶水。他说 3 份食物换 2 瓶水，换不换？',
+        options: [
+          {
+            key: 'deal',
+            label: '换（食物 -3，水 +2）',
+            disabled: !!merchantLack,
+            lack: merchantLack
+          },
+          {
+            key: 'gear',
+            label: '拿 1 件装备换 2 瓶水',
+            disabled: !mGear.length,
+            lack: mGear.length ? '' : '身上没有可换的装备'
+          },
+          { key: 'no', label: '不换' }
+        ]
+      };
+    }
+
+    if (id === 'neighbor') {
+      var medLack = lackOf(state, [
+        { key: 'medicine', n: 1, label: '药品不足' }
+      ]);
+
+      return {
+        id: 'neighbor',
+        title: '受伤的邻居',
+        text: '隔壁老王捂着胳膊来求助，说给他 1 份药品，他把祖传的防毒面具给你。',
+        options: [
+          {
+            key: 'deal',
+            label: '换（药品 -1，防毒面具 +1）',
+            disabled: !!medLack,
+            lack: medLack
+          },
+          { key: 'no', label: '不换' }
+        ]
+      };
+    }
+
+    if (id === 'intel') {
+      var intelLack = lackOf(state, [
+        { key: 'food', n: 2, label: '食物不足' }
+      ]);
+
+      return {
+        id: 'intel',
+        title: '情报贩子',
+        text: '情报贩子说，只要 2 个罐头，他就告诉你今天哪个地方油水最多（今天探索收益翻倍）。',
+        options: [
+          {
+            key: 'deal',
+            label: '买情报（食物 -2）',
+            disabled: !!intelLack,
+            lack: intelLack
+          },
+          { key: 'no', label: '不买' }
+        ]
+      };
+    }
+
+    // ---------- 公寓邻居们的日常 ----------
+
+    if (id === 'plaza') {
+      return {
+        id: 'plaza',
+        title: '广场舞大妈',
+        text: '楼下的王大妈疯狂拍门，说虽然丧尸爆发了，但晚上 8 点的广场舞不能停。' +
+          '她提出用半袋发霉的面粉，换你的大功率音响。换吗？',
+        options: [
+          { key: 'deal', label: '换（食物 +2，心情 -3）' },
+          { key: 'keep', label: '不换，让她在楼下跳（心情 +6）' }
+        ]
+      };
+    }
+
+    if (id === 'postgrad') {
+      return {
+        id: 'postgrad',
+        title: '考研邻居',
+        text: '对门同样被困的男生敲门，想用 2 瓶矿泉水，换你手里的一本《考研英语真题》。' +
+          '他说他要准备二战。',
+        options: [
+          { key: 'deal', label: '换（水 +2，全员心情 +3）' },
+          { key: 'no', label: '不换，让他自己想办法（心情 -3）' }
+        ]
+      };
+    }
+
+    if (id === 'maskSeller') {
+      var maskLack = lackOf(state, [{ key: 'food', n: 1, label: '食物不足' }]);
+
+      return {
+        id: 'maskSeller',
+        title: '微商清仓',
+        text: '楼里的微商邻居在楼道摆摊，向你推销“末日特供面膜”。她说敷了能保持心情愉悦。' +
+          '用 1 个罐头换 1 个面膜（全员心情 +15），换不换？',
+        options: [
+          {
+            key: 'deal',
+            label: '换（食物 -1，全员心情 +15）',
+            disabled: !!maskLack,
+            lack: maskLack
+          },
+          { key: 'no', label: '不换（心情 -3）' }
+        ]
+      };
+    }
+
+    if (id === 'nurse') {
+      var hasTieForNurse = SF.charAlive(state, 'tie');
+
+      return {
+        id: 'nurse',
+        title: '楼道里的求救',
+        text: '门外传来女人的哭声，她说自己是护士，只要开门就能帮你们治病。' +
+          '但铁柱从猫眼往外看，发现她背后似乎藏着撬棍。',
+        options: [
+          { key: 'open', label: '开门看看（可能是护士，也可能是撬棍）' },
+          {
+            key: 'block',
+            label: '让铁柱顶死门',
+            disabled: !hasTieForNurse,
+            lack: hasTieForNurse ? '' : '铁柱已经不在了'
+          },
+          { key: 'ignore', label: '不开门（心情 -5）' }
+        ]
+      };
+    }
+
+    // ---------- 公寓设施故障 ----------
+
+    if (id === 'waterPump') {
+      var pumpLack = lackOf(state, [{ key: 'material', n: 2, label: '木板不足' }]);
+
+      return {
+        id: 'waterPump',
+        title: '停水危机',
+        text: '顶楼水箱快见底了。如果想恢复供水，必须去修水泵。' +
+          '消耗 2 个木板去修，还是不管？',
+        options: [
+          {
+            key: 'fix',
+            label: '去修（木板 -2，水 +3）',
+            disabled: !!pumpLack,
+            lack: pumpLack
+          },
+          { key: 'no', label: '不管（水 -1，心情 -5）' }
+        ]
+      };
+    }
+
+    if (id === 'elevator') {
+      var eleArmed = hasWeapon(state);
+      var eleLack = lackOf(state, [{ key: 'material', n: 1, label: '木板不足' }]);
+
+      return {
+        id: 'elevator',
+        title: '电梯惊魂',
+        text: '电梯突然停在你们这层自动打开了，里面有一只丧尸。' +
+          '是消耗武器干掉它，还是花 1 个木板把电梯门强行封死？',
+        options: [
+          {
+            key: 'fight',
+            label: '用武器干掉它（心情 +6，材料 +1）',
+            disabled: !eleArmed,
+            lack: eleArmed ? '' : '没有武器'
+          },
+          {
+            key: 'seal',
+            label: '用木板封门（木板 -1，心情 -2）',
+            disabled: !!eleLack,
+            lack: eleLack
+          },
+          { key: 'run', label: '谁也不管（全员血量 -10，心情 -8）' }
+        ]
+      };
+    }
+
+    if (id === 'pigeon') {
+      var pgArmed = hasWeapon(state);
+      var pgLack = lackOf(state, [{ key: 'material', n: 1, label: '木板不足' }]);
+
+      return {
+        id: 'pigeon',
+        title: '阳台上的变异鸽子',
+        text: '一群吃腐肉的鸽子落在阳台，眼睛里泛着不正常的红。' +
+          '用木板赶走，还是消耗武器打下来烤了吃？',
+        options: [
+          {
+            key: 'shoo',
+            label: '用木板赶走（木板 -1，心情 +3）',
+            disabled: !!pgLack,
+            lack: pgLack
+          },
+          {
+            key: 'hunt',
+            label: '打下来烤了吃（食物 +2，心情 +6）',
+            disabled: !pgArmed,
+            lack: pgArmed ? '' : '没有武器'
+          },
+          { key: 'ignore', label: '关上阳台门（心情 -3）' }
+        ]
+      };
+    }
+
+    // ---------- 合租室友的奇葩操作 ----------
+
+    if (id === 'linClean') {
+      if (!SF.charAlive(state, 'lin')) return null;
+
+      var washLack = lackOf(state, [{ key: 'water', n: 2, label: '水不足' }]);
+
+      return {
+        id: 'linClean',
+        title: '林晓的洁癖',
+        text: '林晓因为三天没洗澡彻底崩溃了，她拒绝吃任何东西。' +
+          '除非消耗 2 瓶水让她洗个头。',
+        options: [
+          {
+            key: 'wash',
+            label: '让她洗（水 -2，林晓心情 +30）',
+            disabled: !!washLack,
+            lack: washLack
+          },
+          { key: 'no', label: '省着水（林晓心情 -20，全员 -5）' }
+        ]
+      };
+    }
+
+    if (id === 'nanaLipstick') {
+      if (!SF.charAlive(state, 'nana')) return null;
+
+      return {
+        id: 'nanaLipstick',
+        title: '娜娜的执念',
+        text: '娜娜在废墟里找到了半截口红，兴奋地涂上后心情大好，' +
+          '对着裂了缝的镜子自言自语。',
+        options: [
+          { key: 'let', label: '让她涂个够（全员心情 +10）' },
+          { key: 'no', label: '劝她扔掉（心情 -5）' }
+        ]
+      };
+    }
+
+    if (id === 'chenNet') {
+      if (!SF.charAlive(state, 'chen')) return null;
+
+      var hasCards = !!state.items.cards;
+
+      return {
+        id: 'chenNet',
+        title: '陈默的网瘾',
+        text: '陈默因为没有网络，抱着手机刷新了七十多次，心情暴跌。' +
+          '如果给他一副扑克牌让他自己玩，他就能打发时间。',
+        options: [
+          {
+            key: 'cards',
+            label: '给他扑克牌（陈默心情 +30）',
+            disabled: !hasCards,
+            lack: hasCards ? '' : '没有扑克牌'
+          },
+          { key: 'no', label: '让他戒网瘾（陈默心情 -15）' }
+        ]
+      };
+    }
+
+    if (id === 'tieDream') {
+      if (!SF.charAlive(state, 'tie')) return null;
+
+      var tieLack = lackOf(state, [{ key: 'food', n: 1, label: '食物不足' }]);
+
+      return {
+        id: 'tieDream',
+        title: '铁柱的噩梦',
+        text: '铁柱半夜梦游，差点把大门当成丧尸砸了。' +
+          '消耗 1 个食物安抚他，还是让他自己醒？',
+        options: [
+          {
+            key: 'feed',
+            label: '喂他点吃的（食物 -1，铁柱心情 +15）',
+            disabled: !!tieLack,
+            lack: tieLack
+          },
+          { key: 'no', label: '不管（大门受损，全员心情 -5）' }
+        ]
+      };
+    }
+
+    if (id !== 'thugs') return null;
+
+    var tieAlive = SF.charAlive(state, 'tie');
+    var armed = hasWeapon(state);
+    var fightLack = '';
+
+    if (!tieAlive) fightLack = '铁柱已经不在了';
+    else if (!armed) fightLack = '缺少武器，无法战斗';
+
+    var payLack = lackOf(state, [
+      { key: 'food', n: 2, label: '食物不足' }
+    ]);
+
+    return {
+      id: 'thugs',
+      title: '暴徒勒索',
+      text: '门口来了两个带武器的暴徒，要么给 2 份食物打发他们，要么让铁柱拿武器出去打一架。',
+      options: [
+        {
+          key: 'pay',
+          label: '给食物（食物 -2）',
+          disabled: !!payLack,
+          lack: payLack
+        },
+        {
+          key: 'fight',
+          label: '让铁柱打一架',
+          disabled: !!fightLack,
+          lack: fightLack
+        },
+        { key: 'endure', label: '咬牙忍着（全员心情 -10）' }
+      ]
+    };
+  }
+
+  SF.resolveDayEvent = function (state, id, key) {
+    state.dayEventDone = state.day;
+    var out = '';
+
+    if (id === 'radioDeal') {
+      if (key === 'deal' && canPay(state, 'food', 2) && canPay(state, 'water', 1)) {
+        paySupply(state, 'food', 2);
+        paySupply(state, 'water', 1);
+        state.items.radioBroken = true;
+        out = '你们换下了那台破损的收音机。（食物 -2，水 -1）';
+      } else if (key === 'gear') {
+        var lostGear = spendGear(state);
+
+        if (lostGear) {
+          state.items.radioBroken = true;
+          out = '你把' + lostGear + '塞给雨衣人，抱回了那台破损的收音机。';
+        } else {
+          out = '你身上没什么能拿出手的，雨衣人摇了摇头。';
+        }
+      } else if (key === 'rob') {
+        if (roll(0.55)) {
+          state.items.radioBroken = true;
+          paySupply(state, 'food', Math.min(1, state.supplies.food || 0));
+          out = '你一把抢过收音机，雨衣人的刀划破了你的袖子。收音机到手了，' +
+            '代价是掉了一份食物。（食物 -1，破损收音机 +1）';
+        } else {
+          paySupply(state, 'food', Math.min(2, state.supplies.food || 0));
+          moodAll(state, -10);
+          out = '雨衣人比你能打。你们被撵回屋里，食物还被抢走了一些。（全员心情 -10）';
+        }
+      } else {
+        out = '你们没换，雨衣人骂了一句就走了。';
+      }
+    } else if (id === 'pityRadio') {
+      state.items.radioBroken = true;
+      state.parts = (state.parts || 0) + 1;
+      out = '你们把破损的收音机和零件盒抱回了屋里。（破损收音机 +1，电子零件 +1）' +
+        '去找陈默修好它，就知道救援什么时候来了。';
+    } else if (id === 'merchant') {
+      if (key === 'deal' && canPay(state, 'food', 3)) {
+        paySupply(state, 'food', 3);
+        state.supplies.water = (state.supplies.water || 0) + 2;
+        out = '你们用 3 份食物换了 2 瓶水。（食物 -3，水 +2）';
+      } else if (key === 'gear') {
+        var mGearOut = spendGear(state);
+
+        if (mGearOut) {
+          state.supplies.water = (state.supplies.water || 0) + 2;
+          out = '你用' + mGearOut + '换了 2 瓶水。（水 +2）';
+        } else {
+          out = '你身上没有能换的东西，商人走了。';
+        }
+      } else {
+        out = '你们没换，商人走了。';
+      }
+    } else if (id === 'neighbor') {
+      if (key === 'deal' && canPay(state, 'medicine', 1)) {
+        paySupply(state, 'medicine', 1);
+        state.items.gasMask = true;
+        out = '老王拿走了药，把防毒面具留给了你们。（药品 -1，防毒面具 +1）';
+      } else {
+        out = '你们没有药，老王失望地走了。';
+      }
+    } else if (id === 'intel') {
+      if (key === 'deal' && canPay(state, 'food', 2)) {
+        paySupply(state, 'food', 2);
+        state.lootBonus = C.dayEvents.lootBonus || 2;
+        out = '情报到手：今天任何地点的收获翻倍。（食物 -2）';
+      } else {
+        out = '你们没买情报。';
+      }
+    } else if (id === 'thugs') {
+      if (key === 'pay' && canPay(state, 'food', 2)) {
+        paySupply(state, 'food', 2);
+        out = '你们给了 2 份食物，暴徒骂骂咧咧地走了。（食物 -2）';
+      } else if (key === 'fight' && SF.charAlive(state, 'tie') && hasWeapon(state)) {
+        out = '铁柱拎着武器出去，两个暴徒被他打跑了。';
+      } else {
+        var mates = SF.aliveAll(state);
+        for (var mi = 0; mi < mates.length; mi++) {
+          mates[mi].mood = clamp(mates[mi].mood - 10, 0, C.maxStat);
+        }
+        out = '你们把门顶死，任由外面的暴徒踹了几脚。（全员心情 -10）';
+      }
+    } else if (id === 'plaza') {
+      if (key === 'deal') {
+        state.supplies.food = (state.supplies.food || 0) + 2;
+        moodAll(state, -3);
+        out = '王大妈抱着音响下楼了，用半袋发霉的面粉换的。（食物 +2，全员心情 -3）晚上安静得让人难受。';
+      } else {
+        moodAll(state, 6);
+        out = '音响留下了。八点整，楼下准时响起《最炫民族风》，连丧尸都绕着走。（全员心情 +6）';
+      }
+    } else if (id === 'postgrad') {
+      if (key === 'deal') {
+        state.supplies.water = (state.supplies.water || 0) + 2;
+        moodAll(state, 3);
+        out = '你把真题给了他，他抱着书连声道谢，说二战一定上岸。（水 +2，全员心情 +3）';
+      } else {
+        moodAll(state, -3);
+        out = '你关上门。隔壁传来翻书的沙沙声，一直响到半夜。（全员心情 -3）';
+      }
+    } else if (id === 'maskSeller') {
+      if (key === 'deal' && canPay(state, 'food', 1)) {
+        paySupply(state, 'food', 1);
+        moodAll(state, 15);
+        out = '面膜敷上，四个人对着镜子互相说“还行”。（食物 -1，全员心情 +15）';
+      } else {
+        moodAll(state, -3);
+        out = '微商把面膜收回包里，说你们不懂市场经济。（全员心情 -3）';
+      }
+    } else if (id === 'nurse') {
+      if (key === 'open') {
+        if (roll(0.5)) {
+          hpAll(state, 15);
+          state.supplies.medicine = (state.supplies.medicine || 0) + 1;
+          out = '门一开，她真的是护士。她给每个人看了伤，还留下一盒药。（全员血量 +15，药品 +1）';
+        } else {
+          paySupply(state, 'water', 2);
+          moodAll(state, -10);
+          out = '门刚开一条缝，撬棍就伸了进来。等她跑掉，门口的两瓶水也没了。（水 -2，全员心情 -10）';
+        }
+      } else if (key === 'block' && SF.charAlive(state, 'tie')) {
+        moodAll(state, 2);
+        out = '铁柱用肩膀顶住门，一直顶到走廊安静下来。（全员心情 +2）';
+      } else {
+        moodAll(state, -5);
+        out = '你们谁也没动。哭声在门外持续了很久，然后就没了。（全员心情 -5）';
+      }
+    } else if (id === 'waterPump') {
+      if (key === 'fix' && canPay(state, 'material', 2)) {
+        paySupply(state, 'material', 2);
+        state.supplies.water = (state.supplies.water || 0) + 3;
+        moodAll(state, 5);
+        out = '你们轮流去顶楼修好了水泵，水龙头重新哗哗出水。（木板 -2，水 +3，全员心情 +5）';
+      } else {
+        paySupply(state, 'water', 1);
+        moodAll(state, -5);
+        out = '水龙头彻底不出水了。今天只能省着喝。（水 -1，全员心情 -5）';
+      }
+    } else if (id === 'elevator') {
+      if (key === 'fight' && hasWeapon(state)) {
+        moodAll(state, 6);
+        state.supplies.material = (state.supplies.material || 0) + 1;
+        out = '电梯门关上之前，你们把它解决了。铁柱顺手拖走了它兜里的一些零件。（心情 +6，材料 +1）';
+      } else if (key === 'seal' && canPay(state, 'material', 1)) {
+        paySupply(state, 'material', 1);
+        moodAll(state, -2);
+        out = '你们用一块木板把电梯门钉死，里面传来挠门的声音。（木板 -1，心情 -2）';
+      } else {
+        hpAll(state, -10);
+        moodAll(state, -8);
+        out = '电梯门开着，那只东西在楼道里站了一整夜。谁也没睡。（全员血量 -10，心情 -8）';
+      }
+    } else if (id === 'pigeon') {
+      if (key === 'shoo' && canPay(state, 'material', 1)) {
+        paySupply(state, 'material', 1);
+        moodAll(state, 3);
+        out = '你们挥着木板把鸽子赶出阳台，羽毛落了一地。（木板 -1，心情 +3）';
+      } else if (key === 'hunt' && hasWeapon(state)) {
+        state.supplies.food = (state.supplies.food || 0) + 2;
+        moodAll(state, 6);
+        out = '鸽子烤焦了，但那是很久以来最好闻的味道。（食物 +2，心情 +6）';
+      } else {
+        moodAll(state, -3);
+        out = '你们关上阳台门，隔着玻璃看它们啄窗框。（心情 -3）';
+      }
+    } else if (id === 'linClean') {
+      if (key === 'wash' && canPay(state, 'water', 2)) {
+        paySupply(state, 'water', 2);
+        moodOne(state, 'lin', 30);
+        out = '林晓洗了头，擦干头发的第一句话是“我要吃饭”。（水 -2，林晓心情 +30）';
+      } else {
+        moodOne(state, 'lin', -20);
+        moodAll(state, -5);
+        out = '林晓缩进被子里，一句话都不说。晚饭谁也没吃好。（全员心情 -5）';
+      }
+    } else if (id === 'nanaLipstick') {
+      if (key === 'let') {
+        moodAll(state, 10);
+        out = '娜娜抹着那半截口红，在镜子前转了三圈，说等出去了要去吃顿好的。（全员心情 +10）';
+      } else {
+        moodAll(state, -5);
+        out = '你把口红扔进垃圾桶。娜娜一晚上没跟你说话。（全员心情 -5）';
+      }
+    } else if (id === 'chenNet') {
+      if (key === 'cards' && state.items.cards) {
+        moodOne(state, 'chen', 30);
+        out = '陈默抱着扑克牌在原地摆了一整晚的接龙。（陈默心情 +30）';
+      } else {
+        moodOne(state, 'chen', -15);
+        out = '陈默把手机贴在窗台上找信号，一格都没有。（陈默心情 -15）';
+      }
+    } else if (id === 'tieDream') {
+      if (key === 'feed' && canPay(state, 'food', 1)) {
+        paySupply(state, 'food', 1);
+        moodOne(state, 'tie', 15);
+        out = '你把半份口粮塞进铁柱手里，他一下子就醒了，挠头问“门还在吧”。（食物 -1，铁柱心情 +15）';
+      } else {
+        moodAll(state, -5);
+        state.supplies.material = Math.max(0, (state.supplies.material || 0) - 1);
+        state.doorBroken = true;
+        out = '铁柱一拳砸在门上，门框裂了一道。今晚要是真有东西来，这门挡不住。（材料 -1，全员心情 -5）';
+      }
+    }
+
+    if (out) SF.addLog(state, out);
+    return out;
+  };
+
   // ---------- 主界面投喂 ----------
 
   SF.mealOf = function (state, id) {
@@ -411,7 +1308,7 @@ SF.SUPPLIES = [
     return { ok: false, msg: '' };
   };
 
-  SF.exploreChance = function (s, loc) {
+  SF.exploreChance = function (s, loc, state) {
     var E = C.explore;
     var p = loc.chance;
 
@@ -428,6 +1325,12 @@ SF.SUPPLIES = [
     if (s.mood < E.moodLowAt) p += E.moodLowPenalty;
     if (s.hasTorch) p += 0.05;
 
+    // 今日状况：停电、尸潮这类会让今天更难搜
+    if (state) {
+      var cond = SF.condFor(state);
+      if (cond && cond.chanceDelta) p += cond.chanceDelta;
+    }
+
     p = clamp(p, E.minChance, E.maxChance);
 
     if (s.injured) p = p * E.injuredPenalty;
@@ -440,14 +1343,91 @@ SF.SUPPLIES = [
     haul[key] = (haul[key] || 0) + qty;
   }
 
+  function tripTotal(state) {
+    var t = state.tripTotals || {};
+    var n = 0;
+    for (var k in t) {
+      if (!t.hasOwnProperty(k)) continue;
+      n += t[k];
+    }
+    return n;
+  }
+
   function applyHaul(state, haul, result) {
+    // 一趟最多只允许轻微超载 2 件：再多的东西当场就背不动了
+    var cap = (state.tripCap || 0) + 2;
+    var dropped = 0;
+
     for (var i = 0; i < SF.SUPPLIES.length; i++) {
       var key = SF.SUPPLIES[i].key;
       if (!haul[key]) continue;
-      state.supplies[key] = Math.max(0, Math.round((state.supplies[key] || 0) + haul[key]));
-      result.loot.push({ key: key, name: SF.SUPPLIES[i].name, qty: haul[key] });
+
+      var qty = haul[key];
+
+      if (state.tripCap > 0) {
+        var room = cap - tripTotal(state);
+        if (room <= 0) {
+          dropped += qty;
+          haul[key] = 0;
+          continue;
+        }
+        if (qty > room) {
+          dropped += qty - room;
+          qty = room;
+          haul[key] = room;
+        }
+      }
+
+      if (qty <= 0) continue;
+
+      state.supplies[key] = Math.max(0, Math.round((state.supplies[key] || 0) + qty));
+      result.loot.push({ key: key, name: SF.SUPPLIES[i].name, qty: qty });
+
+      if (!state.tripTotals) state.tripTotals = {};
+      state.tripTotals[key] = (state.tripTotals[key] || 0) + qty;
+    }
+
+    if (dropped > 0) {
+      result.lines.push('背包实在塞不下了，有 ' + dropped + ' 件东西只能留在原地。');
     }
   }
+
+  /* ---------- 负重 ---------- */
+
+  // 每个人的负重：基础 2 格；穿上双肩包 → 4 格（单槽装备，背包占掉唯一的槽位）
+  SF.carryOf = function (s) {
+    if (!s) return 0;
+
+    var base = C.pack.base || 2;
+    if (s.hasPack) base += (C.pack.bagBonus || 2);
+    return base;
+  };
+
+  // 这一趟的容量 / 已背件数 / 超载数
+  SF.packState = function (state) {
+    var cap = state.tripCap || 0;
+    var i;
+
+    if (!cap && state.tripMembers && state.tripMembers.length) {
+      for (i = 0; i < state.tripMembers.length; i++) {
+        cap += SF.carryOf(SF.find(state, state.tripMembers[i]));
+      }
+    }
+
+    var totals = state.tripTotals || {};
+    var total = 0;
+
+    for (var k in totals) {
+      if (!totals.hasOwnProperty(k)) continue;
+      total += totals[k];
+    }
+
+    return {
+      cap: cap,
+      total: total,
+      over: Math.max(0, total - cap)
+    };
+  };
 
   // ---------- 组队探索 ----------
 
@@ -482,6 +1462,7 @@ SF.SUPPLIES = [
     var result = {
       location: loc,
       partyNames: [],
+      partyIds: [],
       refused: false,
       junkOnly: false,
       success: false,
@@ -505,6 +1486,23 @@ SF.SUPPLIES = [
     }
 
     for (i = 0; i < party.length; i++) result.partyNames.push(party[i].name);
+    for (i = 0; i < party.length; i++) result.partyIds.push(party[i].id);
+
+    // 新的一趟出发：清空背包统计，按出门的人算负重
+    if (depth <= 1) {
+      state.tripTotals = {};
+      state.tripMembers = [];
+      state.tripCap = 0;
+    }
+
+    if (!state.tripCap) {
+      for (i = 0; i < party.length; i++) {
+        state.tripMembers.push(party[i].id);
+        state.tripCap += SF.carryOf(party[i]);
+      }
+    }
+
+    if (!state.tripTotals) state.tripTotals = {};
 
     // 记下这次去哪儿、谁去的，夜里的事件要用来判断失踪
     state.lastExpedition = { locId: loc.id, name: loc.name, risk: loc.riskLevel, ids: [] };
@@ -522,7 +1520,7 @@ SF.SUPPLIES = [
 
     // 队伍整体成功率取平均值
     var chanceSum = 0;
-    for (i = 0; i < party.length; i++) chanceSum += SF.exploreChance(party[i], loc);
+    for (i = 0; i < party.length; i++) chanceSum += SF.exploreChance(party[i], loc, state);
     var success = roll(chanceSum / party.length);
     result.success = success;
 
@@ -552,43 +1550,51 @@ SF.SUPPLIES = [
     var locId = loc.id;
 
     if (depth <= 1) {
-      // 第一层：70% 只有垃圾，最多 1 个基础物资
-      if (Math.random() < 0.7) {
-        if (roll(0.5)) giveHaul(haul, 'material', 1);
-        result.lines.push(flavor('empty'));
-      } else {
-        giveHaul(haul, roll(0.5) ? 'food' : 'water', 1);
-        result.lines.push('外围只摸到一点能吃的，你们赶紧退了出来。');
-      }
+      // 第一层：不直接摸东西，先选一个入口
       result.safe = true;
+      result.choice = {
+        id: 'floor1',
+        title: loc.name + '：先搜哪儿？',
+        text: '门开着，里面比想象中安静。三条路，只能挑一条。',
+        options: []
+      };
+
+      var plans = C.floorOne || [];
+      for (i = 0; i < plans.length; i++) {
+        result.choice.options.push({
+          key: plans[i].key,
+          label: plans[i].label,
+          desc: plans[i].desc
+        });
+      }
     } else if (depth === 2) {
       // 第二阶段：基础物资，小概率受伤
-      if (locId === 'market') {
+      if (locId === 'store') {
         if (roll(0.5)) giveHaul(haul, 'food', 1);
         if (roll(0.2)) giveHaul(haul, 'medicine', 1);
         result.lines.push('货架上还剩几罐没过期的，你们只抱了一罐出来。');
-      } else if (locId === 'warehouse') {
-        giveHaul(haul, 'material', rnd(2, 4));
+      } else if (locId === 'garage') {
+        giveHaul(haul, 'material', rnd(1, 2));
         if (roll(0.45)) {
           state.items.gasMask = true;
           result.item = { key: 'mask', name: '防毒面具' };
-          result.lines.push('仓库深处的箱子里压着一副防毒面具，镜片还没裂。');
+          result.lines.push('车库深处的箱子里压着一副防毒面具，镜片还没裂。');
         } else if (roll(0.3)) {
           state.items.flashlight = true;
           result.lines.push('木箱底下压着一只手电筒，还能亮。');
         }
-        result.lines.push('仓库外圈全是木料和铁皮，能搬的都搬了。');
-      } else if (locId === 'pharmacy') {
+        result.lines.push('车库外圈全是拆下来的木板和铁皮，能搬的都搬了。');
+      } else if (locId === 'clinic') {
         var med = hasLin ? 2 : (roll(0.6) ? 1 : 0);
         if (med) giveHaul(haul, 'medicine', med);
         result.lines.push(med
-          ? (hasLin ? '林晓看懂了说明书，挑出两份还能用的药。' : '你们在柜台里翻出一份药。')
+          ? (hasLin ? '林晓看懂了说明书，挑出两份还能用的药。' : '你们在输液室的柜台里翻出一份药。')
           : '药柜被人翻得精光，你们什么都没找到。');
-      } else if (locId === 'police') {
-        giveHaul(haul, 'material', rnd(1, 2));
-        result.lines.push('警局外圈只剩下散落的装备和弹药箱。');
+      } else if (locId === 'guard') {
+        giveHaul(haul, 'material', 1);
+        result.lines.push('保安亭外圈只剩下散落的装备和弹药箱。');
       } else {
-        giveHaul(haul, pickOne(['food', 'water']), rnd(1, 2));
+        giveHaul(haul, pickOne(['food', 'water']), 1);
         if (roll(0.25)) {
           state.items.flashlight = true;
           result.lines.push('在一堆废纸箱里翻到一只手电筒，擦擦还能用。');
@@ -597,39 +1603,43 @@ SF.SUPPLIES = [
       }
     } else {
       // 第三阶段：稀有货，风险极高
-      if (locId === 'police') {
+      if (locId === 'guard') {
         if (hasTie || hasWeapon) {
           state.items.flare = true;
           result.item = { key: 'medicine', name: '信号弹' };
-          giveHaul(haul, 'material', rnd(1, 3));
+          giveHaul(haul, 'material', rnd(1, 2));
 
           if (hasWeapon) {
             state.items.weapon = true;
-            result.lines.push('你们端着枪一路推平了警局的走廊，信号弹和一把手枪都到手了。');
+            result.lines.push('你们端着枪把守在门口的人全赶跑了，信号弹和一把手枪都到手了。');
           } else {
-            result.lines.push('铁柱撞开最后一道门，你们在枪柜里拿到了信号弹。');
+            result.lines.push('铁柱撞开保安亭的门，你们在柜子里拿到了信号弹。');
           }
         } else {
-          result.lines.push('里面全是暴徒，没有能打的人，你们被追着打了出来，什么都没拿到。');
+          result.lines.push('保安亭里的人根本不讲理，你们被追着打了出来，什么都没抢到。');
         }
-      } else if (locId === 'warehouse') {
-        giveHaul(haul, 'material', hasTorch ? 4 : rnd(2, 4));
+      } else if (locId === 'garage') {
+        giveHaul(haul, 'material', hasTorch ? 2 : rnd(1, 2));
+        if (hasTorch) {
+          giveHaul(haul, roll(0.5) ? 'food' : 'water', 1);
+          result.lines.push('手电照到了车库最里面的储物架，还多翻出一份补给。');
+        }
         if (roll(0.5)) {
           state.items.flashlight = true;
-          result.lines.push('在最里面翻到一只手电筒。');
+          result.lines.push('在车库最里面翻到一只手电筒。');
         }
         result.lines.push(hasTorch
-          ? '手电照着最深处的货架，你们把能带的都搬了。'
-          : '里面黑得伸手不见五指，你们只能胡乱抓了几把。');
-      } else if (locId === 'pharmacy') {
+          ? '手电照着车库最深处的货架，你们把能带的都搬了。'
+          : '车库里黑得伸手不见五指，你们只能胡乱抓了几把。');
+      } else if (locId === 'clinic') {
         var medDeep = hasLin ? 3 : (roll(0.4) ? 1 : 0);
         if (medDeep) giveHaul(haul, 'medicine', medDeep);
         result.lines.push(medDeep
-          ? '林晓摸进药房最里面，抱出几盒高级药品。'
+          ? '林晓摸进输液室最里面，抱出几盒还能用的药。'
           : '越往里越黑，你们什么都没摸到就退了出来。');
       } else {
-        giveHaul(haul, 'food', rnd(1, 2));
-        giveHaul(haul, 'water', 1);
+        giveHaul(haul, 'food', 1);
+        if (roll(0.5)) giveHaul(haul, 'water', 1);
         if (roll(0.25)) {
           state.items.weapon = true;
           result.lines.push('角落靠着一根防暴棍，你们把它也带上了。');
@@ -642,8 +1652,9 @@ SF.SUPPLIES = [
     if (!junkOnly && roll(T.raiderChance + (party.length - 1) * 0.03)) {
       if (hasNana) {
         // 娜娜：100% 免伤，70% 概率反抢，全员心情 +10
-        for (i = 0; i < alive.length; i++) {
-          alive[i].mood = clamp(alive[i].mood + 10, 0, C.maxStat);
+        var matesAlive = SF.aliveAll(state);
+        for (i = 0; i < matesAlive.length; i++) {
+          matesAlive[i].mood = clamp(matesAlive[i].mood + 10, 0, C.maxStat);
         }
         if (roll(0.7)) {
           giveHaul(haul, roll(0.5) ? 'food' : 'water', 1);
@@ -674,50 +1685,59 @@ SF.SUPPLIES = [
 
     // ===== 职业被动：严格按设定执行 =====
     if (hasChen) {
-      // 陈默：50% 带回 1 个电子零件（该地点有稀有道具时概率翻倍）
-      var chenChance = (loc.id === 'police' || loc.id === 'warehouse' || loc.id === 'pharmacy') ? 1 : 0.5;
-      if (roll(chenChance)) {
-        giveHaul(haul, 'medicine', 1);
-        result.lines.push('陈默撬开一台电子锁，摸出一份能用的零件和药。');
-      } else {
-        result.lines.push('陈默摆弄了半天电子锁，这次没打开。');
-      }
-
-      // 但他不擅长搬运：食物和水的携带量固定为 1
+      // 陈默不擅长搬运：食物和水的携带量固定为 1
       if ((haul.food || 0) > 1) haul.food = 1;
       if ((haul.water || 0) > 1) haul.water = 1;
     }
 
-    if (hasLin) {
-      // 林晓：必定额外 +1 药品
+    if (hasLin && depth >= 2 && roll(0.5)) {
+      // 林晓：进到深处才认得草药，偶尔多带回一份药品
       giveHaul(haul, 'medicine', 1);
       result.lines.push('林晓认出了草药和化学试剂，多带回一份药品。');
     }
 
-    if (hasTie) {
-      // 铁柱：食物和材料额外 +2
-      if (haul.food) giveHaul(haul, 'food', 2);
-      if (haul.material) giveHaul(haul, 'material', 2);
-      if (!haul.food && !haul.material) giveHaul(haul, 'material', 2);
+    if (hasTie && depth >= 2) {
+      // 铁柱：进到深处，食物和材料各多带 1
+      if (haul.food) giveHaul(haul, 'food', 1);
+      if (haul.material) giveHaul(haul, 'material', 1);
+      if (!haul.food && !haul.material) giveHaul(haul, 'material', 1);
       result.lines.push(flavor('winTie'));
     }
 
-    // 组队加成：2 人 1.5 倍，3 人 2 倍
-    var partyBoost = 1 + 0.5 * (party.length - 1);
+    // 组队加成（很小）：人越多越稳，但不会明显变多
+    var partyBoost = 1 + 0.15 * (party.length - 1);
     for (var bk in haul) {
       if (!haul.hasOwnProperty(bk)) continue;
       haul[bk] = Math.max(1, Math.round(haul[bk] * partyBoost));
     }
-    if (party.length >= 2 && !haul.water) giveHaul(haul, 'water', 1);
-    if (party.length >= 3 && !haul.food) giveHaul(haul, 'food', 1);
 
+    // 今日状况：沙尘暴之类会让收获打折
+    var todayCond = SF.condFor(state);
+    var condMult = (todayCond && todayCond.lootMult) ? todayCond.lootMult : 1;
+
+    if (condMult !== 1) {
+      for (var ck in haul) {
+        if (!haul.hasOwnProperty(ck)) continue;
+
+        var qty = haul[ck];
+        if (qty <= 0) continue;
+
+        if (qty === 1) {
+          // 只有一件的东西：按概率直接丢在半路
+          if (Math.random() > condMult) haul[ck] = 0;
+        } else {
+          haul[ck] = Math.max(1, Math.round(qty * condMult));
+        }
+      }
+      result.lines.push('今天的' + todayCond.name + '让视野很差，能带回来的东西少了一截。');
+    }
     // 危险事件：第一阶段绝对安全，第二阶段小概率，第三阶段极易重伤
     var riskChance = depth <= 1 ? 0 : (depth === 2 ? 0.12 : 1);
 
-    if (loc.id === 'police' && depth >= 3 && !hasTie && !hasWeapon) {
+    if (loc.id === 'guard' && depth >= 3 && !hasTie && !hasWeapon) {
       riskChance = 0.95;
     }
-    if (loc.id === 'police' && hasWeapon) {
+    if (loc.id === 'guard' && hasWeapon) {
       riskChance = 0;
     }
     if (hasWeapon) riskChance = riskChance * 0.5;
@@ -767,7 +1787,7 @@ SF.SUPPLIES = [
     }
 
     // 幸运事件（只给 1 份）
-    if (roll(0.1)) {
+    if (roll(0.08)) {
       var lucky = pickOne(['medicine', 'food', 'water']);
       giveHaul(haul, lucky, 1);
       result.lines.push('在' + loc.name + '的角落发现了另一个幸存者留下的半袋东西。');
@@ -788,30 +1808,78 @@ SF.SUPPLIES = [
     }
 
     // 主线物品只在第 2 层以后才可能出现
-    if (loc.id === 'police' && depth >= 2 && !state.items.flare &&
+    if (loc.id === 'guard' && depth >= 2 && !state.items.flare &&
         roll(depth >= 3 ? 0.6 : 0.25)) {
       state.items.flare = true;
       result.item = { key: 'medicine', name: '信号弹' };
-      result.lines.push('你们在枪柜底下摸到两发信号弹，小心地收进背包。');
+      result.lines.push('你们在保安亭的柜子底下摸到两发信号弹，小心地收进背包。');
     }
 
-    // 破收音机只在城郊仓库出；带陈默就直接修好
-    if (loc.id === 'warehouse' && depth >= 2 &&
-        !state.items.radio && !state.items.radioBroken && roll(0.45)) {
+    // 破收音机：公寓地下车库和小区保安亭的深层都能翻到，概率 30% 左右
+    var radioChance = C.explore.radioChance || 0.3;
+    if (depth >= 3) radioChance += 0.1;
+
+    if ((loc.id === 'garage' || loc.id === 'guard') &&
+        !state.items.radio && !state.items.radioBroken &&
+        depth >= 2 && roll(radioChance)) {
       if (hasChen) {
         state.items.radio = true;
-        result.lines.push('陈默在仓库里翻出一台收音机，当场拧了两下线圈，修好了。');
+        SF.setRescueDay(state);
+        result.lines.push('陈默在' + loc.name + '的杂物堆里翻出一台收音机，拧了两下线圈就响了。');
+        result.lines.push(SF.rescueNews(state));
       } else {
         state.items.radioBroken = true;
-        result.lines.push('临走时在杂物间翻出一台破损的收音机，也许还能修。');
+        result.lines.push('临走时在' + loc.name + '角落里翻出一台破损的收音机，也许还能修。');
+      }
+    }
+
+    // 卫生站：没戴防毒面具的人可能染病；戴了面具绝对不会
+    if (loc.id === 'clinic') {
+      for (i = 0; i < party.length; i++) {
+        var pMask = party[i];
+        if (pMask.hasMask || pMask.sick) continue;
+
+        if (roll(0.25)) {
+          pMask.sick = true;
+          result.lines.push(pMask.name + ' 从卫生站出来就开始咳嗽，多半是染上了。（已生病）');
+        }
+      }
+    }
+
+    // 便利店 / 保安亭：能搜到手电筒和双肩包，方便测试单槽装备
+    if ((loc.id === 'store' || loc.id === 'guard') && depth >= 2) {
+      if (roll(0.3) && !state.items.flashlight) {
+        state.items.flashlight = true;
+        result.lines.push('在' + loc.name + '的角落翻出一支手电筒，还能亮。');
+      } else if (roll(0.25) && !state.items.backpack) {
+        state.items.backpack = true;
+        result.lines.push('找到一只还能用的双肩包，肩带没烂。');
       }
     }
 
     // 食物、水、药品死死压住，材料稍微宽松一点
-    if ((haul.food || 0) > 3) haul.food = 3;
-    if ((haul.water || 0) > 3) haul.water = 3;
-    if ((haul.medicine || 0) > 1) haul.medicine = 1;
-    if ((haul.material || 0) > 4) haul.material = 4;
+    var caps = C.lootCaps || {};
+    if ((haul.food || 0) > (caps.food === undefined ? 2 : caps.food)) {
+      haul.food = caps.food === undefined ? 2 : caps.food;
+    }
+    if ((haul.water || 0) > (caps.water === undefined ? 2 : caps.water)) {
+      haul.water = caps.water === undefined ? 2 : caps.water;
+    }
+    if ((haul.medicine || 0) > (caps.medicine === undefined ? 1 : caps.medicine)) {
+      haul.medicine = caps.medicine === undefined ? 1 : caps.medicine;
+    }
+    if ((haul.material || 0) > (caps.material === undefined ? 3 : caps.material)) {
+      haul.material = caps.material === undefined ? 3 : caps.material;
+    }
+
+    // 情报贩子买来的情报：今天这一趟的收获翻倍
+    if ((state.lootBonus || 1) > 1) {
+      for (var lb in haul) {
+        if (!haul.hasOwnProperty(lb)) continue;
+        haul[lb] = Math.max(1, Math.round(haul[lb] * state.lootBonus));
+      }
+      result.lines.push('情报没白买，这一趟摸到的东西比平时多一倍。');
+    }
 
     // 关卡：必须由玩家自己决定要不要花物资，绝不自动扣
     if (depth >= 2 && roll(0.5)) {
@@ -1053,6 +2121,36 @@ SF.SUPPLIES = [
       }
     }
 
+    // 陈默的天赋：在公寓地下车库里拆电子零件最拿手（第 2 层起必定 +1），
+    // 换到别的地方只能碰碰运气
+    if (depth >= 2 && hasChen) {
+      if (loc.id === 'garage') {
+        state.parts = (state.parts || 0) + 1;
+        result.lines.push('陈默蹲在车库的电箱边，从烧毁的机箱里拆出一枚电子元件，塞进内袋。（电子零件 +1，不占负重）');
+      } else if (roll(0.3)) {
+        state.parts = (state.parts || 0) + 1;
+        result.lines.push('陈默顺手拆下一枚电子元件。（电子零件 +1，不占负重）');
+      }
+    }
+
+    // 背包有概率在深处捡到
+    if ((loc.id === 'garage' || loc.id === 'guard') && depth >= 2 &&
+        !state.items.backpack && roll(0.3)) {
+      state.items.backpack = true;
+      result.item = result.item || { key: 'backpack', name: '双肩包' };
+      result.lines.push('箱子底下压着一只还能用的双肩包，肩带没烂。（装备后负重 +2）');
+    }
+
+    // 今天出门的记录（写日记用）
+    if (!state.todayRecap) state.todayRecap = { trips: [] };
+    state.todayRecap.trips.push({
+      loc: loc.name,
+      party: result.partyNames.slice(),
+      loot: result.loot.slice(),
+      hurt: result.injured.map(function (v) { return v.name; }),
+      died: !!result.died
+    });
+
     state.lastEvent = result.lines[result.lines.length - 1] || '';
     ensureLeader(state);
     checkOver(state, state.day);
@@ -1088,7 +2186,9 @@ SF.SUPPLIES = [
         var bonus = rnd(1, 2);
         state.supplies.food = (state.supplies.food || 0) + bonus;
         state.supplies.medicine = (state.supplies.medicine || 0) + 1;
-        result.lines.push('你们把他的背包翻了个底朝天，拿走 ' + bonus + ' 份食物和一点药品，人留在了原地。');
+        if (!state.items.backpack) state.items.backpack = true;
+        result.lines.push('你们把他的背包翻了个底朝天，拿走 ' + bonus +
+          ' 份食物和一点药品，那只结实的双肩包也归你们了。（装备后负重 +2）');
         for (i = 0; i < state.survivors.length; i++) {
           if (state.survivors[i].alive) {
             state.survivors[i].mood = clamp(state.survivors[i].mood - 9, 0, C.maxStat);
@@ -1108,6 +2208,58 @@ SF.SUPPLIES = [
       } else {
         result.lines.push('牌留在了桌上，反正也没人有心情玩。');
       }
+    }
+
+    if (result.choice.id === 'floor1') {
+      var plans = C.floorOne || [];
+      var plan = plans[0] || { items: 1, risk: 0, hp: 0 };
+
+      for (i = 0; i < plans.length; i++) {
+        if (plans[i].key === key) plan = plans[i];
+      }
+
+      var locLoot = (result.location && result.location.loot) || {};
+      var pool = [];
+      var lk;
+
+      for (lk in locLoot) {
+        if (!locLoot.hasOwnProperty(lk)) continue;
+        if (!locLoot[lk] || locLoot[lk][1] <= 0) continue;
+        pool.push(lk);
+      }
+      if (!pool.length) pool = ['food', 'water', 'material'];
+
+      var haul = {};
+      var count = plan.items || 0;
+
+      // 第一层：大概率空手（普通角色）
+      if (plan.empty && roll(plan.empty)) count = 0;
+      else if (plan.extra && roll(plan.extra)) count += 1;
+
+      for (i = 0; i < count; i++) {
+        giveHaul(haul, pickOne(pool), 1);
+      }
+
+      result.lines.push(count
+        ? '你们挑了' + String(plan.label || '一条路').replace(/（.*?）/g, '') +
+          '，摸到 ' + count + ' 件东西。'
+        : '你们挑了' + String(plan.label || '一条路').replace(/（.*?）/g, '') +
+          '，翻了半天，什么都没找到。');
+
+      if (plan.risk && roll(plan.risk)) {
+        var pid = result.partyIds.length ? pickOne(result.partyIds) : '';
+        var hurtOne = SF.find(state, pid);
+
+        if (hurtOne) {
+          hurtOne.hp = clamp(hurtOne.hp - (plan.hp || 15), 0, C.maxStat);
+          hurtOne.injured = true;
+          result.injured.push({ name: hurtOne.name, hp: plan.hp || 15 });
+          result.lines.push('里面有别的东西。' + hurtOne.name + ' 被砸中了，血顺着袖口往下滴。' +
+            '（血量 -' + (plan.hp || 15) + '）');
+        }
+      }
+
+      applyHaul(state, haul, result);
     }
 
     if (result.choice.id === 'gate') {
@@ -1204,7 +2356,8 @@ SF.SUPPLIES = [
     if (!s || !s.alive || s.hasMask) return false;
     if (!state.items.gasMask) return false;
 
-    s.hasMask = true;
+    // 单槽：会先把身上别的装备换下来
+    SF.toggleGear(state, id, 'mask');
     SF.addLog(state, s.name + ' 戴上了防毒面具，出去不再受病痛影响。');
     return true;
   };
@@ -1417,7 +2570,8 @@ SF.SUPPLIES = [
     }
 
     var pool = ['sick', 'scare', 'shelter', 'cold', 'badCan',
-      'acidRain', 'rats', 'zombieDoor', 'gift', 'radioMood', 'rainWater', 'guest'];
+      'acidRain', 'rats', 'zombieDoor', 'gift', 'radioMood', 'rainWater', 'guest',
+      'leak', 'neighborTV'];
 
     var moodSum = 0;
     for (i = 0; i < alive.length; i++) moodSum += alive[i].mood;
@@ -1429,10 +2583,20 @@ SF.SUPPLIES = [
     if (alive.length >= 2) pool.push('fight');
 
     var used = {};
-    var count = rnd(1, 2);
+
+    // 冲刺阶段：夜里的事更多，一天两件起
+    var count = (C.events.finalFrom && state.day >= C.events.finalFrom)
+      ? 2
+      : rnd(1, 2);
+
+    // 今日状况：尸潮之类的，夜里再多来一件，并且一定有它承诺的那件事
+    var nightCond = SF.condFor(state);
+    if (nightCond && nightCond.nightExtra) count += nightCond.nightExtra;
+
+    var forcedKind = (nightCond && nightCond.forceNight) ? nightCond.forceNight : '';
 
     for (var n = 0; n < count && pool.length; n++) {
-      var kind = pickOne(pool);
+      var kind = (n === 0 && forcedKind) ? forcedKind : pickOne(pool);
       if (used[kind]) {
         n -= 1;
         if (n < -5) break;
@@ -1534,7 +2698,7 @@ SF.SUPPLIES = [
           list.push({ id: 'rats', text: '老鼠啃坏了床脚，没有木板可修，四个人挤在一张破床上。（全员心情 -15）' });
         }
       } else if (kind === 'zombieDoor') {
-        if ((state.supplies.material || 0) >= 3) {
+        if ((state.supplies.material || 0) >= 3 && !state.doorBroken) {
           state.supplies.material = Math.max(0, Math.round(state.supplies.material - 3));
           list.push({ id: 'zombieDoor', text: '门外传来沉重的脚步声，你们用 3 块木板把门死死钉住，一直撑到天亮。（木板 -3）' });
         } else {
@@ -1544,6 +2708,23 @@ SF.SUPPLIES = [
           }
           list.push({ id: 'zombieDoor', text: '门外传来沉重的脚步声，木板不够，门被撞开一条缝。（全员血量 -30，可能生病）' });
         }
+      } else if (kind === 'leak') {
+        state.supplies.water = Math.max(0, Math.round((state.supplies.water || 0) + 1));
+        for (i = 0; i < alive.length; i++) {
+          alive[i].mood = clamp(alive[i].mood - 5, 0, C.maxStat);
+        }
+        list.push({
+          id: 'leak',
+          text: flavor('leak') + '（水 +1，全员心情 -5）'
+        });
+      } else if (kind === 'neighborTV') {
+        for (i = 0; i < alive.length; i++) {
+          alive[i].mood = clamp(alive[i].mood + 5, 0, C.maxStat);
+        }
+        list.push({
+          id: 'neighborTV',
+          text: '不知哪户人家还有电，半夜放起了春晚重播。你们贴着墙听完了整段小品，谁都没说话。（全员心情 +5）'
+        });
       } else if (kind === 'gift') {
         state.supplies.food = Math.max(0, Math.round((state.supplies.food || 0) + 2));
         list.push({ id: 'gift', text: '陈默在墙角的暗格里，意外翻出两份没有过期的罐头！（食物 +2）' });
@@ -1595,7 +2776,7 @@ SF.SUPPLIES = [
     if (report.shortage) {
       var hungryLine = flavor('hungry');
       list.unshift({ id: 'hungry', text: hungryLine });
-      SF.addLog(state, hungerLine);
+      SF.addLog(state, hungryLine);
     }
 
     if (!list.length) {
@@ -1611,22 +2792,23 @@ SF.SUPPLIES = [
   SF.verdictFor = function (state, loc, s) {
     if (!loc || !s) return { text: '', good: true };
 
-    if (loc.id === 'police') {
+    if (loc.id === 'guard') {
       if (s.charId === 'tie' || s.hasWeapon) {
         return { text: '适合此地，能打', good: true };
       }
       return { text: '没有战斗力，极度危险', good: false };
     }
 
-    if (loc.id === 'pharmacy') {
+    if (loc.id === 'clinic') {
       if (s.charId === 'lin') return { text: '看得懂说明书，药品翻倍', good: true };
       if (s.hasMask) return { text: '有面具，不容易染病', good: true };
       return { text: '不太懂药，收益很低', good: false };
     }
 
-    if (loc.id === 'warehouse') {
+    if (loc.id === 'garage') {
       if (s.hasTorch) return { text: '有手电，能搜满物资', good: true };
       if (s.charId === 'tie') return { text: '身强体壮，适合搬货', good: true };
+      if (s.charId === 'chen') return { text: '会拆电子零件', good: true };
       return { text: '里面太黑，容易出事', good: false };
     }
 
@@ -1683,7 +2865,7 @@ SF.SUPPLIES = [
         id: 'dream',
         targetId: null,
         title: '一个梦',
-        text: '陈默梦见城郊仓库里有一道暗门，醒来时路线还清清楚楚。',
+        text: '陈默梦见公寓地下车库里有一道暗门，醒来时路线还清清楚楚。',
         options: [{ key: 'ok', label: '记下来' }]
       };
     }
@@ -1745,8 +2927,8 @@ SF.SUPPLIES = [
       }
     } else if (ev.id === 'dream') {
       state.vaultUnlocked = true;
-      report.eventText = '地图上多了一个地方：城郊仓库的暗门。';
-      SF.addLog(state, '解锁了隐藏地点：仓库暗门。');
+      report.eventText = '地图上多了一个地方：公寓地下车库的暗门。';
+      SF.addLog(state, '解锁了隐藏地点：车库暗门。');
     }
 
     report.event = null;
@@ -1879,6 +3061,125 @@ SF.SUPPLIES = [
 
   // ---------- 晚间结算（后半段） ----------
 
+  /* 把今天发生的事写成一篇日记（给日志面板用） */
+  function daySummary(state, report) {
+    var parts = [];
+    var t = state.todayRecap;
+    var i;
+    var j;
+
+    if (t && t.trips && t.trips.length) {
+      var locs = [];
+      var party = [];
+      var loot = {};
+      var hurt = [];
+
+      for (i = 0; i < t.trips.length; i++) {
+        var trip = t.trips[i];
+
+        if (locs.indexOf(trip.loc) === -1) locs.push(trip.loc);
+
+        for (j = 0; j < trip.party.length; j++) {
+          if (party.indexOf(trip.party[j]) === -1) party.push(trip.party[j]);
+        }
+
+        for (j = 0; j < trip.loot.length; j++) {
+          var l = trip.loot[j];
+          loot[l.name] = (loot[l.name] || 0) + l.qty;
+        }
+
+        for (j = 0; j < trip.hurt.length; j++) {
+          if (hurt.indexOf(trip.hurt[j]) === -1) hurt.push(trip.hurt[j]);
+        }
+      }
+
+      var lootText = [];
+      for (var k in loot) {
+        if (loot.hasOwnProperty(k)) lootText.push(loot[k] + ' 份' + k);
+      }
+
+      parts.push('白天，' + party.join('、') + ' 去了' + locs.join('、') + '，' +
+        (lootText.length ? '带回 ' + lootText.join('、') : '几乎是空手回来的') + '。');
+
+      parts.push(flavor('trip'));
+
+      if (hurt.length) parts.push(hurt.join('、') + ' 在路上挂了彩。');
+    } else {
+      parts.push('白天谁都没出门，所有人挤在屋里熬了一天。');
+    }
+
+    if (report && report.deaths && report.deaths.length) {
+      parts.push(report.deaths.join('、') + ' 没能撑过这一夜。');
+    }
+
+    var fed = 0;
+    var drank = 0;
+    var hungry = [];
+    var thirsty = [];
+    var hungryId = '';
+    var meals = state.meal || {};
+    var aliveNow = SF.aliveAll(state);
+
+    for (i = 0; i < aliveNow.length; i++) {
+      var who = aliveNow[i];
+      var mm = meals[who.id] || {};
+
+      if (mm.eat) fed += 1;
+      else {
+        hungry.push(who.name);
+        if (!hungryId) hungryId = who.id;
+      }
+
+      if (mm.drink) drank += 1;
+      else thirsty.push(who.name);
+    }
+
+    // 晚饭写成人话，不再播报“几个人吃上了东西”
+    if (hungry.length) {
+      parts.push(flavor('hungry', SF.find(state, hungryId)));
+    } else {
+      parts.push(flavor('fed'));
+    }
+
+    if (thirsty.length) parts.push(flavor('thirsty'));
+
+    // 有人生病
+    var sickOne = null;
+    for (i = 0; i < aliveNow.length; i++) {
+      if (aliveNow[i].sick) {
+        sickOne = aliveNow[i];
+        break;
+      }
+    }
+    if (sickOne) parts.push(flavor('sick', sickOne));
+
+    // 屋顶漏水：随机一阵子，或者水见底的时候
+    if (roll(0.35) || (state.supplies.water || 0) <= 1) {
+      parts.push(flavor('leak'));
+    }
+
+    // 发疯边缘：写心情最低的那个人
+    var fearOne = null;
+    for (i = 0; i < aliveNow.length; i++) {
+      if (!fearOne || aliveNow[i].mood < fearOne.mood) fearOne = aliveNow[i];
+    }
+    if (fearOne && fearOne.mood < 30) parts.push(flavor('fear', fearOne));
+
+    if (report && report.events && report.events.length) {
+      parts.push('夜里：' + report.events[0].text);
+    } else {
+      parts.push('夜里很安静，只有风声。');
+    }
+
+    if (state.questToday && state.questToday.length) {
+      parts.push('主线推进：今天拿到了' + state.questToday.join('、') + '。');
+    }
+
+    return parts.join('');
+  }
+
+  SF.daySummary = daySummary;
+
   SF.finishNight = function (state, report) {
     var alive = SF.aliveAll(state);
     var i;
@@ -1924,12 +3225,39 @@ SF.SUPPLIES = [
       SF.addLog(state, d.name + ' 没撑过去，走了。');
     }
 
+    // 写下这一天的日记，然后换新的一天
+    var todayNote = daySummary(state, report);
+    if (!state.dayNotes) state.dayNotes = [];
+
+    state.dayNotes.push({
+      day: state.day,
+      cond: SF.condFor(state).name,
+      text: todayNote
+    });
+    if (state.dayNotes.length > 30) state.dayNotes.shift();
+
+    report.dayNote = todayNote;
+
+    state.dayLog = [];
+    state.todayRecap = null;
+    state.questToday = [];
+    state.doorBroken = false;
+
     state.day = state.day + 1;
     state.actionUsed = false;
     state.meal = {};
     state.todayFood = 0;
     state.todayWater = 0;
-    if (state.rescueLeft > 0) state.rescueLeft -= 1;
+
+    // 新的一天：换一个今日状况（沙尘暴、暴雨、尸潮……）
+    var cond = rollDailyCondition(state);
+    report.condition = cond ? cond.name : '';
+
+    // 新的一天：门口的人、情报加成、事件记录全部清空
+    state.dayEventId = '';
+    state.dayEventIdDay = 0;
+    state.dayEventDone = 0;
+    state.lootBonus = 1;
 
     for (i = 0; i < alive.length; i++) {
       if (alive[i].alive) alive[i].ap = 1;
@@ -1937,8 +3265,28 @@ SF.SUPPLIES = [
 
     ensureLeader(state);
 
+    // 救援日不再固定：修好收音机后才会抽出一个日期；没修好就永远等不到
+    if (state.items.radio && !state.rescueDay) SF.setRescueDay(state);
+
+    var aliveNow = SF.aliveAll(state);
+
+    if (state.rescueDay && state.day >= state.rescueDay && !state.over) {
+      var canFly = !!state.items.flare && aliveNow.length > 0;
+
+      state.over = true;
+      state.overAtDay = state.rescueDay;
+      state.won = canFly;
+      report.allDead = aliveNow.length === 0;
+      report.milestone = canFly
+        ? '信号弹升了空，直升机看见了你们。'
+        : '直升机在楼顶盘旋了一圈，没有看到信号弹，走了。';
+      SF.addLog(state, report.milestone);
+
+      return report;
+    }
+
     // 主线里程碑：没在期限内完成就会被惩罚
-    if (state.day === 4 && !state.items.radio) {
+    if (state.day === 6 && !state.items.radio) {
       for (i = 0; i < alive.length; i++) {
         if (alive[i].alive) alive[i].mood = clamp(alive[i].mood - 20, 0, C.maxStat);
       }
@@ -1946,7 +3294,7 @@ SF.SUPPLIES = [
       SF.addLog(state, report.milestone);
     }
 
-    if (state.day === 8 && !state.items.gasMask) {
+    if (state.day === 9 && !state.items.gasMask) {
       for (i = 0; i < alive.length; i++) {
         if (alive[i].alive) alive[i].hp = clamp(alive[i].hp - 20, 0, C.maxStat);
       }
@@ -1965,14 +3313,26 @@ SF.SUPPLIES = [
       SF.addLog(state, report.milestone);
     }
 
-    report.allDead = checkOver(state, report.day);
-
-    // 第 20 天结束：有信号弹就等来直升机，没有就到此为止
-    if (state.day > 20 && !state.over) {
-      state.over = true;
-      state.overAtDay = 20;
-      state.won = !!state.items.flare;
+    // 救援日前的最后两天：没有信号弹的才会慌
+    if (state.rescueDay && state.day === state.rescueDay - 2 && !state.items.flare) {
+      for (i = 0; i < alive.length; i++) {
+        if (alive[i].alive) alive[i].mood = clamp(alive[i].mood - 15, 0, C.maxStat);
+      }
+      report.milestone = '离墙上那个日期只剩两天，你们手里还没有信号弹。（全员心情 -15）';
+      SF.addLog(state, report.milestone);
     }
+
+    if (state.rescueDay && state.day === state.rescueDay - 1 && !state.items.flare) {
+      for (i = 0; i < alive.length; i++) {
+        if (!alive[i].alive) continue;
+        alive[i].hp = clamp(alive[i].hp - 10, 0, C.maxStat);
+        alive[i].mood = clamp(alive[i].mood - 15, 0, C.maxStat);
+      }
+      report.milestone = '明天就是墙上的那个日期，所有人都在发抖。（全员血量 -10，心情 -15）';
+      SF.addLog(state, report.milestone);
+    }
+
+    report.allDead = checkOver(state, report.day);
 
     return report;
   };
@@ -1983,39 +3343,64 @@ SF.SUPPLIES = [
 
     if (d === 1) {
       return {
-        title: '军方广播',
-        text: '城市已封锁，幸存者请寻找掩体。不要上街，不要开灯。'
+        title: '封锁第一天',
+        text: '这座城市已经封了。军方广播每天只重复一句话：“保持静默，等待下一步指令。”\n' +
+          '没人告诉你们救援哪天来。先去把街上散落的物资搬回来，' +
+          '再想办法弄到一台收音机——那是唯一能听到军方频道的办法。'
       };
     }
 
     if (d === 4) {
       return {
-        title: '城郊仓库',
-        text: '你们摸清了城郊仓库的位置。里面有维修零件、武器，也许还有收音机。'
+        title: '公寓地下车库',
+        text: '你们摸清了公寓地下车库的位置。里面有维修零件、武器，也许还有收音机。\n' +
+          '车库里没有灯——下去之前要把【手电筒】交给一个人。'
+      };
+    }
+
+    if (d === 6 && !state.items.radio && !state.items.radioBroken) {
+      return {
+        title: '断了一条腿的收音机',
+        text: '公寓地下车库是唯一的机会。没有它，你们听不到救援的呼喊，' +
+          '也不知道保安亭里藏着什么。'
+      };
+    }
+
+    if (d === 6 && state.items.radioBroken && !state.items.radio) {
+      return {
+        title: '拧不动的旋钮',
+        text: '那台破收音机还躺在桌上，零件不够，陈默也拧不响它。\n' +
+          '车库里有的是废旧电器，带陈默下去，他能拆出能用的零件。'
+      };
+    }
+
+    if (d === 6 && state.items.radio) {
+      return {
+        title: '断断续续的收音机',
+        text: '你们把收音机修好了。沙沙声里，军方报了一个日期：' +
+          (state.rescueDay
+            ? '“救援将在第 ' + state.rescueDay + ' 天抵达。”'
+            : '“保持静默，等待下一步指令。”') +
+          '\n信号弹得去小区保安亭找，但那里守着一群带武器的暴徒。'
       };
     }
 
     if (d === 7) {
       return {
-        title: '废弃医院',
-        text: '有人在广播里提到城南的废弃医院还有存货。带上林晓，她看得懂说明书。'
+        title: '隔壁社区卫生站',
+        text: '邻居说，隔壁小区的卫生所里还囤着药——只要能忍受那股味道。' +
+          '带上防毒面具，再带上林晓，她看得懂药盒上的字。'
       };
     }
 
-    if (d === 10) {
+    if (d === 9) {
       return {
-        title: '军方的最后一句话',
-        text: '警方频道传来军方广播：救援直升机进入最后十天倒计时，' +
-          '未持有信号弹者将被抛弃。废弃警局里也许还有信号弹——带上有战斗力的人。'
-      };
-    }
-
-    if (d === 6) {
-      return {
-        title: '断断续续的求援信号',
-        text: '你们把收音机修好了。里面传来断断续续的求援信号：' +
-          '“救援直升机将在 15 天后抵达……请准备信号弹。”\n' +
-          '去废弃警局搜寻信号弹吧，但那里据说有暴徒出没。'
+        title: '军方的最后通牒',
+        text: '收音机里换了密码，现在只剩杂音。' +
+          (state.rescueDay
+            ? '墙上那个日期是第 ' + state.rescueDay + ' 天，你们每天都在数。\n'
+            : '救援日期还是个谜。\n') +
+          '保安亭里也许还有信号弹——带上有战斗力的人。'
       };
     }
 
@@ -2027,10 +3412,19 @@ SF.SUPPLIES = [
       };
     }
 
-    if (d === 16) {
+    if (d === 12 && !state.items.flare) {
       return {
-        title: '最后五天',
-        text: '还有五天。要么拿着信号弹站到天台上，要么就在这间屋子里等死。'
+        title: '名单上没有你们',
+        text: '军方开始念名单了。没有信号弹的人，不在名单上。' +
+          '剩下的日子不多了，每一次出门都要算着来。'
+      };
+    }
+
+    if (d === 14) {
+      return {
+        title: '第十四天',
+        text: '第十四天了。你们开始记不清封城前的日子，只记得墙上那个日期。\n' +
+          '如果收音机从来没响过，救援就永远不会来。'
       };
     }
 
@@ -2203,7 +3597,7 @@ SF.SUPPLIES = [
         id: 'dream',
         targetId: null,
         title: '陈默的一个梦',
-        text: '陈默梦见城郊仓库里有一道暗门，醒来时路线还清清楚楚。',
+        text: '陈默梦见公寓地下车库里有一道暗门，醒来时路线还清清楚楚。',
         options: [{ key: 'ok', label: '记下来' }]
       };
     }
@@ -2267,7 +3661,7 @@ SF.SUPPLIES = [
       }
     } else if (ev.id === 'dream') {
       state.vaultUnlocked = true;
-      lines.push('地图上多了一个地方：城郊仓库的暗门。');
+      lines.push('地图上多了一个地方：公寓地下车库的暗门。');
     }
 
     if (lines.length) SF.addLog(state, lines.join(' '));
@@ -2316,52 +3710,68 @@ SF.SUPPLIES = [
     return { ok: true, title: s.name + ' 洗澡', text: '用掉一瓶水，' + s.name + ' 洗了很久，出来时人明显松快了些。心情 +20。' };
   };
 
+  // 单槽装备：一个人身上只可能挂着一件
+  var GEAR_SLOTS = {
+    mask: { worn: 'hasMask', stock: 'gasMask', name: '防毒面具' },
+    torch: { worn: 'hasTorch', stock: 'flashlight', name: '手电筒' },
+    weapon: { worn: 'hasWeapon', stock: 'weapon', name: '武器' },
+    pack: { worn: 'hasPack', stock: 'backpack', name: '双肩包' }
+  };
+
+  SF.gearOf = function (s) {
+    if (!s) return '';
+    if (s.hasTorch) return 'torch';
+    if (s.hasMask) return 'mask';
+    if (s.hasPack) return 'pack';
+    if (s.hasWeapon) return 'weapon';
+    return '';
+  };
+
+  // 这件装备现在穿在谁身上（没人穿就返回空串）
+  SF.gearOwner = function (state, gear) {
+    var slot = GEAR_SLOTS[gear];
+    if (!slot || !state) return '';
+
+    for (var i = 0; i < state.survivors.length; i++) {
+      var s = state.survivors[i];
+      if (s.alive && s[slot.worn]) return s.name;
+    }
+    return '';
+  };
+
+  // 把身上那件脱下来放回仓库
+  function unequipAll(state, s) {
+    for (var key in GEAR_SLOTS) {
+      if (!GEAR_SLOTS.hasOwnProperty(key)) continue;
+      var slot = GEAR_SLOTS[key];
+      if (s[slot.worn]) {
+        s[slot.worn] = false;
+        state.items[slot.stock] = true;
+      }
+    }
+  }
+
   SF.toggleGear = function (state, id, gear) {
     var s = SF.find(state, id);
-    if (!s || !s.alive) return false;
+    var slot = GEAR_SLOTS[gear];
+    if (!s || !s.alive || !slot) return false;
 
-    if (gear === 'mask') {
-      if (s.hasMask) {
-        s.hasMask = false;
-        state.items.gasMask = true;
-        return true;
-      }
-      if (state.items.gasMask) {
-        s.hasMask = true;
-        state.items.gasMask = false;
-        return true;
-      }
-      return false;
+    // 再点一次 = 脱下来，放回仓库
+    if (s[slot.worn]) {
+      s[slot.worn] = false;
+      state.items[slot.stock] = true;
+      return true;
     }
 
-    if (gear === 'torch') {
-      if (s.hasTorch) {
-        s.hasTorch = false;
-        state.items.flashlight = true;
-        return true;
-      }
-      if (state.items.flashlight) {
-        s.hasTorch = true;
-        state.items.flashlight = false;
-        return true;
-      }
-      return false;
-    }
+    // 单槽：先把身上原来那件脱回仓库
+    unequipAll(state, s);
 
-    if (gear === 'weapon') {
-      if (s.hasWeapon) {
-        s.hasWeapon = false;
-        state.items.weapon = true;
-        return true;
-      }
-      if (state.items.weapon) {
-        s.hasWeapon = true;
-        state.items.weapon = false;
-        return true;
-      }
-      return false;
-    }
+    // 仓库里没有（可能正穿在别人身上）就穿不了
+    if (!state.items[slot.stock]) return false;
 
-    return false;
+    state.items[slot.stock] = false;
+    s[slot.worn] = true;
+    return true;
   };
+
 })();

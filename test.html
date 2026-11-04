@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>末日公寓 · 测试台</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 18px 16px 40px;
+    background: #070907;
+    color: #d7dfd0;
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", monospace;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  h1 { font-size: 18px; margin: 0 0 4px; color: #ffe9a8; }
+  h2 { font-size: 14px; margin: 22px 0 8px; color: #9fd8e6; }
+  p { margin: 6px 0; }
+  .tip {
+    padding: 8px 10px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #ffd7cf;
+    background: rgba(190, 40, 30, 0.18);
+    border: 1px solid rgba(255, 90, 70, 0.5);
+    border-radius: 6px;
+  }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .grid button, .wide {
+    padding: 12px 8px;
+    font-family: inherit;
+    font-size: 13px;
+    color: #dbe6dc;
+    background: linear-gradient(180deg, #1a1f1a, #11160f);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 6px;
+    text-align: left;
+    line-height: 1.35;
+  }
+  .wide { width: 100%; margin-top: 8px; }
+  button:active { background: #2a332a; }
+  .scene small { display: block; margin-top: 3px; font-size: 10px; color: #8f9d86; }
+  .danger { border-color: rgba(255, 90, 70, 0.6); color: #ffb4a8; }
+  #run-checks { border-color: rgba(120, 220, 255, 0.5); color: #a8e8ff; }
+  #out {
+    margin: 10px 0 0;
+    padding: 10px;
+    min-height: 60px;
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #cfdcd2;
+  }
+  .back {
+    display: inline-block;
+    margin-top: 24px;
+    padding: 10px 14px;
+    color: #0b0e0b;
+    background: #ffe9a8;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 700;
+  }
+  .ok { color: #8fe6a8; }
+  .bad { color: #ff8f80; }
+</style>
+</head>
+<body>
+
+<h1>末日公寓 · 测试台</h1>
+<p style="font-size:11px;color:#8f9d86;margin:0 0 8px;">测试台对应游戏版本 v121</p>
+<p class="tip">下面的“一键场景”会直接覆盖这台机器上的存档。想保留现在的进度，先别点，或者先记下它。</p>
+
+<h2>一键场景（点完自动进游戏）</h2>
+<div class="grid">
+  <button class="scene" data-scene="new">全新开局<small>第 1 天，默认物资</small></button>
+  <button class="scene" data-scene="radio">第 6 天 · 收音机交易<small>门口会来人换破收音机</small></button>
+  <button class="scene" data-scene="guard">第 8 天 · 保安亭前夜<small>手电 + 收音机 + 面具齐全</small></button>
+  <button class="scene" data-scene="end">最后一晚 · 终局<small>已有信号弹，测结局</small></button>
+  <button class="scene" data-scene="rich">物资全满<small>食物 / 水 / 药品 / 木板 各 20 + 全部装备</small></button>
+  <button class="scene" data-scene="starve">全员濒危<small>血 6、饥饿/口渴 96、心情 4</small></button>
+  <button class="scene" data-scene="sick">全员生病<small>测试药品和夜晚掉血</small></button>
+  <button class="scene" data-scene="empty">物资清零<small>测试“必须出门”</small></button>
+</div>
+<button class="wide danger" id="clear-save">只清空存档，不进游戏</button>
+<p id="scene-msg" style="font-size:12px;color:#9fd8e6;"></p>
+
+<h2>自动自检</h2>
+<p style="font-size:12px;color:#8f9d86;">跑一遍核心规则，看看有没有被改坏。不会动你的存档。</p>
+<button class="wide" id="run-checks">开始自检</button>
+<pre id="out">还没开始。</pre>
+
+<a class="back" href="index.html">返回游戏</a>
+
+<script src="js/config.js?v=121"></script>
+<script src="js/balance.js?v=121"></script>
+<script src="js/game.js?v=121"></script>
+<script src="js/save.js?v=121"></script>
+<script>
+(function () {
+  var KEY = 'wasteland-save-v1';
+
+  function $(id) { return document.getElementById(id); }
+
+  function log(line) {
+    var out = document.getElementById('out');
+    out.textContent += (out.textContent === '正在自检……\n' ? '' : '\n') + line;
+    console.log(line);
+  }
+
+  /* ---------------- 一键场景 ---------- */
+
+  function play(state) {
+    SF.saveGame(state);
+    window.location.href = 'index.html';
+  }
+
+  function fresh() {
+    return SF.newGame();
+  }
+
+  function allGear(state) {
+    state.items.flashlight = true;
+    state.items.radio = true;
+    state.items.weapon = true;
+    state.items.gasMask = true;
+    state.items.flare = true;
+    state.items.cards = true;
+    state.items.pesticide = true;
+    state.items.backpack = true;
+    state.parts = 2;
+  }
+
+  var SCENES = {
+    new: function () {
+      return SF.newGame();
+    },
+
+    radio: function () {
+      var s = SF.newGame();
+      s.day = 6;
+      s.supplies.food = 8;
+      s.supplies.water = 8;
+      s.supplies.material = 4;
+      s.storySeenDay = 5;
+      return s;
+    },
+
+    guard: function () {
+      var s = SF.newGame();
+      s.day = 8;
+      s.supplies.food = 12;
+      s.supplies.water = 12;
+      s.supplies.medicine = 4;
+      s.supplies.material = 6;
+      s.items.flashlight = true;
+      s.items.radio = true;
+      s.items.gasMask = true;
+      s.storySeenDay = 7;
+      return s;
+    },
+
+    end: function () {
+      var s = SF.newGame();
+      s.day = 9;
+      s.supplies.food = 14;
+      s.supplies.water = 12;
+      s.supplies.medicine = 4;
+      s.supplies.material = 8;
+      s.items.radio = true;
+      s.items.flashlight = true;
+      s.items.flashlight = true;
+      s.items.flare = true;
+      s.rescueDay = 10;
+      s.rescueDay = 10;
+      s.rescueKnown = true;
+      s.storySeenDay = 8;
+      return s;
+    },
+
+    rich: function () {
+      var s = SF.newGame();
+      s.day = 12;
+      s.supplies.food = 20;
+      s.supplies.water = 20;
+      s.supplies.medicine = 20;
+      s.supplies.material = 20;
+      allGear(s);
+      return s;
+    },
+
+    starve: function () {
+      var s = SF.newGame();
+      s.day = 5;
+      var alive = SF.aliveAll(s);
+      for (var i = 0; i < alive.length; i++) {
+        alive[i].hp = 6;
+        alive[i].hunger = 96;
+        alive[i].thirst = 96;
+        alive[i].mood = 4;
+      }
+      return s;
+    },
+
+    sick: function () {
+      var s = SF.newGame();
+      s.day = 6;
+      s.supplies.medicine = 2;
+      var alive = SF.aliveAll(s);
+      for (var i = 0; i < alive.length; i++) {
+        alive[i].sick = true;
+        alive[i].hp = 45;
+      }
+      return s;
+    },
+
+    empty: function () {
+      var s = SF.newGame();
+      s.day = 3;
+      s.supplies.food = 0;
+      s.supplies.water = 0;
+      s.supplies.medicine = 0;
+      s.supplies.material = 0;
+      return s;
+    }
+  };
+
+  document.addEventListener('click', function (ev) {
+    var btn = ev.target.closest ? ev.target.closest('[data-scene]') : null;
+    if (!btn) return;
+
+    var key = btn.getAttribute('data-scene');
+    var make = SCENES[key];
+    if (!make) return;
+
+    $('scene-msg').textContent = '已写入「' + btn.textContent.replace(/\s+/g, ' ').trim() + '」，正在进入游戏……';
+    play(make());
+  });
+
+  $('clear-save').addEventListener('click', function () {
+    SF.clearSave();
+    $('scene-msg').textContent = '存档已清空。下次进游戏就是全新开局。';
+  });
+
+  /* ---------------- 自动自检 ---------- */
+
+  function totalOf(t) {
+    var n = 0;
+    for (var k in t) if (t.hasOwnProperty(k)) n += t[k];
+    return n;
+  }
+
+  function runChecks() {
+    var out = $('out');
+    out.textContent = '正在自检……\n';
+
+    var pass = 0;
+    var fail = 0;
+
+    function ck(name, cond, extra) {
+      if (cond) pass += 1; else fail += 1;
+      log((cond ? '✔ ' : '✘ ') + name + (extra !== undefined ? '（' + extra + '）' : ''));
+    }
+
+    var backup = null;
+    try { backup = localStorage.getItem(KEY); } catch (e) { }
+
+    try {
+      // 1. 负重
+      var s = SF.newGame();
+      var chen = SF.findChar(s, 'chen');
+      var tie = SF.findChar(s, 'tie');
+
+      ck('基础负重 2 格', SF.carryOf(SF.findChar(s, 'lin')) === 2, SF.carryOf(chen));
+      ck('单槽装备后铁柱也是 2 格', SF.carryOf(tie) === 2, SF.carryOf(tie));
+      tie.hasPack = true;
+      ck('背上双肩包 → 4 格', SF.carryOf(tie) === 4, SF.carryOf(tie));
+
+      // 1.5 单槽：一把手电只能一个人穿
+      var gSlot = SF.newGame();
+      gSlot.items.flashlight = true;
+      var chenS = SF.findChar(gSlot, 'chen');
+      var tieS = SF.findChar(gSlot, 'tie');
+      SF.toggleGear(gSlot, chenS.id, 'torch');
+      var tieGot = SF.toggleGear(gSlot, tieS.id, 'torch');
+      ck('手电只有一把：陈默穿了铁柱就穿不上',
+        chenS.hasTorch === true && tieS.hasTorch === false && tieGot === false);
+
+      gSlot.items.backpack = true;
+      SF.toggleGear(gSlot, chenS.id, 'pack');
+      ck('单槽：陈默换背包，手电自动放回仓库',
+        chenS.hasPack === true && chenS.hasTorch === false &&
+        gSlot.items.flashlight === true);
+
+      // 2. 第一层三选一（探索可能先抽到路人事件，重试几次）
+      var one = SF.newGame();
+      var r1 = SF.explore(one, 'store', [one.leaderId], 1);
+      for (var t1 = 0; t1 < 40 && !(r1.choice && r1.choice.id === 'floor1'); t1++) {
+        one = SF.newGame();
+        r1 = SF.explore(one, 'store', [one.leaderId], 1);
+      }
+      ck('第一层有三个入口', !!(r1.choice && r1.choice.id === 'floor1' && r1.choice.options.length === 3),
+        (r1.choice && r1.choice.id) + ' / ' + (r1.choice && r1.choice.options && r1.choice.options.length));
+
+      // 3. 第一层空手率
+      var empty = 0;
+      for (var i = 0; i < 40; i++) {
+        var g = SF.newGame();
+        var rr = SF.explore(g, 'store', [g.leaderId], 1);
+        SF.applyExploreChoice(g, rr, 'front');
+        if (totalOf(g.tripTotals || {}) === 0) empty += 1;
+      }
+      var rate = empty / 40;
+      ck('“稳妥”入口大约六成空手', rate > 0.3 && rate < 0.85, Math.round(rate * 100) + '%');
+
+      // 4. 搜三层最多超载 2 件
+      var g4 = SF.newGame();
+      var rr1 = SF.explore(g4, 'store', [g4.leaderId], 1);
+      SF.applyExploreChoice(g4, rr1, 'inner');
+      var r2 = SF.explore(g4, 'store', [g4.leaderId], 2);
+      if (r2.choice && r2.choice.options.length) {
+        SF.applyExploreChoice(g4, r2, r2.choice.options[r2.choice.options.length - 1].key);
+      }
+      var r3 = SF.explore(g4, 'store', [g4.leaderId], 3);
+      if (r3.choice && r3.choice.options.length) {
+        SF.applyExploreChoice(g4, r3, r3.choice.options[r3.choice.options.length - 1].key);
+      }
+      var over = totalOf(g4.tripTotals) - SF.packState(g4).cap;
+      ck('搜完三层最多超载 2 件', over <= 2, over);
+
+      // 5. 陈默在公寓地下车库必得零件
+      var g5 = SF.newGame();
+      g5.day = 5;
+      var before = g5.parts || 0;
+      SF.explore(g5, 'garage', [g5.leaderId], 2);
+      ck('陈默进地下车库第 2 层必得零件', (g5.parts || 0) === before + 1, g5.parts);
+
+      // 6. 电子零件修收音机
+      var g6 = SF.newGame();
+      g6.items.radioBroken = true;
+      var noPart = SF.repairRadio(g6);
+      g6.parts = 1;
+      var withPart = SF.repairRadio(g6);
+      ck('没零件修不了、有零件能修好',
+        noPart.ok === false && withPart.ok === true &&
+        g6.items.radio === true && g6.items.radioBroken === false);
+
+      // 7. 每天写一篇日记
+      var g7 = SF.newGame();
+      SF.explore(g7, 'store', [g7.leaderId], 1);
+      var alive7 = SF.aliveAll(g7);
+      var plan = { eat: {}, drink: {}, prepaid: true };
+      for (var a = 0; a < alive7.length; a++) {
+        plan.eat[alive7[a].id] = true;
+        plan.drink[alive7[a].id] = true;
+      }
+      var rep = SF.startNight(g7, plan);
+      SF.finishNight(g7, rep);
+      var note = (g7.dayNotes || [])[0];
+      ck('夜里会自动写一篇日记',
+        !!note && note.text.indexOf('白天') >= 0 && note.text.length > 25,
+        note ? note.text.length + ' 字' : '没有');
+
+      // 8. 存档往返
+      var g8 = SF.newGame();
+      g8.day = 9;
+      g8.supplies.food = 7;
+      SF.saveGame(g8);
+      var loaded = SF.loadGame();
+      ck('存档能存能读', !!loaded && loaded.day === 9 && loaded.supplies.food === 7);
+
+      // 9. 拿到信号弹：第二天就走
+      function goodNight(g) {
+        var who = SF.aliveAll(g);
+        var plan8 = { eat: {}, drink: {}, prepaid: true };
+        for (var q = 0; q < who.length; q++) {
+          plan8.eat[who[q].id] = true;
+          plan8.drink[who[q].id] = true;
+        }
+        return SF.startNight(g, plan8);
+      }
+
+      // 9. 修好收音机才会随机出救援日
+      var gRadio = SF.newGame();
+      gRadio.day = 6;
+      var rescueDay = SF.setRescueDay(gRadio);
+      ck('修好收音机能随机出救援日', rescueDay > 6, '第 ' + rescueDay + ' 天');
+
+      // 10. 没有收音机：永远不会有救援
+      var gNoRadio = SF.newGame();
+      gNoRadio.day = 30;
+      gNoRadio.supplies.food = 30;
+      gNoRadio.supplies.water = 30;
+      SF.finishNight(gNoRadio, goodNight(gNoRadio));
+      ck('没有收音机就等不到救援', gNoRadio.over === false && gNoRadio.won === false);
+
+      // 11. 到了救援日、手里有信号弹 = 获救
+      var gWin = SF.newGame();
+      gWin.items.radio = true;
+      SF.setRescueDay(gWin);
+      gWin.day = gWin.rescueDay - 1;
+      gWin.items.flare = true;
+      gWin.supplies.food = 20;
+      gWin.supplies.water = 20;
+      SF.finishNight(gWin, goodNight(gWin));
+      ck('救援日当天有信号弹就获救',
+        gWin.won === true && gWin.overAtDay === gWin.rescueDay, gWin.rescueDay);
+
+      // 12. 救援日到了却没信号弹 = 失败
+      var gNoFlare = SF.newGame();
+      gNoFlare.items.radio = true;
+      SF.setRescueDay(gNoFlare);
+      gNoFlare.day = gNoFlare.rescueDay - 1;
+      gNoFlare.supplies.food = 20;
+      gNoFlare.supplies.water = 20;
+      SF.finishNight(gNoFlare, goodNight(gNoFlare));
+      ck('救援日到了却没信号弹，就是失败',
+        gNoFlare.over === true && gNoFlare.won === false);
+
+      // 11. 地图改名后：地点 ID 不重复、门禁还在
+      var seenIds = {};
+      var dupIds = 0;
+      var locs = SF.CONFIG.locations;
+      for (var lx = 0; lx < locs.length; lx++) {
+        if (seenIds[locs[lx].id]) dupIds += 1;
+        seenIds[locs[lx].id] = true;
+      }
+      ck('地点 ID 不重复', dupIds === 0 && locs.length === 6, locs.length + ' 个地点');
+
+      var g13 = SF.newGame();
+      ck('没手电下不了地下车库',
+        SF.gateFor(g13, SF.findLocation('garage')).ok === false);
+
+      g13.items.flashlight = true;
+      g13.items.gasMask = true;
+      g13.items.radio = true;
+      g13.items.weapon = true;
+      ck('装备齐了车库 / 卫生站 / 保安亭都能进',
+        SF.gateFor(g13, SF.findLocation('garage')).ok === true &&
+        SF.gateFor(g13, SF.findLocation('clinic')).ok === true &&
+        SF.gateFor(g13, SF.findLocation('guard')).ok === true);
+
+      var gGuard = SF.newGame();
+      gGuard.items.weapon = true;
+      ck('有武器就能进保安亭（收音机可以在里面找）',
+        SF.gateFor(gGuard, SF.findLocation('guard')).ok === true);
+
+      // 12. 林晓在社区卫生站药品翻倍
+      var g14 = SF.newGame();
+      g14.day = 8;
+      var linId = SF.findChar(g14, 'lin').id;
+      var r14 = SF.explore(g14, 'clinic', [linId], 2);
+      var linLine = false;
+      for (var q14 = 0; q14 < r14.lines.length; q14++) {
+        if (r14.lines[q14].indexOf('林晓看懂了说明书') >= 0) linLine = true;
+      }
+      ck('林晓进卫生站，药品翻倍', linLine === true);
+
+      // 13. 公寓新事件都能正常弹出（11 个）
+      var newEvents = ['plaza', 'postgrad', 'maskSeller', 'nurse',
+        'waterPump', 'elevator', 'pigeon', 'linClean', 'nanaLipstick',
+        'chenNet', 'tieDream'];
+      var okEvents = 0;
+      for (var ne = 0; ne < newEvents.length; ne++) {
+        var ge = SF.newGame();
+        ge.day = 5;
+        ge.dayEventId = newEvents[ne];
+        ge.dayEventIdDay = 5;
+        ge.dayEventDone = 0;
+        var ev2 = SF.dayEventFor(ge);
+        if (ev2 && ev2.options && ev2.options.length) okEvents += 1;
+      }
+      ck('公寓新事件都能弹出', okEvents === newEvents.length, okEvents + '/' + newEvents.length);
+
+      // 14. 尸潮：当晚一定有丧尸撞门
+      var gh = SF.newGame();
+      gh.day = 6;
+      gh.condition = 'horde';
+      gh.conditionDay = 6;
+      g14 = null;
+      var repH = SF.startNight(gh, { eat: {}, drink: {}, prepaid: true });
+      var zombieHit = false;
+      for (var ze = 0; repH.events && ze < repH.events.length; ze++) {
+        if (repH.events[ze].id === 'zombieDoor') zombieHit = true;
+      }
+      ck('尸潮当晚一定有丧尸撞门', zombieHit === true);
+
+    } catch (e) {
+      fail += 1;
+      log('✘ 自检中途出错：' + (e && e.message ? e.message : e));
+    } finally {
+      try {
+        if (backup === null) localStorage.removeItem(KEY);
+        else localStorage.setItem(KEY, backup);
+      } catch (e2) { }
+    }
+
+    log('');
+    log(fail === 0
+      ? '全部通过（' + pass + ' 项）。可以放心去玩。'
+      : '有 ' + fail + ' 项没通过，共 ' + (pass + fail) + ' 项。把这段发给我就行。');
+  }
+
+  $('run-checks').addEventListener('click', runChecks);
+
+  // 加 ?auto 可以打开页面就自动跑一遍（方便我自己验证）
+  if (window.location.search.indexOf('auto') >= 0) runChecks();
+})();
+</script>
+</body>
+</html>
