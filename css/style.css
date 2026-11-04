@@ -3780,3 +3780,21 @@ body {
   width: 30px;
   height: 30px;
 }
+
+
+
+/* ============ v46：收音机实物图 ============ */
+
+.shelf-img {
+  display: block;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.7));
+}
+
+.inv-ghost .shelf-img {
+  filter: grayscale(100%) brightness(0.55) contrast(0.9);
+  opacity: 0.5;
+}

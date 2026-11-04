@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v45';
+  var BUILD = 'v46';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -261,16 +261,21 @@
 
   /* 没拿到就是灰色虚线空槽，拿到了才是彩色图标 */
   function shelfSlot(sl) {
+    var iconHtml = sl.key === 'radio'
+      ? '<img class="shelf-img" src="assets/item-radio.png" alt="">'
+      : SF.icon(sl.key, 30);
+
     if (!sl.has) {
       return '<button type="button" class="inv-cell inv-tool is-ghost" data-item="' +
         sl.key + '" title="' + sl.tip + '">' +
-        '<span class="ghost-label">' + sl.label + '</span>' +
+        (sl.key === 'radio' ? '<span class="inv-ico">' + iconHtml + '</span>'
+          : '<span class="ghost-label">' + sl.label + '</span>') +
         '</button>';
     }
 
     return '<button type="button" class="inv-cell inv-tool is-on" data-item="' + sl.key +
       '" title="' + sl.tip + '">' +
-      '<span class="inv-ico">' + SF.icon(sl.key, 30) + '</span>' +
+      '<span class="inv-ico">' + iconHtml + '</span>' +
       (sl.worn ? '<i class="inv-dot"></i>' : '') +
       '</button>';
   }
