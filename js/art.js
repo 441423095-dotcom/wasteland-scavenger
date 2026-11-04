@@ -355,12 +355,12 @@ var ITEMS = {
 
 /* 支持用图片替换某个物资的图标（没有配图片就继续用代码画） */
 var ITEM_IMAGES = {
-  food: 'assets/item-food.jpeg',
-  water: 'assets/item-water.jpeg',
-  medicine: 'assets/item-medicine.jpeg',
-  material: 'assets/item-wood.jpeg',
-  flashlight: 'assets/item-flashlight.jpeg',
-  radio: 'assets/item-radio.jpeg'
+  food: 'assets/item-food.jpeg?v=2',
+  water: 'assets/item-water.jpeg?v=2',
+  medicine: 'assets/item-medicine.jpeg?v=2',
+  material: 'assets/item-wood.jpeg?v=2',
+  flashlight: 'assets/item-flashlight.jpeg?v=2',
+  radio: 'assets/item-radio.jpeg?v=2'
 };
 
 SF.itemHasImage = function (key) {
