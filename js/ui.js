@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v29';
+  var BUILD = 'v30';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -1491,10 +1491,47 @@
 
     if (n.events && n.events.length) {
       for (var i = 0; i < n.events.length; i++) {
-        html += '<div class="night-story">' + n.events[i].text + '</div>';
+        var ev = n.events[i];
+        html += '<div class="night-story">' + ev.text + '</div>';
+
+        if (ev.char) {
+          html += '<div class="warn-line">【警告：' + ev.char +
+            (ev.id === 'sick' ? ' 因极度口渴，已进入生病状态！' : ' 精神崩溃，已经发疯！') +
+            '】</div>';
+        }
       }
     } else {
       html += '<div class="night-story">这一夜很安静，只有风吹过铁皮的声音。</div>';
+    }
+
+    // 数值结算：把每个人的变化用彩色标签列出来
+    if (n.rows && n.rows.length) {
+      html += '<div class="res-label">数值结算</div>';
+
+      for (var rI = 0; rI < n.rows.length; rI++) {
+        var row = n.rows[rI];
+        var tags = '';
+
+        function dtag(label, v, goodWhenUp) {
+          if (!v) return '';
+          var up = v > 0;
+          var good = goodWhenUp ? up : !up;
+          return '<span class="delta ' + (good ? 'is-good' : 'is-bad') + '">' +
+            label + (up ? '+' : '') + Math.round(v) + '</span>';
+        }
+
+        tags += dtag('食', -(row.hungerAfter - row.hungerBefore), true);
+        tags += dtag('水', -(row.thirstAfter - row.thirstBefore), true);
+        tags += dtag('血', row.hpAfter - row.hpBefore, true);
+        tags += dtag('心', row.moodAfter - row.moodBefore, true);
+
+        if (row.sick) tags += '<span class="delta is-bad">生病</span>';
+        if (row.died) tags += '<span class="delta is-bad">倒下</span>';
+
+        html += '<div class="delta-row"><span class="delta-name">' + row.name +
+          '</span><span class="delta-tags">' + (tags || '<span class="delta is-gray">无事</span>') +
+          '</span></div>';
+      }
     }
 
     if (n.deaths && n.deaths.length) {
@@ -1732,7 +1769,6 @@
   }
 
   function onGoHome() {
-    if (searching) return;
     closeModal();
     renderShelter();
     showScreen('screen-shelter');

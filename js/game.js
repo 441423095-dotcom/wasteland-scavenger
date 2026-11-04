@@ -71,9 +71,25 @@ SF.SUPPLIES = [
     ]
   };
 
+  var FLAVOR_BAG = {};
+
   function flavor(key, s) {
     var list = FLAVOR[key] || FLAVOR.calm;
-    var line = list[Math.floor(Math.random() * list.length)];
+    var bag = FLAVOR_BAG[key];
+
+    if (!bag || !bag.length) {
+      bag = list.slice();
+      // 打乱一遍，抽完一轮才会重复
+      for (var i = bag.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = bag[i];
+        bag[i] = bag[j];
+        bag[j] = tmp;
+      }
+      FLAVOR_BAG[key] = bag;
+    }
+
+    var line = bag.pop();
     return line.replace(/\{n\}/g, s && s.name ? s.name : '他');
   }
 
@@ -1138,6 +1154,7 @@ SF.SUPPLIES = [
         }
         list.push({
           id: 'mad',
+          char: who.name,
           text: flavor('mad', who) + '（砸了 1 份物资，他心情 +10，其他人心情 −10。）'
         });
       } else if (kind === 'sick') {
@@ -1145,6 +1162,7 @@ SF.SUPPLIES = [
         sickOne.sick = true;
         list.push({
           id: 'sick',
+          char: sickOne.name,
           text: flavor('sick', sickOne) + '（不吃药的话，夜里还会掉 20 点血。）'
         });
       } else if (kind === 'fight') {
