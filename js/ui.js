@@ -1155,7 +1155,8 @@
     }
 
     if (heldItem) {
-      bar.textContent = '【已选中' + holdLabel(heldItem) + '，请点击人物投喂】';
+      bar.textContent = '【已选中' + holdLabel(heldItem) + '，请点击人物' +
+        (heldItem === 'medicine' ? '用药】' : '投喂】');
       bar.style.color = '#ff5252';
       bar.style.fontWeight = '700';
       return;

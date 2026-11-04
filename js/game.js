@@ -428,6 +428,20 @@ SF.SUPPLIES = [
         haul.food = Math.floor((haul.food || 0) / 2);
         haul.water = Math.floor((haul.water || 0) / 2);
         result.lines.push('路上被人堵住，抢走了一部分东西。');
+
+        // 强盗动手：回来的这个人直接掉 30 血
+        var robbed = pickOne(party);
+        robbed.hp = clamp(robbed.hp - C.explore.injuryHp, 0, C.maxStat);
+        robbed.injured = true;
+        result.injured.push({ name: robbed.name, hp: C.explore.injuryHp });
+        result.lines.push(robbed.name + ' 想护住背包，被他们打了一顿，血量 −' +
+          C.explore.injuryHp + '。');
+
+        if (robbed.hp <= 0) {
+          robbed.alive = false;
+          result.died = true;
+          SF.addLog(state, robbed.name + ' 被打得太重，没能撑回避难所。');
+        }
       }
     }
 
