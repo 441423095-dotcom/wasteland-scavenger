@@ -2719,3 +2719,11 @@ body {
   width: 8px;
   height: 8px;
 }
+
+
+
+/* ============ v15：进度条平滑增长 ============ */
+
+.mfill {
+  transition: width 0.35s ease-out;
+}

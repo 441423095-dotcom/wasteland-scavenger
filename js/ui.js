@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v14';
+  var BUILD = 'v15';
 
   // 货架上固定摆这四层
   var SHELF_ITEMS = ['food', 'water', 'medicine', 'material'];
@@ -226,16 +226,16 @@
           (n <= 0 ? ' is-empty' : '') + '" data-hold="' + key + '">' +
           '<span class="inv-ico">' + SF.itemSvg(key, 40) + '</span>' +
           '<span class="inv-meta">' +
-          '<span class="inv-num">' + (Math.round(n * 10) / 10) + '</span>' +
+          '<span class="inv-num">' + Math.round(n) + '</span>' +
           '<span class="inv-name">' + SF.SUPPLIES[i].name + '</span>' +
           '</span></button>';
       } else {
-        html += '<div class="inv-cell' + (n <= 0 ? ' is-empty' : '') + '">' +
+        html += '<button type="button" class="inv-cell' + (n <= 0 ? ' is-empty' : '') + '" disabled>' +
           '<span class="inv-ico">' + SF.itemSvg(key, 40) + '</span>' +
           '<span class="inv-meta">' +
-          '<span class="inv-num">' + (Math.round(n * 10) / 10) + '</span>' +
+          '<span class="inv-num">' + Math.round(n) + '</span>' +
           '<span class="inv-name">' + SF.SUPPLIES[i].name + '</span>' +
-          '</span></div>';
+          '</span></button>';
       }
     }
 
@@ -347,21 +347,39 @@
   }
 
   /* 左侧名片：头像 + 名字 + 四维微缩状态条 */
-  function microRow(label, cls, value) {
+  var PREV_STATS = {};
+
+  function microRow(id, label, cls, key, value) {
     var v = Math.round(value);
     if (v < 0) v = 0;
     if (v > 100) v = 100;
 
+    var snap = PREV_STATS[id] || {};
+    var from = typeof snap[key] === 'number' ? snap[key] : v;
+
     return '<span class="mrow' + (v < 20 ? ' is-low' : '') + '">' +
       '<span class="mkey">' + label + '</span>' +
       '<span class="mtrack"><i class="mfill ' + cls +
-      '" style="width:' + v + '%"></i></span>' +
+      '" style="width:' + from + '%" data-w="' + v + '"></i></span>' +
       '</span>';
+  }
+
+  /* 让四根细条从上一夜的位置平滑长到新数值 */
+  function growBars() {
+    var box = $('people');
+    if (!box) return;
+
+    var fills = box.querySelectorAll('.mfill');
+    for (var i = 0; i < fills.length; i++) {
+      var w = fills[i].getAttribute('data-w');
+      if (w !== null) fills[i].style.width = w + '%';
+    }
   }
 
   function renderPeople() {
     var alive = SF.aliveAll(state);
     var html = '';
+    var nextStats = {};
 
     for (var i = 0; i < alive.length; i++) {
       var s = alive[i];
@@ -394,15 +412,24 @@
         '<span class="mini-main">' +
         '<span class="mini-name"><span class="mini-ap' + (s.ap > 0 ? ' is-on' : '') +
         '"></span>' + s.name + mealMarks + '</span>' +
-        microRow('血', 'hp', s.hp) +
-        microRow('水', 'thirst', 100 - s.thirst) +
-        microRow('食', 'hunger', 100 - s.hunger) +
-        microRow('心', 'mood', s.mood) +
+        microRow(s.id, '血', 'hp', 'hp', s.hp) +
+        microRow(s.id, '水', 'thirst', 'thirst', 100 - s.thirst) +
+        microRow(s.id, '食', 'hunger', 'hunger', 100 - s.hunger) +
+        microRow(s.id, '心', 'mood', 'mood', s.mood) +
         '</span>' +
         '</button>';
+
+      nextStats[s.id] = {
+        hp: Math.round(s.hp),
+        thirst: Math.round(100 - s.thirst),
+        hunger: Math.round(100 - s.hunger),
+        mood: Math.round(s.mood)
+      };
     }
 
     $('people').innerHTML = html;
+    PREV_STATS = nextStats;
+    window.setTimeout(growBars, 30);
   }
 
   function summaryText() {
@@ -1125,8 +1152,8 @@
     }
 
     if (heldItem) {
-      bar.textContent = '【当前已选中' + (heldItem === 'food' ? '食物' : '水') +
-        '，请点击人物】';
+      bar.textContent = '【已选中' + (heldItem === 'food' ? '食物' : '水') +
+        '，请点击人物投喂】';
       bar.style.color = '#ff5252';
       bar.style.fontWeight = '700';
       return;
@@ -1198,6 +1225,7 @@
     heldItem = key;
     renderShelter();
     updateHint();
+    if (SF.sfx && SF.sfx.pick) SF.sfx.pick();
   }
 
   /* 点空白处：把手里的东西放回去 */
@@ -1211,7 +1239,8 @@
   function feedPerson(id) {
     if (!heldItem) return;
 
-    var res = SF.feed(state, id, heldItem);
+    var kind = heldItem;
+    var res = SF.feed(state, id, kind);
 
     if (!res.ok) {
       updateHint(res.msg || '不行。');
@@ -1220,6 +1249,11 @@
 
     heldItem = null; // 投喂完成自动放下
     flashId = id;
+
+    if (SF.sfx) {
+      if (kind === 'food' && SF.sfx.eat) SF.sfx.eat();
+      else if (kind === 'water' && SF.sfx.drink) SF.sfx.drink();
+    }
 
     renderShelter();
     updateHint(res.msg);

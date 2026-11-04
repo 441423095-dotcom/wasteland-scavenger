@@ -49,7 +49,7 @@ SF.CONFIG = {
       name: '林晓',
       role: '考研党',
       trait: '囤积癖',
-      traitText: '只要她在避难所，全队每天的水消耗减半。',
+      traitText: '队里的水和物资都由她清点，谁都别想浪费。',
       style: 'lin',
       portrait: 'assets/portrait-chen.png'
     },
@@ -58,7 +58,7 @@ SF.CONFIG = {
       name: '铁柱',
       role: '健身教练',
       trait: '体力充沛',
-      traitText: '派他出门带回的物资翻倍；但他每天要吃 2 份食物。',
+      traitText: '派他出门带回的物资翻倍。',
       style: 'tie',
       portrait: 'assets/portrait-lin.png'
     },
@@ -75,9 +75,9 @@ SF.CONFIG = {
 
   // 天赋相关的数值
   traits: {
-    tieFoodCost: 2,       // 铁柱每天的食物量
+    tieFoodCost: 1,       // 铁柱每天的食物量
     tieLootMult: 2,       // 铁柱带回的物资翻倍
-    linWaterFactor: 0.5,  // 林晓在队里：全队水消耗减半
+    linWaterFactor: 1,    // 水统一按整数算
     nanaNegotiate: 0.85,  // 娜娜交涉成功概率
     nanaBonus: [1, 3],    // 交涉成功额外带回
     chenRepair: 0.9,      // 陈默修收音机
@@ -96,7 +96,7 @@ SF.CONFIG = {
     hungerCost: 12,
     thirstCost: 16,
 
-    junkChanceNear: 0.4,      // 超市/公园：40% 只搜到材料
+    junkChanceNear: 0.2,      // 近点只搜到材料的概率
     junkLoot: [1, 3],
 
     failLootFactor: 0.25,
@@ -134,22 +134,27 @@ SF.CONFIG = {
     moodLowPenalty: -0.12
   },
 
+  // ---------- 投喂 ----------
+  meal: {
+    foodCost: 1,             // 一份食物 = 1 个库存
+    waterCost: 1,            // 一份水 = 1 个库存
+    restore: 50              // 投喂后立刻恢复 50 点对应属性
+  },
+
   // ---------- 夜晚结算 ----------
   night: {
     foodPerPerson: 1,
     waterPerPerson: 1,
 
-    // 没分到吃的/喝的：先按 8 点掉血；连续 3 晚没吃上，惩罚才加重
-    starveHp: 8,
-    thirstHp: 8,
-    streakAt: 3,             // 连续挨饿/挨渴到第几晚开始加重
-    streakHp: 15,            // 连续挨饿/挨渴之后的每夜掉血
-    streakMood: 8,           // 连续挨饿/挨渴之后的心情下降
-
-    hungerUp: 38,
-    thirstUp: 44,
-    fedHungerDown: 55,
-    drankThirstDown: 62,
+    // 没吃 / 没喝：对应的食 / 水各掉 30
+    missLoss: 30,
+    // 一晚既没吃又没喝：额外扣血和心情
+    missBothHp: 15,
+    missBothMood: 15,
+    // 连续第 2 晚起继续没吃没喝，再加罚
+    streakAt: 2,
+    streakHp: 10,
+    streakMood: 10,
 
     sickChance: 0.4,
     sickDamage: 8,
@@ -157,8 +162,8 @@ SF.CONFIG = {
     recoverHp: 6,
     recoverBelow: 40,
 
-    moodFed: 5,
-    moodDrank: 4,
+    moodFed: 8,
+    moodDrank: 8,
     moodHungry: 0,
     moodThirsty: 0,
     moodSick: -10,
@@ -236,9 +241,9 @@ SF.CONFIG = {
       chance: 0.9,
       newcomerBonus: 0,
       loot: {
-        food: [2, 4],
+        food: [3, 5],
         water: [1, 3],
-        medicine: [0, 1],
+        medicine: [0, 0],
         material: [0, 1]
       },
       okText: '货架被翻过很多遍，你在倒塌的收银台后面，还是摸到了几罐没过期的。',
@@ -252,15 +257,15 @@ SF.CONFIG = {
       mapY: 20,
       risk: '中低风险',
       riskLevel: 'low',
-      hint: '水 · 材料',
+      hint: '材料 · 水',
       far: false,
       chance: 0.84,
       newcomerBonus: 0,
       loot: {
-        food: [0, 1],
-        water: [2, 4],
+        food: [0, 0],
+        water: [2, 3],
         medicine: [0, 0],
-        material: [1, 3]
+        material: [2, 4]
       },
       okText: '喷泉早干了，可地下水管里还存着水。你接了几瓶，又拖回一捆能烧的枯枝。',
       badText: '草丛里窜出两条野狗，你扔下半袋东西往回跑，只剩手里还攥着几根柴。'
@@ -280,7 +285,7 @@ SF.CONFIG = {
       loot: {
         food: [0, 1],
         water: [0, 1],
-        medicine: [1, 3],
+        medicine: [2, 4],
         material: [0, 0]
       },
       okText: '玻璃碎了一地，你把柜台最里面那排抽屉整个拽出来，里面还有几盒没被拿走的东西。',

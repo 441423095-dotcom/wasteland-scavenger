@@ -219,11 +219,11 @@ SF.SUPPLIES = [
   // ---------- 天赋 ----------
 
   SF.foodNeed = function (s) {
-    return s.charId === 'tie' ? T.tieFoodCost : 1;
+    return C.meal.foodCost;
   };
 
   SF.waterRation = function (state) {
-    return SF.charAlive(state, 'lin') ? T.linWaterFactor : 1;
+    return C.meal.waterCost;
   };
 
   // ---------- 主界面投喂 ----------
@@ -249,12 +249,13 @@ SF.SUPPLIES = [
         return { ok: false, msg: '食物不够了。' };
       }
 
-      state.supplies.food = Math.round(((state.supplies.food || 0) - need) * 10) / 10;
-      state.todayFood = Math.round(((state.todayFood || 0) + need) * 10) / 10;
+      state.supplies.food = Math.max(0, Math.round((state.supplies.food || 0) - need));
+      state.todayFood = Math.max(0, Math.round((state.todayFood || 0) + need));
       m.eat = true;
+      s.hunger = clamp(s.hunger - C.meal.restore, 0, C.maxStat);
 
-      SF.addLog(state, '给 ' + s.name + ' 分了食物。');
-      return { ok: true, msg: s.name + ' 吃了一份食物。' };
+      SF.addLog(state, '给 ' + s.name + ' 分了食物，他的饥饿缓过来不少。');
+      return { ok: true, msg: s.name + ' 吃了一份食物，饥饿 −' + C.meal.restore + '。' };
     }
 
     if (kind === 'water') {
@@ -265,12 +266,13 @@ SF.SUPPLIES = [
         return { ok: false, msg: '水不够了。' };
       }
 
-      state.supplies.water = Math.round(((state.supplies.water || 0) - ration) * 10) / 10;
-      state.todayWater = Math.round(((state.todayWater || 0) + ration) * 10) / 10;
+      state.supplies.water = Math.max(0, Math.round((state.supplies.water || 0) - ration));
+      state.todayWater = Math.max(0, Math.round((state.todayWater || 0) + ration));
       m.drink = true;
+      s.thirst = clamp(s.thirst - C.meal.restore, 0, C.maxStat);
 
-      SF.addLog(state, '给 ' + s.name + ' 分了水。');
-      return { ok: true, msg: s.name + ' 喝了一份水。' };
+      SF.addLog(state, '给 ' + s.name + ' 分了水，他看上去缓过来了。');
+      return { ok: true, msg: s.name + ' 喝了一份水，口渴 −' + C.meal.restore + '。' };
     }
 
     return { ok: false, msg: '' };
@@ -309,7 +311,7 @@ SF.SUPPLIES = [
     for (var i = 0; i < SF.SUPPLIES.length; i++) {
       var key = SF.SUPPLIES[i].key;
       if (!haul[key]) continue;
-      state.supplies[key] = (state.supplies[key] || 0) + haul[key];
+      state.supplies[key] = Math.max(0, Math.round((state.supplies[key] || 0) + haul[key]));
       result.loot.push({ key: key, name: SF.SUPPLIES[i].name, qty: haul[key] });
     }
   }
@@ -411,7 +413,7 @@ SF.SUPPLIES = [
     if (hasTie) {
       for (var hk in haul) {
         if (!haul.hasOwnProperty(hk)) continue;
-        haul[hk] = haul[hk] * T.tieLootMult;
+        haul[hk] = Math.round(haul[hk] * T.tieLootMult);
       }
       result.lines.push('铁柱扛起一整箱东西就走，一趟顶两趟。');
     }
@@ -679,9 +681,9 @@ SF.SUPPLIES = [
 
       if (plan.drink[a1.id] && (prepaid || (state.supplies.water || 0) >= waterRation)) {
         if (!prepaid) {
-          state.supplies.water = Math.round(((state.supplies.water || 0) - waterRation) * 10) / 10;
+          state.supplies.water = Math.max(0, Math.round((state.supplies.water || 0) - waterRation));
         }
-        report.waterUsed = Math.round((report.waterUsed + waterRation) * 10) / 10;
+        report.waterUsed = Math.round(report.waterUsed + waterRation);
         drank = true;
       }
 
@@ -689,12 +691,12 @@ SF.SUPPLIES = [
     }
 
     if (prepaid) {
-      report.foodUsed = Math.round((state.todayFood || 0) * 10) / 10;
-      report.waterUsed = Math.round((state.todayWater || 0) * 10) / 10;
+      report.foodUsed = Math.round(state.todayFood || 0);
+      report.waterUsed = Math.round(state.todayWater || 0);
     }
 
     report.foodNeed = Math.round(report.foodNeed);
-    report.waterNeed = Math.round(report.waterNeed * 10) / 10;
+    report.waterNeed = Math.round(report.waterNeed);
 
     for (i = 0; i < alive.length; i++) {
       var s = alive[i];
@@ -702,28 +704,40 @@ SF.SUPPLIES = [
       var isDrank = rowData[s.id].drank;
       var before = { hp: s.hp, hunger: s.hunger, thirst: s.thirst, mood: s.mood };
 
-      s.hunger = clamp(s.hunger + N.hungerUp - (isFed ? N.fedHungerDown : 0), 0, C.maxStat);
-      s.thirst = clamp(s.thirst + N.thirstUp - (isDrank ? N.drankThirstDown : 0), 0, C.maxStat);
-
-      var dmg = 0;
+      // ② 没吃 / 没喝：对应的食、水各掉 30（hunger / thirst 变大）
+      var missing = 0;
+      if (!isFed) {
+        s.hunger = clamp(s.hunger + N.missLoss, 0, C.maxStat);
+        missing += 1;
+      }
+      if (!isDrank) {
+        s.thirst = clamp(s.thirst + N.missLoss, 0, C.maxStat);
+        missing += 1;
+      }
+      if (missing) report.shortage = true;
 
       s.hungryDays = isFed ? 0 : (s.hungryDays || 0) + 1;
       s.thirstDays = isDrank ? 0 : (s.thirstDays || 0) + 1;
 
-      if (!isFed) {
-        dmg += (s.hungryDays >= N.streakAt) ? N.streakHp : N.starveHp;
-        report.shortage = true;
-      }
-      if (!isDrank) {
-        dmg += (s.thirstDays >= N.streakAt) ? N.streakHp : N.thirstHp;
-        report.shortage = true;
-      }
-      if (s.hungryDays >= N.streakAt || s.thirstDays >= N.streakAt) {
-        s.mood = clamp(s.mood - N.streakMood, 0, C.maxStat);
-      }
-      if (s.sick) dmg += N.sickDamage;
+      var dmg = 0;
+      var moodDelta = 0;
 
-      if (!isFed || !isDrank) {
+      // 一晚既没吃又没喝：额外掉血、掉心情
+      if (missing === 2) {
+        dmg += N.missBothHp;
+        moodDelta -= N.missBothMood;
+      }
+      // 连着第二晚还没吃上：再加罚
+      if (s.hungryDays >= N.streakAt || s.thirstDays >= N.streakAt) {
+        dmg += N.streakHp;
+        moodDelta -= N.streakMood;
+      }
+      if (s.sick) {
+        dmg += N.sickDamage;
+        moodDelta += N.moodSick;
+      }
+
+      if (missing) {
         if (roll(N.sickChance)) s.sick = true;
       }
 
@@ -733,9 +747,9 @@ SF.SUPPLIES = [
         heal = N.recoverHp;
       }
 
-      var moodDelta = (isFed ? N.moodFed : N.moodHungry) + (isDrank ? N.moodDrank : N.moodThirsty);
-      if (s.sick) moodDelta += N.moodSick;
+      moodDelta += (isFed ? N.moodFed : N.moodHungry) + (isDrank ? N.moodDrank : N.moodThirsty);
 
+      // ③ 数值只做钳制，绝不直接清零；活着就进入第二天
       s.hp = clamp(s.hp + heal - dmg, 0, C.maxStat);
       s.mood = clamp(s.mood + moodDelta + (state.items.cards ? 4 : 0), 0, C.maxStat);
 
@@ -787,7 +801,7 @@ SF.SUPPLIES = [
         state.supplies.food -= 1;
         taken = '食物';
       } else if ((state.supplies.water || 0) >= 1) {
-        state.supplies.water = Math.round(((state.supplies.water || 0) - 1) * 10) / 10;
+        state.supplies.water = Math.max(0, Math.round((state.supplies.water || 0) - 1));
         taken = '水';
       } else if ((state.supplies.material || 0) >= 1) {
         state.supplies.material -= 1;
@@ -908,7 +922,7 @@ SF.SUPPLIES = [
       SF.addLog(state, '夜里的咳嗽声让所有人心情 −8。');
     } else if (ev.id === 'beggar') {
       if (key === 'give' && (state.supplies.water || 0) >= 1) {
-        state.supplies.water = Math.round(((state.supplies.water || 0) - 1) * 10) / 10;
+        state.supplies.water = Math.max(0, Math.round((state.supplies.water || 0) - 1));
         state.beggarReward = true;
         for (i = 0; i < state.survivors.length; i++) {
           if (state.survivors[i].alive) {
@@ -1163,7 +1177,7 @@ SF.SUPPLIES = [
       if ((state.supplies.water || 0) < 1) {
         return { ok: false, text: '没有多余的水，擦不了地。' };
       }
-      state.supplies.water = Math.round(((state.supplies.water || 0) - 1) * 10) / 10;
+      state.supplies.water = Math.max(0, Math.round((state.supplies.water || 0) - 1));
       allMood(state, 10);
       worker.ap = 0;
       var line1 = '你们用一瓶水把地面和床铺擦了一遍，屋里的味道终于淡了点。全员心情 +10。';
@@ -1204,7 +1218,7 @@ SF.SUPPLIES = [
   function removeOne(state, key) {
     if (key === 'water') {
       if ((state.supplies.water || 0) < 1) return false;
-      state.supplies.water = Math.round(((state.supplies.water || 0) - 1) * 10) / 10;
+      state.supplies.water = Math.max(0, Math.round((state.supplies.water || 0) - 1));
       return true;
     }
     if ((state.supplies[key] || 0) < 1) return false;
@@ -1342,7 +1356,7 @@ SF.SUPPLIES = [
       }
     } else if (ev.id === 'beggar') {
       if (key === 'give' && (state.supplies.water || 0) >= 1) {
-        state.supplies.water = Math.round(((state.supplies.water || 0) - 1) * 10) / 10;
+        state.supplies.water = Math.max(0, Math.round((state.supplies.water || 0) - 1));
         state.beggarReward = true;
         allMood(state, 6);
         lines.push('你递出一瓶水，老人一直道谢。');
@@ -1394,7 +1408,7 @@ SF.SUPPLIES = [
     if (s.ap < 1) return { ok: false, text: s.name + ' 今天已经动过了。' };
     if ((state.supplies.water || 0) < 1) return { ok: false, text: '物资不足：没有多余的水。' };
 
-    state.supplies.water = Math.round(((state.supplies.water || 0) - 1) * 10) / 10;
+    state.supplies.water = Math.max(0, Math.round((state.supplies.water || 0) - 1));
     s.ap = 0;
     s.mood = SF.clamp(s.mood + 20, 0, C.maxStat);
     SF.addLog(state, s.name + '洗了个澡，心情 +20。');
