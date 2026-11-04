@@ -2479,3 +2479,107 @@ body {
   font-size: 10px;
   color: #6f7b69;
 }
+
+
+
+/* ============ 主界面点物资 -> 点人投喂 ============ */
+
+/* 食物和水变成可以点的按钮 */
+.inv-cell[data-hold] {
+  font-family: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.inv-cell[data-hold]:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* 手里正拿着：亮黄色边框 */
+.inv-cell.is-hold {
+  outline: 3px solid #f5c451;
+  outline-offset: -1px;
+  background: rgba(245, 196, 81, 0.22);
+  box-shadow: 0 0 14px rgba(245, 196, 81, 0.8);
+}
+
+.inv-cell.is-hold .inv-num,
+.inv-cell.is-hold .inv-name {
+  color: #ffe9a8;
+}
+
+.inv-cell.is-empty {
+  cursor: default;
+  opacity: 0.45;
+}
+
+/* 手里拿着东西时，还没分到的人亮黄边 */
+.mini-card.is-ready {
+  border-color: #f5c451;
+  box-shadow: 0 0 10px rgba(245, 196, 81, 0.6);
+}
+
+/* 今天已经吃饱喝足 */
+.mini-card.is-fed {
+  border-color: rgba(127, 178, 103, 0.75);
+}
+
+/* 饥饿或口渴见底：红框闪 */
+.mini-card.is-starving {
+  border-color: #e05742;
+  animation: card-starve 0.9s ease-in-out infinite;
+}
+
+/* 刚被投喂：闪一下 */
+.mini-card.is-flash {
+  animation: card-fed 0.7s ease-out 1;
+}
+
+@keyframes card-starve {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(224, 87, 66, 0.12);
+  }
+  50% {
+    box-shadow: 0 0 12px 3px rgba(224, 87, 66, 0.75);
+  }
+}
+
+@keyframes card-fed {
+  0% {
+    background: rgba(127, 178, 103, 0.9);
+  }
+  60% {
+    background: rgba(127, 178, 103, 0.35);
+  }
+  100% {
+    background: rgba(0, 0, 0, 0.6);
+  }
+}
+
+/* 名字后面的「食」「水」小标记 */
+.mini-fed {
+  display: inline-block;
+  margin-left: 3px;
+  padding: 0 2px;
+  font-size: 8px;
+  line-height: 1.2;
+  color: #10160f;
+  background: #7fb267;
+  border-radius: 2px;
+  vertical-align: middle;
+}
+
+/* 底部提示：操作反馈 */
+.hintbar.is-good {
+  color: #cfe9b8;
+}
+
+.hintbar.is-bad {
+  color: #e79080;
+}

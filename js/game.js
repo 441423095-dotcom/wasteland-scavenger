@@ -105,6 +105,9 @@ SF.SUPPLIES = [
     return {
       day: 1,
       supplies: supplies,
+      meal: {},              // 今天谁吃过、喝过：{ id: { eat, drink } }
+      todayFood: 0,          // 今天已经喂掉的食物
+      todayWater: 0,         // 今天已经喂掉的水
       items: {
         radio: false,
         radioBroken: false,
@@ -221,6 +224,56 @@ SF.SUPPLIES = [
 
   SF.waterRation = function (state) {
     return SF.charAlive(state, 'lin') ? T.linWaterFactor : 1;
+  };
+
+  // ---------- 主界面投喂 ----------
+
+  SF.mealOf = function (state, id) {
+    if (!state.meal) state.meal = {};
+    if (!state.meal[id]) state.meal[id] = { eat: false, drink: false };
+    return state.meal[id];
+  };
+
+  // 把一份食物/水从库存里直接递给某个人
+  SF.feed = function (state, id, kind) {
+    var s = SF.find(state, id);
+    if (!s || !s.alive) return { ok: false, msg: '' };
+
+    var m = SF.mealOf(state, id);
+
+    if (kind === 'food') {
+      if (m.eat) return { ok: false, msg: s.name + ' 今天已经吃过了。' };
+
+      var need = SF.foodNeed(s);
+      if ((state.supplies.food || 0) < need) {
+        return { ok: false, msg: '食物不够了。' };
+      }
+
+      state.supplies.food = Math.round(((state.supplies.food || 0) - need) * 10) / 10;
+      state.todayFood = Math.round(((state.todayFood || 0) + need) * 10) / 10;
+      m.eat = true;
+
+      SF.addLog(state, '给 ' + s.name + ' 分了食物。');
+      return { ok: true, msg: s.name + ' 吃了一份食物。' };
+    }
+
+    if (kind === 'water') {
+      if (m.drink) return { ok: false, msg: s.name + ' 今天已经喝过了。' };
+
+      var ration = SF.waterRation(state);
+      if ((state.supplies.water || 0) < ration) {
+        return { ok: false, msg: '水不够了。' };
+      }
+
+      state.supplies.water = Math.round(((state.supplies.water || 0) - ration) * 10) / 10;
+      state.todayWater = Math.round(((state.todayWater || 0) + ration) * 10) / 10;
+      m.drink = true;
+
+      SF.addLog(state, '给 ' + s.name + ' 分了水。');
+      return { ok: true, msg: s.name + ' 喝了一份水。' };
+    }
+
+    return { ok: false, msg: '' };
   };
 
   SF.exploreChance = function (s, loc) {
@@ -584,6 +637,9 @@ SF.SUPPLIES = [
     if (!plan.eat) plan.eat = {};
     if (!plan.drink) plan.drink = {};
 
+    // 主界面已经喂过的情况：库存当时就扣了，这里不再重复扣
+    var prepaid = !!plan.prepaid;
+
     var report = {
       day: state.day,
       population: alive.length,
@@ -613,19 +669,28 @@ SF.SUPPLIES = [
       report.foodNeed += need;
       report.waterNeed += waterRation;
 
-      if (plan.eat[a1.id] && (state.supplies.food || 0) >= need) {
-        state.supplies.food -= need;
+      if (plan.eat[a1.id] && (prepaid || (state.supplies.food || 0) >= need)) {
+        if (!prepaid) {
+          state.supplies.food -= need;
+        }
         report.foodUsed += need;
         fed = true;
       }
 
-      if (plan.drink[a1.id] && (state.supplies.water || 0) >= waterRation) {
-        state.supplies.water = Math.round(((state.supplies.water || 0) - waterRation) * 10) / 10;
+      if (plan.drink[a1.id] && (prepaid || (state.supplies.water || 0) >= waterRation)) {
+        if (!prepaid) {
+          state.supplies.water = Math.round(((state.supplies.water || 0) - waterRation) * 10) / 10;
+        }
         report.waterUsed = Math.round((report.waterUsed + waterRation) * 10) / 10;
         drank = true;
       }
 
       rowData[a1.id] = { fed: fed, drank: drank };
+    }
+
+    if (prepaid) {
+      report.foodUsed = Math.round((state.todayFood || 0) * 10) / 10;
+      report.waterUsed = Math.round((state.todayWater || 0) * 10) / 10;
     }
 
     report.foodNeed = Math.round(report.foodNeed);
@@ -1037,6 +1102,9 @@ SF.SUPPLIES = [
 
     state.day = state.day + 1;
     state.actionUsed = false;
+    state.meal = {};
+    state.todayFood = 0;
+    state.todayWater = 0;
     if (state.rescueLeft > 0) state.rescueLeft -= 1;
 
     for (i = 0; i < alive.length; i++) {
