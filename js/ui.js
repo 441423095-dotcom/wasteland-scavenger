@@ -272,8 +272,12 @@
 
     gear += cell('flashlight', state.items.flashlight ? 1 : 0, 'info');
     gear += cell('weapon', state.items.weapon ? 1 : 0, 'info');
+    gear += cell('pesticide', state.items.pesticide ? 1 : 0, 'info');
 
     special += cell('radio', state.items.radio ? 1 : 0, 'info');
+    special += cell('flare', state.items.flare ? 1 : 0, 'info');
+    special += cell('mask', state.items.gasMask ? 1 : 0, 'info');
+    special += cell('cards', state.items.cards ? 1 : 0, 'info');
 
     html += '<div class="shelf-sec"><span class="shelf-label">基础物资</span>' +
       '<div class="shelf-row">' + basics + '</div></div>';
@@ -1316,6 +1320,10 @@
     if (key === 'flashlight') return '【手电筒：探索暗处时物资收益增加】';
     if (key === 'weapon') return '【武器：警局必备，也能当撬棍】';
     if (key === 'radio') return '【收音机：修好后能收到军方情报】';
+    if (key === 'flare') return '【信号弹：救援直升机靠它找到你们】';
+    if (key === 'mask') return '【防毒面具：进入废弃医院的必需品】';
+    if (key === 'cards') return '【扑克牌：避难所里每天心情恢复更快】';
+    if (key === 'pesticide') return '【杀虫剂：清理通风口和床铺的虫子】';
     return '';
   }
 

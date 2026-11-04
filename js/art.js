@@ -361,7 +361,11 @@ var ITEM_IMAGES = {
   material: 'assets/item-wood.jpeg?v=2',
   flashlight: 'assets/item-flashlight.jpeg?v=2',
   weapon: 'assets/item-weapon.jpeg?v=1',
-  radio: 'assets/item-radio.jpeg?v=2'
+  radio: 'assets/item-radio.jpeg?v=3',
+  flare: 'assets/item-flare.jpeg?v=1',
+  mask: 'assets/item-mask.jpeg?v=1',
+  cards: 'assets/item-cards.jpeg?v=1',
+  pesticide: 'assets/item-pesticide.jpeg?v=1'
 };
 
 SF.itemHasImage = function (key) {
