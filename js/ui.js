@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v67';
+  var BUILD = 'v68';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -252,23 +252,17 @@
       { key: 'weapon', label: '武器', tip: '武器 - 警局必备，也可在探索中当撬棍。', has: state.items.weapon, worn: gearWorn('weapon'), group: 'gear' }
     ];
 
-    var specialCells = '';
-    var gearCells = '';
+    var toolCells = '';
     for (var si = 0; si < slots.length; si++) {
-      if (slots[si].group === 'special') specialCells += shelfSlot(slots[si]);
-      else gearCells += shelfSlot(slots[si]);
+      toolCells += shelfSlot(slots[si]);
     }
 
-    function section(label, cells) {
-      return '<div class="shelf-sec">' +
-        '<span class="shelf-label">' + label + '</span>' +
-        '<div class="inv-grid">' + cells + '</div>' +
-        '</div>';
-    }
-
-    html += section('物资', supplyCells);
-    html += section('特殊道具', specialCells);
-    html += section('武器装备', gearCells);
+    html += '<div class="inv-panel">' +
+      '<div class="inv-title">储物柜</div>' +
+      '<div class="inv-grid">' + supplyCells + '</div>' +
+      '<div class="inv-caption">装备</div>' +
+      '<div class="inv-grid">' + toolCells + '</div>' +
+      '</div>';
 
     $('shelf').innerHTML = html;
   }

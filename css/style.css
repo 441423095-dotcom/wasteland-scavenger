@@ -4874,3 +4874,105 @@ button.inv-ghost {
   border: 1px dashed rgba(120, 135, 120, 0.35) !important;
   box-shadow: none !important;
 }
+
+
+
+/* ============ v68：统一储物柜 + 整齐网格 ============ */
+
+.inv {
+  right: 12px;
+  top: 22px;
+  width: 316px;
+  max-width: 76vw;
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.inv-panel {
+  padding: 8px 9px 10px;
+  background:
+    linear-gradient(180deg, rgba(16, 24, 18, 0.85), rgba(8, 12, 9, 0.88));
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  border: 2px solid #4a4a4a;
+  border-radius: 6px;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 4px 12px rgba(0, 0, 0, 0.6),
+    0 6px 16px rgba(0, 0, 0, 0.6);
+}
+
+.inv-title {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: #b8c7ae;
+}
+
+.inv-caption {
+  margin: 8px 0 5px;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: #8f9d86;
+}
+
+.inv-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.inv-cell {
+  min-height: 62px;
+  padding: 3px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.42);
+  border: 1px solid rgba(120, 140, 120, 0.32);
+  border-radius: 4px;
+  box-shadow:
+    inset 0 3px 9px rgba(0, 0, 0, 0.85),
+    0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.inv-cell .inv-ico,
+.inv-tool .inv-ico {
+  margin: 0 auto;
+}
+
+.inv-cell .inv-ico img,
+.inv-cell .inv-ico svg {
+  width: 42px !important;
+  height: 42px !important;
+  display: block;
+  margin: 0 auto;
+}
+
+.inv-num {
+  font-size: 20px !important;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  color: #fff8dd;
+  text-shadow: 0 1px 3px #000;
+}
+
+button.inv-ghost {
+  background: rgba(0, 0, 0, 0.22) !important;
+  border: 1px dashed #555 !important;
+  box-shadow: none !important;
+}
+
+.inv-ghost .inv-ico img,
+.inv-ghost .inv-ico svg {
+  opacity: 0.2;
+  filter: grayscale(1);
+}
