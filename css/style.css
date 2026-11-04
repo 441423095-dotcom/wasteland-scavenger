@@ -5658,3 +5658,21 @@ button.inv-ghost {
 .hold-tip {
   display: none !important;
 }
+
+
+
+/* ============ v79：选中改为物品轮廓发光（和日志本一致） ============ */
+
+.inv-item,
+.inv .inv-cell.is-held {
+  border: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+.inv .inv-cell.is-held .inv-ico img,
+.inv .inv-cell.is-held .inv-ico svg {
+  filter:
+    drop-shadow(0 0 5px rgba(255, 215, 0, 1))
+    drop-shadow(0 0 14px rgba(255, 200, 60, 0.85)) !important;
+}
