@@ -813,8 +813,75 @@ SF.SUPPLIES = [
     if ((haul.medicine || 0) > 1) haul.medicine = 1;
     if ((haul.material || 0) > 4) haul.material = 4;
 
-    // 第二层起：可能遇到必须消耗物资才能通过的关卡
+    // 关卡：必须由玩家自己决定要不要花物资，绝不自动扣
     if (depth >= 2 && roll(0.5)) {
+      var gk = pickOne(['pit', 'fireDoor', 'wound', 'dust', 'dog', 'survivor', 'generator']);
+
+      if (gk === 'pit' || gk === 'fireDoor') {
+        result.choice = {
+          id: 'gate',
+          kind: 'mat',
+          title: gk === 'pit' ? '塌陷的路面' : '卡死的防火门',
+          text: gk === 'pit'
+            ? '前面的路面塌陷了，下面全是尖刺。要用 2 块木板搭个桥才能过去。'
+            : '这扇门被重物卡死了，需要 2 块木板当撬棍。',
+          options: [
+            { key: 'gatePay', label: '消耗 2 块木板继续', disabled: (state.supplies.material || 0) < 2 },
+            { key: 'gateRetreat', label: '原路返回（见好就收）' }
+          ]
+        };
+      } else if (gk === 'wound' || gk === 'dust') {
+        var wounded = pickOne(party);
+        result.choice = {
+          id: 'gate',
+          kind: 'water',
+          victimId: wounded.id,
+          title: gk === 'wound' ? '被感染的伤口' : '扬尘废墟',
+          text: gk === 'wound'
+            ? wounded.name + ' 不小心划伤了腿，伤口很脏。需要用 1 瓶水冲洗，否则会生病。'
+            : '这里到处都是灰尘，呛得人无法呼吸。需要用 1 瓶水打湿布条捂住口鼻才能继续搜。',
+          options: [
+            { key: 'gatePay', label: '消耗 1 瓶水继续', disabled: (state.supplies.water || 0) < 1 },
+            { key: 'gateRetreat', label: '原路返回（见好就收）' }
+          ]
+        };
+      } else if (gk === 'dog') {
+        result.choice = {
+          id: 'gate',
+          kind: 'dog',
+          title: '快渴死的流浪狗',
+          text: '一只瘦骨嶙峋的狗挡在路中间，看着你们的水瓶。给它 1 瓶水，它可能会带路。',
+          options: [
+            { key: 'gatePay', label: '给它 1 瓶水', disabled: (state.supplies.water || 0) < 1 },
+            { key: 'gateRetreat', label: '绕路离开' }
+          ]
+        };
+      } else if (gk === 'survivor') {
+        result.choice = {
+          id: 'gate',
+          kind: 'food',
+          title: '饥饿的幸存者',
+          text: '一个瘦脱相的男人求你们给口吃的，他愿意用情报交换。',
+          options: [
+            { key: 'gatePay', label: '给他 1 份食物', disabled: (state.supplies.food || 0) < 1 },
+            { key: 'gateRetreat', label: '无视他离开' }
+          ]
+        };
+      } else {
+        result.choice = {
+          id: 'gate',
+          kind: 'weapon',
+          title: '破旧的老式发电机',
+          text: '如果拆下这里的零件，需要 1 把武器来撬开，但武器会损坏。',
+          options: [
+            { key: 'gatePay', label: '牺牲武器换零件' },
+            { key: 'gateRetreat', label: '直接略过' }
+          ]
+        };
+      }
+    }
+
+    if (false && depth >= 2 && roll(0.5)) {
       var gateKind = pickOne([
         'fence', 'mother', 'generator', 'pit', 'fireDoor', 'wound', 'dust', 'dog', 'survivor'
       ]);
@@ -1016,6 +1083,46 @@ SF.SUPPLIES = [
         result.lines.push('你们把这副扑克牌收了回去，总算有点能打发时间的东西。');
       } else {
         result.lines.push('牌留在了桌上，反正也没人有心情玩。');
+      }
+    }
+
+    if (result.choice.id === 'gate') {
+      var gate = result.choice;
+
+      if (key === 'gatePay') {
+        if (gate.kind === 'mat') {
+          state.supplies.material = Math.max(0, Math.round(state.supplies.material - 2));
+          state.supplies.medicine = Math.max(0, Math.round((state.supplies.medicine || 0) + 1));
+          result.lines.push('你们用 2 块木板搭了条通道过去，在深处摸到一份药。（木板 -2，药品 +1）');
+        } else if (gate.kind === 'water') {
+          state.supplies.water = Math.max(0, Math.round(state.supplies.water - 1));
+          var woundedS = SF.find(state, gate.victimId);
+          if (woundedS) woundedS.injured = true;
+          result.lines.push('你们用 1 瓶水清理了伤口，继续往里走。（水 -1）');
+        } else if (gate.kind === 'dog') {
+          state.supplies.water = Math.max(0, Math.round(state.supplies.water - 1));
+          state.supplies.food = Math.max(0, Math.round((state.supplies.food || 0) + 1));
+          result.lines.push('狗喝了水，摇着尾巴带你们绕到后面，那里有半袋吃的。（水 -1，食物 +1）');
+        } else if (gate.kind === 'food') {
+          state.supplies.food = Math.max(0, Math.round(state.supplies.food - 1));
+          result.deepBonus = true;
+          result.lines.push('男人收下食物，把下一层的物资分布画给了你们。（食物 -1，下一层物资翻倍）');
+        } else if (gate.kind === 'weapon') {
+          var breaker = null;
+          for (i = 0; i < state.survivors.length; i++) {
+            if (state.survivors[i].alive && state.survivors[i].hasWeapon) breaker = state.survivors[i];
+          }
+          if (breaker) {
+            breaker.hasWeapon = false;
+            state.supplies.medicine = Math.max(0, Math.round((state.supplies.medicine || 0) + 1));
+            result.lines.push(breaker.name + ' 把武器当撬棍用断了，换出一块稀有电子元件。（武器损毁，药品 +1）');
+          } else {
+            result.lines.push('没有武器撬不开，只能绕过发电机。');
+          }
+        }
+      } else {
+        result.hardStop = true;
+        result.lines.push('因为没有木板搭桥，你们只能眼睁睁看着深处的物资，无奈撤退。');
       }
     }
 

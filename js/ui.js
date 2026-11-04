@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v40';
+  var BUILD = 'v41';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -1023,7 +1023,7 @@
     } else {
       html += '<div class="modal-actions">';
 
-      if (raidDepth < 3) {
+      if (raidDepth < 3 && !r.hardStop) {
         html += '<button type="button" class="btn btn-main" data-act="deeper">' +
           '继续深入（第 ' + (raidDepth + 1) + ' 层）</button>';
       }
