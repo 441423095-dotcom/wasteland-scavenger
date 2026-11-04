@@ -259,6 +259,56 @@ SF.SUPPLIES = [
     return null;
   };
 
+  /* 门票机制：没带对装备就绝对不能出发 */
+  function wornBy(state, ids, kind) {
+    var list = ids && ids.length ? ids : null;
+    for (var i = 0; i < state.survivors.length; i++) {
+      var s = state.survivors[i];
+      if (!s.alive) continue;
+      if (list && list.indexOf(s.id) === -1) continue;
+      if (kind === 'torch' && s.hasTorch) return s;
+      if (kind === 'mask' && s.hasMask) return s;
+      if (kind === 'weapon' && s.hasWeapon) return s;
+    }
+    return null;
+  }
+
+  SF.gateFor = function (state, loc, ids) {
+    if (!loc) return { ok: false, reason: '没有这个地方的情报。' };
+
+    if (loc.id === 'warehouse') {
+      if (wornBy(state, ids, 'torch')) return { ok: true };
+      if (state.items.flashlight && !ids) return { ok: true };
+      if (state.items.flashlight) {
+        return { ok: false, reason: '手电筒还在库存里，出发前先给一个人穿上。' };
+      }
+      return { ok: false, reason: '太黑了，看不清路，需要【手电筒】才能前往。' };
+    }
+
+    if (loc.id === 'pharmacy') {
+      if (wornBy(state, ids, 'mask')) return { ok: true };
+      if (state.items.gasMask && !ids) return { ok: true };
+      if (state.items.gasMask) {
+        return { ok: false, reason: '防毒面具还在库存里，出发前先给一个人戴上。' };
+      }
+      return { ok: false, reason: '医院里弥漫着消毒水和尸体腐烂的毒气，需要【防毒面具】才能进入。' };
+    }
+
+    if (loc.id === 'police') {
+      if (!state.items.radio) {
+        return { ok: false, reason: '还没收到军方情报，先把收音机修好。' };
+      }
+      if (wornBy(state, ids, 'weapon')) return { ok: true };
+      if (state.items.weapon && !ids) return { ok: true };
+      if (state.items.weapon) {
+        return { ok: false, reason: '武器还在库存里，出发前先给一个人拿上。' };
+      }
+      return { ok: false, reason: '警局有暴徒，赤手空拳去等于送死，需要【武器】。' };
+    }
+
+    return { ok: true };
+  };
+
   function findRow(rows, id) {
     for (var i = 0; i < rows.length; i++) {
       if (rows[i].id === id) return rows[i];
@@ -517,7 +567,11 @@ SF.SUPPLIES = [
         result.lines.push('货架上还剩几罐没过期的，你们抱了几罐出来。');
       } else if (locId === 'warehouse') {
         giveHaul(haul, 'material', rnd(2, 4));
-        if (roll(0.4)) {
+        if (roll(0.45)) {
+          state.items.gasMask = true;
+          result.item = { key: 'mask', name: '防毒面具' };
+          result.lines.push('仓库深处的箱子里压着一副防毒面具，镜片还没裂。');
+        } else if (roll(0.3)) {
           state.items.flashlight = true;
           result.lines.push('木箱底下压着一只手电筒，还能亮。');
         }
@@ -533,6 +587,10 @@ SF.SUPPLIES = [
         result.lines.push('警局外圈只剩下散落的装备和弹药箱。');
       } else {
         giveHaul(haul, pickOne(['food', 'water']), rnd(1, 2));
+        if (roll(0.25)) {
+          state.items.flashlight = true;
+          result.lines.push('在一堆废纸箱里翻到一只手电筒，擦擦还能用。');
+        }
         result.lines.push('你们沿着熟悉的路又摸了一段，带回一点补给。');
       }
     } else {

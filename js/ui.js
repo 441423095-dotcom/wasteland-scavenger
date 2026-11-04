@@ -7,7 +7,7 @@
   var C = SF.CONFIG;
 
   // 版本号：每次改动都往后加一，方便确认页面是不是最新版
-  var BUILD = 'v30';
+  var BUILD = 'v31';
   var loadNoticeDay = 0;
 
   // 货架上固定摆这四层
@@ -591,7 +591,8 @@
       var loc = C.locations[i];
       if (loc.hidden && !state.vaultUnlocked) continue;
 
-      var locked = !!(loc.unlockDay && state.day < loc.unlockDay);
+      var gate = SF.gateFor(state, loc);
+      var locked = !gate.ok;
 
       paths += '<line x1="50" y1="82" x2="' + loc.mapX + '" y2="' + loc.mapY +
         '" stroke="rgba(200,210,190,0.32)" stroke-width="0.45" stroke-dasharray="2 2"/>';
@@ -842,6 +843,15 @@
 
     var loc = SF.findLocation(locId);
     if (!loc) return;
+
+    var gate = SF.gateFor(state, loc, partyIds);
+    if (!gate.ok) {
+      openModal('<div class="modal-head"><span class="modal-title">无法出发</span></div>' +
+        '<div class="res-text">' + gate.reason + '</div>' +
+        '<div class="modal-actions"><button type="button" class="btn" data-act="close">知道了</button></div>',
+        'modal-action');
+      return;
+    }
 
     raidLoc = locId;
     raidIds = partyIds.slice();
@@ -1701,8 +1711,11 @@
   function onMapClick(ev) {
     var locked = elementFrom(ev.target, $('map-grid'), 'data-locked');
     if (locked) {
-      openModal('<div class="modal-head"><span class="modal-title">未知区域</span></div>' +
-        '<div class="res-text">没有情报，前往太危险。</div>' +
+      var loc = SF.findLocation(locked);
+      var gate = SF.gateFor(state, loc);
+      openModal('<div class="modal-head"><span class="modal-title">' +
+        (loc ? loc.name : '未知区域') + '</span></div>' +
+        '<div class="res-text">' + (gate.reason || '没有情报，前往太危险。') + '</div>' +
         '<div class="modal-actions"><button type="button" class="btn" data-act="close">知道了</button></div>',
         'modal-action');
       return;
