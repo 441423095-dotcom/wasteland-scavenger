@@ -815,7 +815,7 @@ SF.SUPPLIES = [
 
     // 关卡：必须由玩家自己决定要不要花物资，绝不自动扣
     if (depth >= 2 && roll(0.5)) {
-      var gk = pickOne(['pit', 'fireDoor', 'wound', 'dust', 'dog', 'survivor', 'generator']);
+      var gk = pickOne(['pit', 'fireDoor', 'wound', 'dust', 'gas', 'dog', 'survivor', 'zombie', 'generator']);
 
       if (gk === 'pit' || gk === 'fireDoor') {
         result.choice = {
@@ -830,18 +830,31 @@ SF.SUPPLIES = [
             { key: 'gateRetreat', label: '原路返回（见好就收）' }
           ]
         };
-      } else if (gk === 'wound' || gk === 'dust') {
+      } else if (gk === 'wound' || gk === 'dust' || gk === 'gas') {
         var wounded = pickOne(party);
         result.choice = {
           id: 'gate',
           kind: 'water',
           victimId: wounded.id,
-          title: gk === 'wound' ? '被感染的伤口' : '扬尘废墟',
+          title: gk === 'wound' ? '被感染的伤口' : (gk === 'gas' ? '剧毒气体' : '扬尘废墟'),
           text: gk === 'wound'
             ? wounded.name + ' 不小心划伤了腿，伤口很脏。需要用 1 瓶水冲洗，否则会生病。'
-            : '这里到处都是灰尘，呛得人无法呼吸。需要用 1 瓶水打湿布条捂住口鼻才能继续搜。',
+            : (gk === 'gas'
+              ? '通道里弥漫着剧毒气体，需要防毒面具；没有面具的话，只能用 1 瓶水打湿布条捂住口鼻。'
+              : '这里到处都是灰尘，呛得人无法呼吸。需要用 1 瓶水打湿布条捂住口鼻才能继续搜。'),
           options: [
             { key: 'gatePay', label: '消耗 1 瓶水继续', disabled: (state.supplies.water || 0) < 1 },
+            { key: 'gateRetreat', label: '原路返回（见好就收）' }
+          ]
+        };
+      } else if (gk === 'zombie') {
+        result.choice = {
+          id: 'gate',
+          kind: 'food',
+          title: '挡路的丧尸',
+          text: '一只丧尸挡住了去路。可以用 1 份食物把它引开，也可以让带武器的人直接解决。',
+          options: [
+            { key: 'gatePay', label: '消耗 1 份食物引开', disabled: (state.supplies.food || 0) < 1 },
             { key: 'gateRetreat', label: '原路返回（见好就收）' }
           ]
         };
