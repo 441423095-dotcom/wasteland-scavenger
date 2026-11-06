@@ -33,17 +33,17 @@ window.SF = window.SF || {};
     // —— 夜晚：没吃到 / 没喝到，每天涨多少 ——
     // night: { missLoss: 35 },
 
-    // —— 负重：普通队员 / 铁柱 / 双肩包加成 ——
-    // pack: { base: 2, heavy: 4, bagBonus: 2 },
+    // —— 负重：普通队员 / 铁柱 / 双肩包加成 / 每趟临时背包几格 ——
+    // pack: { base: 4, heavy: 4, bagBonus: 2, tripCap: 6 },
 
     // —— 单次探索每种物资最多带回几件 ——
-    // lootCaps: { food: 2, water: 2, medicine: 1, material: 3 },
+    // lootCaps: { food: 4, water: 4, medicine: 3, material: 4 },
 
     // —— 第一层三个入口分别能拿几件、受伤概率、掉多少血 ——
     // floorOne: [
-    //   { key: 'front', label: '翻外围货架（稳妥）', desc: '六成空手，最多 1 件，不会受伤。', items: 1, empty: 0.6, risk: 0, hp: 0 },
-    //   { key: 'back', label: '走后门（有点动静）', desc: '至少 1 件，偶尔 2 件，20% 概率受伤 −15 血。', items: 1, extra: 0.35, risk: 0.2, hp: 15 },
-    //   { key: 'inner', label: '摸最里面（赌一把）', desc: '稳稳 2 件，偶尔 3 件，45% 概率受伤 −20 血。', items: 2, extra: 0.2, risk: 0.45, hp: 20 }
+    //   { key: 'front', label: '翻外围货架（稳妥）', desc: '三成空手，一般 2 件，不会受伤。', items: 2, empty: 0.3, risk: 0, hp: 0 },
+    //   { key: 'back', label: '走后门（有点动静）', desc: '至少 2 件，偶尔 3 件，20% 概率受伤 −15 血。', items: 2, extra: 0.4, risk: 0.2, hp: 15 },
+    //   { key: 'inner', label: '摸最里面（赌一把）', desc: '稳稳 3 件，偶尔 4 件，45% 概率受伤 −20 血。', items: 3, extra: 0.25, risk: 0.45, hp: 20 }
     // ],
 
     // —— 修好收音机之后再过几天来救援 ——
@@ -51,6 +51,9 @@ window.SF = window.SF || {};
 
     // —— 每天门口有人的概率（0~1） ——
     // dayEvents: { chance: 0.5 },
+
+    // —— 摸到最深一层时：受伤概率 / 出人命概率（0~1） ——
+    // explore: { deepRisk: 0.55, fatalChance: 0.02 },
 
     // —— 每天夜里出事的概率（0~1） ——
     // events: { nightChance: 0.55 }
@@ -332,10 +335,12 @@ window.SF = window.SF || {};
       rows.push({ label: label, value: String(value) });
     }
 
-    var RD = C.rescueDelay || { min: '—', max: '—' };
-    add('修好收音机后多久来救援', RD.min + ' ~ ' + RD.max + ' 天');
+    add('信号弹到手后多久来救援', '第二天清晨（硬撑到第 30 天也会来）');
     add('每份食物/水恢复', (C.meal ? C.meal.restore : '—') + ' 点');
     add('没吃没喝每天涨', (C.night ? C.night.missLoss : '—') + ' 点');
+    add('深处受伤 / 出人命',
+      Math.round(((C.explore || {}).deepRisk || 0) * 100) + '% / ' +
+      Math.round(((C.explore || {}).fatalChance || 0) * 100) + '%');
     add('负重（普通/铁柱/背包）',
       (C.pack ? C.pack.base + ' / ' + C.pack.heavy + ' / +' + C.pack.bagBonus : '—'));
     add('单次收获上限',

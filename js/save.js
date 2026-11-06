@@ -6,19 +6,27 @@ window.SF = window.SF || {};
 (function () {
 
   var KEY = 'wasteland-save-v1';
+  var TEST_KEY = 'wasteland-save-test';
 
-  SF.saveGame = function (state) {
+  // 测试台的场景写另一个 key，永远不碰玩家的正式存档
+  SF.useTestSave = false;
+
+  function keyFor(test) {
+    return test ? TEST_KEY : KEY;
+  }
+
+  SF.saveGame = function (state, test) {
     try {
-      localStorage.setItem(KEY, JSON.stringify(state));
+      localStorage.setItem(keyFor(test || SF.useTestSave), JSON.stringify(state));
       return true;
     } catch (e) {
       return false;
     }
   };
 
-  SF.loadGame = function () {
+  SF.loadGame = function (test) {
     try {
-      var raw = localStorage.getItem(KEY);
+      var raw = localStorage.getItem(keyFor(test || SF.useTestSave));
       if (!raw) return null;
 
       var obj = JSON.parse(raw);
@@ -27,14 +35,14 @@ window.SF = window.SF || {};
 
       return obj;
     } catch (e) {
-      SF.clearSave();
+      SF.clearSave(test || SF.useTestSave);
       return null;
     }
   };
 
-  SF.clearSave = function () {
+  SF.clearSave = function (test) {
     try {
-      localStorage.removeItem(KEY);
+      localStorage.removeItem(keyFor(test || SF.useTestSave));
     } catch (e) {
       /* 忽略 */
     }
@@ -45,9 +53,9 @@ window.SF = window.SF || {};
     if (!state.supplies) state.supplies = {};
     if (!state.items) state.items = {};
     if (typeof state.items.backpack !== 'boolean') state.items.backpack = false;
-    if (typeof state.parts !== 'number') state.parts = 0;
     if (typeof state.tripCap !== 'number') state.tripCap = 0;
     if (!state.tripMembers) state.tripMembers = [];
+    if (!state.tripSpecialBase) state.tripSpecialBase = [];
 
     for (var si = 0; si < (state.survivors || []).length; si++) {
       if (typeof state.survivors[si].hasPack !== 'boolean') {
@@ -64,6 +72,20 @@ window.SF = window.SF || {};
     if (typeof state.expeditionOver !== 'boolean') state.expeditionOver = false;
     if (typeof state.over !== 'boolean') state.over = false;
     if (typeof state.doorBroken !== 'boolean') state.doorBroken = false;
+    if (typeof state.bathedToday !== 'boolean') state.bathedToday = false;
+    if (typeof state.dirtyDays !== 'number') state.dirtyDays = 0;
+
+    // 老存档可能有人血量归零却还挂着 alive：清一遍，并纠正错误的死亡状态
+    var anyAlive = false;
+    for (var si2 = 0; si2 < (state.survivors || []).length; si2++) {
+      var sur = state.survivors[si2];
+      if (sur.alive && (typeof sur.hp !== 'number' || sur.hp <= 0)) sur.alive = false;
+      if (sur.alive) anyAlive = true;
+    }
+    if (!state.won && state.over && anyAlive) {
+      state.over = false;
+      state.overDay = 0;
+    }
     // 救援日：修好收音机后才会抽出来，老存档里没有这个字段
     if (typeof state.rescueDay !== 'number') state.rescueDay = 0;
     if (typeof state.rescueKnown !== 'boolean') state.rescueKnown = state.rescueDay > 0;
@@ -72,9 +94,18 @@ window.SF = window.SF || {};
     if (typeof state.dayEventId !== 'string') state.dayEventId = '';
     if (typeof state.lootBonus !== 'number') state.lootBonus = 1;
     if (!state.dayNotes) state.dayNotes = [];
+    if (!Array.isArray(state.graves)) state.graves = [];
     if (!state.dayLog) state.dayLog = [];
     if (!state.questToday) state.questToday = [];
     if (typeof state.hintDay !== 'number') state.hintDay = 0;
+
+    // 物资驱动主线的新字段
+    if (typeof state.seenClinic !== 'boolean') state.seenClinic = false;
+    if (typeof state.seenGarage !== 'boolean') state.seenGarage = false;
+    if (typeof state.seenStore !== 'boolean') state.seenStore = false;
+    if (!state.pity || typeof state.pity !== 'object') state.pity = {};
+    if (!state.storyDone || typeof state.storyDone !== 'object') state.storyDone = {};
+    if (typeof state.endingKind !== 'string') state.endingKind = '';
 
     if (typeof state.condition !== 'string' || !state.condition) {
       state.condition = 'calm';

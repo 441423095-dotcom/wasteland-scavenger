@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>末日公寓 · 图片压缩</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    padding: 14px 12px 40px;
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+    background: #0b0e0b;
+    color: #dbe4d4;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  h1 { font-size: 18px; margin-bottom: 6px; }
+  .tip { font-size: 12.5px; color: #8f9d86; margin-bottom: 12px; }
+  .tip b { color: #ffd76a; }
+  #list { display: grid; gap: 10px; }
+  .card {
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+  }
+  .card h2 { font-size: 13px; margin-bottom: 2px; }
+  .meta { font-size: 11.5px; color: #8f9d86; }
+  .meta .good { color: #8fe6a8; }
+  .ops {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+  select {
+    padding: 5px 6px;
+    font-family: inherit;
+    font-size: 12px;
+    color: #14110a;
+    background: #cfc6a6;
+    border: 0;
+    border-radius: 5px;
+  }
+  .ops button {
+    flex: 1;
+    min-width: 110px;
+    padding: 7px 10px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    color: #14110a;
+    background: linear-gradient(180deg, #ffe9a8, #d9b243);
+    border: 0;
+    border-radius: 6px;
+  }
+  .ops button[disabled] { opacity: 0.55; }
+  .shot {
+    display: block;
+    width: 100%;
+    max-width: 220px;
+    margin-top: 8px;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .hint { font-size: 11.5px; color: #ffd76a; margin-top: 4px; }
+  .bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .bar button {
+    flex: 1;
+    min-width: 140px;
+    padding: 10px 12px;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: #dbe4d4;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+  }
+  .back {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 12.5px;
+    color: #9fd8e6;
+  }
+  .sum { font-size: 12.5px; color: #9fd8e6; margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<h1>图片压缩</h1>
+<p class="tip">
+  想压哪张就点哪张的<b>「压缩这张」</b>，别的图不会被动。
+  压好后<b>长按图片 → 存储到照片</b>，再把照片发给我，我替换进游戏。
+  这里只生成结果，游戏里的原图不会被改。
+</p>
+
+<p class="sum" id="sum"></p>
+
+<div id="list"></div>
+
+<div class="bar">
+  <button id="run">全部压缩（一般用不到）</button>
+</div>
+
+<a class="back" href="../test.html">← 回测试台</a>
+
+<script>
+(function () {
+  // 每张图：名字、路径、可选宽度、输出格式
+  var FILES = [
+    { path: 'assets/scene.jpg', name: '片头场景', widths: [600, 900, 1200], w: 900, fmt: 'jpeg' },
+    { path: 'assets/intro-bg.jpg', name: '片头背景', widths: [600, 900, 1200], w: 900, fmt: 'jpeg' },
+    { path: 'assets/bunker-bg.png', name: '避难所背景', widths: [600, 900, 1200], w: 900, fmt: 'jpeg' },
+    { path: 'assets/diary.png', name: '日记本', widths: [400, 600, 800], w: 600, fmt: 'png' },
+    { path: 'assets/victory-bg.jpg', name: '获救背景', widths: [600, 900, 1200], w: 900, fmt: 'jpeg' },
+    { path: 'assets/death-bg.jpg', name: '阵亡背景', widths: [600, 900, 1200], w: 900, fmt: 'jpeg' }
+  ];
+
+  var list = document.getElementById('list');
+  var sum = document.getElementById('sum');
+  var rows = [];
+
+  function kb(n) {
+    return Math.max(1, Math.round(n / 1024)) + ' KB';
+  }
+
+  function sizeOfData(dataUrl) {
+    var i = dataUrl.indexOf(',');
+    return Math.round((dataUrl.length - i - 1) * 3 / 4);
+  }
+
+  function compress(entry, width) {
+    // 页面在 tools/ 下，图片在上一层的 assets/
+    return fetch('../' + entry.path)
+      .then(function (r) {
+        if (!r.ok) throw new Error('读不到这张图（' + r.status + '）');
+        return r.blob();
+      })
+      .then(function (blob) {
+        var url = URL.createObjectURL(blob);
+
+        return new Promise(function (resolve, reject) {
+          var img = new Image();
+
+          img.onload = function () {
+            var scale = Math.min(1, width / img.naturalWidth);
+            var cw = Math.max(1, Math.round(img.naturalWidth * scale));
+            var ch = Math.max(1, Math.round(img.naturalHeight * scale));
+
+            var c = document.createElement('canvas');
+            c.width = cw;
+            c.height = ch;
+
+            var g = c.getContext('2d');
+            if (entry.fmt === 'jpeg') {
+              g.fillStyle = '#ffffff';
+              g.fillRect(0, 0, cw, ch);
+            }
+            g.drawImage(img, 0, 0, cw, ch);
+
+            var mime = entry.fmt === 'jpeg' ? 'image/jpeg' : 'image/png';
+            var data = c.toDataURL(mime, 0.82);
+
+            URL.revokeObjectURL(url);
+            resolve({ data: data, before: blob.size, w: cw, h: ch });
+          };
+
+          img.onerror = function () {
+            URL.revokeObjectURL(url);
+            reject(new Error('这张图打不开'));
+          };
+
+          img.src = url;
+        });
+      });
+  }
+
+  function showResult(row, res) {
+    var after = sizeOfData(res.data);
+
+    row.out.innerHTML =
+      '<div class="meta">' + kb(res.before) + ' → <span class="good">' + kb(after) + '</span>' +
+      ' · ' + res.w + '×' + res.h + '</div>' +
+      '<img class="shot" src="' + res.data + '" alt="' + row.entry.name + '">' +
+      '<div class="hint">长按这张图 → 存储到照片</div>';
+
+    sum.textContent = row.entry.name + ' 压好了：' + kb(res.before) + ' → ' + kb(after) +
+      '。长按图片存进相册，再发给我。';
+  }
+
+  function build() {
+    FILES.forEach(function (entry) {
+      var card = document.createElement('div');
+      card.className = 'card';
+
+      var opts = entry.widths.map(function (w) {
+        return '<option value="' + w + '"' + (w === entry.w ? ' selected' : '') + '>' +
+          w + 'px</option>';
+      }).join('');
+
+      card.innerHTML =
+        '<h2>' + entry.name + '</h2>' +
+        '<div class="meta">' + entry.path + ' · ' + (entry.fmt === 'png' ? 'PNG' : 'JPEG') + '</div>' +
+        '<div class="ops">' +
+        '<label class="meta">宽度 <select>' + opts + '</select></label>' +
+        '<button type="button">压缩这张</button>' +
+        '</div>' +
+        '<div class="out"></div>';
+
+      var sel = card.querySelector('select');
+      var btn = card.querySelector('button');
+      var out = card.querySelector('.out');
+
+      var row = { entry: entry, card: card, sel: sel, btn: btn, out: out };
+      rows.push(row);
+
+      btn.addEventListener('click', function () {
+        btn.disabled = true;
+        btn.textContent = '压缩中……';
+
+        compress(entry, parseInt(sel.value, 10)).then(function (res) {
+          showResult(row, res);
+          btn.disabled = false;
+          btn.textContent = '再压一次';
+        }).catch(function (e) {
+          out.innerHTML = '<div class="meta">压缩失败：' + e.message + '</div>';
+          btn.disabled = false;
+          btn.textContent = '压缩这张';
+        });
+      });
+
+      list.appendChild(card);
+    });
+  }
+
+  document.getElementById('run').addEventListener('click', function () {
+    var i = 0;
+    var btn = document.getElementById('run');
+    btn.disabled = true;
+
+    function next() {
+      if (i >= rows.length) {
+        btn.disabled = false;
+        sum.textContent = '全部压完了。长按需要的图存进相册。';
+        return;
+      }
+
+      var row = rows[i];
+      i += 1;
+
+      row.btn.disabled = true;
+      row.btn.textContent = '压缩中……';
+
+      compress(row.entry, parseInt(row.sel.value, 10)).then(function (res) {
+        showResult(row, res);
+        row.btn.disabled = false;
+        row.btn.textContent = '再压一次';
+        next();
+      }).catch(function () {
+        row.btn.disabled = false;
+        row.btn.textContent = '压缩这张';
+        next();
+      });
+    }
+
+    next();
+  });
+
+  build();
+})();
+</script>
+
+</body>
+</html>

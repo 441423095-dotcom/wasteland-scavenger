@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#0b0e0b">
 <title>末日公寓</title>
-<link rel="stylesheet" href="css/style.css?v=121">
+<link rel="stylesheet" href="css/style.css?v=174">
 </head>
 <body>
 <div id="app">
@@ -23,16 +23,32 @@
   <section class="screen" id="screen-mini">
     <div class="mini-hud">
       <span class="mini-clock">⏱ <b id="mini-time">15</b> 秒</span>
-      <span class="mini-counts" id="mini-counts">🍖 0 · 💧 0 · 🪵 0</span>
+      <span class="mini-counts" id="mini-counts">食物 0 · 水 0 · 木板 0 · 药品 0</span>
     </div>
 
     <div class="mini-sky" id="mini-sky">
-      <span class="mini-plane">✈</span>
+      <div class="mini-plane">
+        <svg viewBox="0 0 240 110" aria-hidden="true">
+          <path d="M186 44 L 214 6 L 226 6 L 230 44 Z" fill="#7d8a7c"/>
+          <path d="M14 62 C 18 46, 42 40, 80 40 L 196 40 C 216 40, 228 50, 228 62 C 228 74, 216 82, 196 82 L 80 82 C 42 82, 18 76, 14 62 Z" fill="#98a596"/>
+          <path d="M18 58 C 24 49, 40 45, 62 45 L 62 62 L 18 62 Z" fill="#26333a"/>
+          <rect x="78" y="51" width="11" height="7" rx="3" fill="#33413f"/>
+          <rect x="95" y="51" width="11" height="7" rx="3" fill="#33413f"/>
+          <rect x="112" y="51" width="11" height="7" rx="3" fill="#33413f"/>
+          <path d="M100 62 L 152 106 L 78 106 Z" fill="#7f8d7f"/>
+          <rect x="108" y="72" width="28" height="15" rx="7" fill="#5f6d5f"/>
+          <rect x="168" y="52" width="38" height="22" rx="2" fill="#7d8a7c"/>
+          <rect x="172" y="56" width="30" height="14" fill="#68746a"/>
+          <circle cx="86" cy="62" r="7" fill="#3f4c46"/>
+          <circle cx="86" cy="62" r="3" fill="#9fb0a2"/>
+          <path d="M14 62 C 18 56, 26 52, 36 50" stroke="#c9d6c8" stroke-width="2" fill="none"/>
+        </svg>
+      </div>
     </div>
 
     <div class="mini-field" id="mini-field"></div>
 
-    <div class="mini-basket" id="mini-basket">破地毯</div>
+    <div class="mini-basket" id="mini-basket"></div>
 
     <div class="mini-flash" id="mini-flash"></div>
 
@@ -79,12 +95,13 @@
         <img class="diary-img" id="diary-img" src="assets/diary.png?v=1" alt="">
       </button>
 
-      <div class="bubbles" id="bubbles">
-        <span class="bubble" id="bubble-0"></span>
-        <span class="bubble" id="bubble-1"></span>
-        <span class="bubble" id="bubble-2"></span>
-        <span class="bubble" id="bubble-3"></span>
-      </div>
+    </div>
+
+    <div class="bubbles" id="bubbles">
+      <span class="bubble" id="bubble-0"></span>
+      <span class="bubble" id="bubble-1"></span>
+      <span class="bubble" id="bubble-2"></span>
+      <span class="bubble" id="bubble-3"></span>
     </div>
 
     <div class="hud-top">
@@ -96,10 +113,13 @@
     <div class="bottom-hud">
       <div class="hintbar" id="hintbar"></div>
       <div class="quest" id="quest"></div>
+      <div class="night-risk" id="night-risk"></div>
       <div class="actions">
         <button type="button" class="btn btn-main" id="btn-explore">出门探索</button>
+        <button type="button" class="btn" id="btn-feed">投喂</button>
         <button type="button" class="btn" id="btn-clean">浴室</button>
-        <button type="button" class="btn" id="btn-repair">修门</button>
+        <button type="button" class="btn" id="btn-home-task">在家</button>
+        <button type="button" class="btn" id="btn-repair">改造</button>
         <button type="button" class="btn" id="btn-night">结束今天</button>
       </div>
       <div class="story-line" id="story-line"></div>
@@ -112,13 +132,12 @@
 
     <!-- 底图 + 隐形热区：热区按整张图的百分比定位 -->
     <div class="map-stage" id="map-stage">
-      <img class="map-bg" id="map-bg" src="assets/map-bg.jpg?v=1" alt="小区地图">
+      <img class="map-bg" id="map-bg" src="assets/map-bg.jpg?v=2" alt="小区地图">
       <div class="map-hotspots" id="map-grid"></div>
     </div>
 
     <div class="map-head">
       <div class="day-badge">第 <b id="day-num-map">1</b> 天</div>
-      <div class="lead-tag">带队：<b id="lead-name">陈默</b></div>
     </div>
 
     <div class="map-risk" id="map-risk">
@@ -135,6 +154,7 @@
 
   <!-- ================= 开发者测试面板 ================= -->
   <button type="button" class="debug-btn" id="btn-debug">🛠️ 测试</button>
+  <button type="button" class="mute-btn" id="btn-mute">音效：开</button>
 
   <div class="debug-panel" id="debug-panel">
     <div class="dbg-head">
@@ -146,7 +166,7 @@
     <div class="dbg-people" id="dbg-people"></div>
 
     <div class="dbg-row">
-      <button type="button" class="dbg-btn" data-dbg="dying">目标濒死</button>
+      <button type="button" class="dbg-btn" data-dbg="dying">目标濒死（饿/水 90）</button>
       <button type="button" class="dbg-btn" data-dbg="sick">目标生病</button>
       <button type="button" class="dbg-btn" data-dbg="mad">目标发疯</button>
     </div>
@@ -157,7 +177,11 @@
     </div>
 
     <div class="dbg-row">
-      <button type="button" class="dbg-btn dbg-wide" data-dbg="stock">物资全满</button>
+      <button type="button" class="dbg-btn dbg-wide" data-dbg="stock">一键神装（物资各 10）</button>
+    </div>
+
+    <div class="dbg-row">
+      <button type="button" class="dbg-btn dbg-wide" data-dbg="allopen">全开（物资满 + 地图全开）</button>
     </div>
 
     <div class="dbg-row">
@@ -195,12 +219,12 @@
 
 </div>
 
-<script src="js/config.js?v=121"></script>
-<script src="js/balance.js?v=121"></script>
-<script src="js/game.js?v=121"></script>
-<script src="js/art.js?v=121"></script>
-<script src="js/sfx.js?v=121"></script>
-<script src="js/save.js?v=121"></script>
-<script src="js/ui.js?v=121"></script>
+<script src="js/config.js?v=174"></script>
+<script src="js/balance.js?v=174"></script>
+<script src="js/game.js?v=174"></script>
+<script src="js/art.js?v=174"></script>
+<script src="js/sfx.js?v=174"></script>
+<script src="js/save.js?v=174"></script>
+<script src="js/ui.js?v=174"></script>
 </body>
 </html>

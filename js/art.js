@@ -362,7 +362,6 @@ var ITEM_IMAGES = {
   flashlight: 'assets/item-flashlight.jpeg?v=2',
   weapon: 'assets/item-weapon.jpeg?v=1',
   backpack: 'assets/item-backpack.jpeg?v=1',
-  parts: 'assets/item-parts.jpeg?v=1',
   radio: 'assets/item-radio.jpeg?v=3',
   flare: 'assets/item-flare.jpeg?v=1',
   mask: 'assets/item-mask.jpeg?v=1',

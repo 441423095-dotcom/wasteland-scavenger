@@ -7536,10 +7536,12 @@ body.is-dead .debug-btn {
   background: rgba(255, 214, 90, 0.14);
 }
 
-.mini-slot svg {
+.mini-slot svg,
+.mini-slot img {
   display: block;
-  width: 11px;
-  height: 11px;
+  width: 11px !important;
+  height: 11px !important;
+  object-fit: contain;
 }
 
 /* 选人面板里的槽位提示 */
@@ -7633,4 +7635,1632 @@ body.is-dead .debug-btn {
 .map-info-lock {
   font-size: 10px;
   color: #ff8f80;
+}
+
+
+
+/* ============ v122：极简战术出发面板 ============ */
+
+.modal.modal-pick {
+  width: 96%;
+  max-width: 470px;
+  max-height: none;
+  padding: 12px 12px 10px;
+  overflow: visible;
+}
+
+.pp-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding-right: 20px;
+  margin-bottom: 4px;
+}
+
+.pp-title {
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #ffe9a8;
+  text-shadow: 0 0 10px rgba(255, 214, 90, 0.35), 0 1px 2px #000;
+}
+
+.pp-title small {
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #8b9784;
+}
+
+.pp-loc {
+  font-size: 11px;
+  color: #9fb2ac;
+}
+
+.pp-loot {
+  margin: 2px 0 1px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #ffe66a;
+  text-shadow: 0 0 8px rgba(255, 214, 90, 0.35), 0 1px 2px #000;
+}
+
+.pp-rec {
+  margin-bottom: 2px;
+  font-size: 10.5px;
+  color: #7fe9ff;
+  text-shadow: 0 0 6px rgba(90, 220, 255, 0.3);
+}
+
+.pp-list {
+  margin: 6px 0 8px;
+}
+
+.pp-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40px;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 1px;
+  padding: 5px 8px;
+  margin-bottom: 5px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+}
+
+.pp-row.is-on {
+  background: rgba(255, 214, 90, 0.12);
+  border-color: rgba(255, 214, 90, 0.8);
+  box-shadow: 0 0 12px rgba(255, 214, 90, 0.25);
+}
+
+.pp-main {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  padding: 0;
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pp-check {
+  flex: 0 0 12px;
+  width: 12px;
+  height: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 3px;
+}
+
+.pp-check.is-on {
+  background: #ffe9a8;
+  border-color: #ffe9a8;
+  box-shadow: 0 0 8px rgba(255, 214, 90, 0.7);
+}
+
+.pp-fig {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.pp-fig img {
+  display: block;
+  width: 30px !important;
+  height: 30px !important;
+  object-fit: cover;
+}
+
+.pp-main .mini-name,
+.pp-main b {
+  font-size: 13px;
+  color: #f2efe6;
+}
+
+.pp-role {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-left: 2px;
+  font-size: 10px;
+  line-height: 1.25;
+  color: #8f9d86;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pp-eff {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+  padding-left: 19px;
+  font-size: 10px;
+  line-height: 1.3;
+  color: #d8d8c8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pp-slot-now {
+  display: none;
+}
+
+.pp-slot {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 10px;
+  color: #7c8676;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px dashed rgba(255, 255, 255, 0.26);
+  border-radius: 6px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pp-slot.is-on {
+  color: #ffe9a8;
+  border: 1px solid rgba(255, 214, 90, 0.85);
+  background: rgba(255, 214, 90, 0.15);
+  box-shadow: 0 0 12px rgba(255, 214, 90, 0.35);
+}
+
+.pp-slot svg,
+.pp-slot img {
+  width: 22px !important;
+  height: 22px !important;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.pp-slot-wrap {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  width: 40px;
+}
+
+.pp-pop {
+  position: absolute;
+  right: 0;
+  top: 44px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  background: #07090a;
+  border: 1px solid rgba(255, 214, 90, 0.6);
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.85);
+}
+
+.pp-pop-btn {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pp-pop-btn:active {
+  background: rgba(255, 214, 90, 0.22);
+  border-color: rgba(255, 214, 90, 0.8);
+}
+
+.pp-pop-btn svg,
+.pp-pop-btn img {
+  width: 22px !important;
+  height: 22px !important;
+  object-fit: contain;
+}
+
+.pp-pop-empty {
+  padding: 2px 6px;
+  font-size: 10px;
+  color: #8b9784;
+  white-space: nowrap;
+}
+
+.modal.modal-pick .modal-actions {
+  margin-top: 0;
+}
+
+
+
+/* ============ v127：抢物资小游戏重做 ============ */
+
+/* 顶部掉落计数：用实物图 */
+.mini-counts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mini-cnt {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: #ffe9a8;
+}
+
+.mini-cnt img,
+.mini-cnt svg {
+  width: 16px !important;
+  height: 16px !important;
+  object-fit: contain;
+}
+
+/* 掉落的物资：实物图，34px */
+.mini-item {
+  width: 34px;
+  height: 34px;
+  font-size: 0;
+  filter: drop-shadow(0 3px 7px rgba(0, 0, 0, 0.75));
+  will-change: top;
+}
+
+.mini-item img,
+.mini-item svg {
+  display: block;
+  width: 34px !important;
+  height: 34px !important;
+  object-fit: contain;
+}
+
+/* 运输机：SVG 大飞机，慢慢横穿天空 */
+.mini-plane {
+  position: absolute;
+  top: 0;
+  left: 105%;
+  width: 158px;
+  height: auto;
+  font-size: 0;
+  color: transparent;
+  animation: plane-run 26s linear infinite;
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.6));
+}
+
+.mini-plane svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mini-plane::after {
+  content: "";
+  position: absolute;
+  right: 84%;
+  top: 60%;
+  width: 90px;
+  height: 12px;
+  background: linear-gradient(90deg, rgba(200, 200, 200, 0.28), rgba(200, 200, 200, 0));
+  filter: blur(5px);
+  border-radius: 50%;
+}
+
+/* 破地毯：改成有厚度的旧毯子/网兜 */
+#mini-basket {
+  bottom: 18%;
+  width: 152px;
+  height: 62px;
+  border-radius: 10px 10px 30px 30px / 8px 8px 22px 22px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.22) 0 6px,
+      rgba(255, 255, 255, 0.05) 6px 12px
+    ),
+    linear-gradient(180deg, #b0724a 0%, #7d4b2a 58%, #56321a 100%);
+  border: 2px solid #2c1a10;
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.6),
+    inset 0 4px 10px rgba(255, 255, 255, 0.14);
+  clip-path: none;
+}
+
+#mini-basket::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  right: -9px;
+  top: -11px;
+  height: 13px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #d5a26c, #8b5931);
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.55);
+}
+
+#mini-basket::after {
+  content: "";
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  bottom: -7px;
+  height: 9px;
+  background: repeating-linear-gradient(
+    90deg,
+    #8b5931 0 3px,
+    transparent 3px 12px
+  );
+}
+
+/* 结算按钮换成暖色，别再是绿块 */
+.mini-over-btn {
+  padding: 11px 26px;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: #ffe9c8;
+  background: linear-gradient(180deg, #7d2418, #45120c);
+  border: 1px solid rgba(255, 140, 110, 0.65);
+  border-radius: 6px;
+  box-shadow: 0 0 20px rgba(200, 60, 40, 0.35);
+}
+
+.mini-over-btn:active {
+  background: linear-gradient(180deg, #932c1d, #54170f);
+}
+
+
+
+/* ============ v129：死亡卡片 ============ */
+.mini-card.is-dead {
+  opacity: 0.5;
+  filter: grayscale(1);
+  pointer-events: none;
+  background: rgba(18, 18, 18, 0.88) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: none !important;
+}
+
+.mini-card.is-dead .mini-fig {
+  filter: grayscale(1) brightness(0.7);
+}
+
+.mini-dead {
+  margin-left: 5px;
+  font-size: 9.5px;
+  letter-spacing: 2px;
+  color: #ff8f80;
+  text-shadow: 0 1px 2px #000;
+}
+
+
+
+/* ============ v130：探险日志顶部背包状态条 ============ */
+.log-bag {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 2px 0 8px;
+  padding: 4px 7px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+}
+
+.log-bag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  line-height: 1;
+  color: #ffe9a8;
+}
+
+.log-bag-chip img,
+.log-bag-chip svg {
+  width: 16px !important;
+  height: 16px !important;
+  object-fit: contain;
+  opacity: 0.9;
+}
+
+.log-bag-chip b {
+  font-weight: 700;
+  color: #fff3c4;
+}
+
+.log-bag-cap {
+  margin-left: auto;
+  font-size: 10px;
+  color: #9fb2ac;
+}
+
+.log-bag-empty {
+  font-size: 10.5px;
+  color: #7c8676;
+}
+
+
+
+/* ============ v131：探险日志的临时背包格子 ============ */
+.log-bag {
+  position: relative;
+  margin: 2px 0 8px;
+  padding: 6px 8px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+}
+
+.log-bag-cap {
+  display: block;
+  font-size: 10px;
+  text-align: right;
+  color: #9fb2ac;
+}
+
+.log-bag-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.log-slot {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px dashed rgba(255, 255, 255, 0.26);
+  border-radius: 5px;
+}
+
+.log-slot.is-on {
+  border: 1px solid rgba(255, 214, 90, 0.7);
+  background: rgba(255, 214, 90, 0.12);
+}
+
+.log-slot.is-over {
+  border: 1px dashed #ff4b3a;
+  background: rgba(255, 75, 58, 0.16);
+}
+
+.log-slot img,
+.log-slot svg {
+  width: 22px !important;
+  height: 22px !important;
+  object-fit: contain;
+}
+
+
+
+/* ============ v134：抢物资小游戏加难度（炸弹 / 慢速 / 4 格） ============ */
+.mini-item.is-bomb svg {
+  width: 34px !important;
+  height: 34px !important;
+  filter: drop-shadow(0 0 8px rgba(255, 90, 60, 0.45));
+}
+
+.mini-cnt-cap {
+  margin-left: 4px;
+  font-size: 10px;
+  color: #9fb2ac;
+}
+
+.mini-flash.is-bomb {
+  background: rgba(200, 40, 25, 0.55);
+  animation: bomb-flash 0.26s linear;
+}
+
+@keyframes bomb-flash {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+
+
+/* ============ v135：夜间警情强制弹窗 + 死亡全屏血红警告 ============ */
+.modal.modal-night-alert {
+  width: 92%;
+  max-width: 430px;
+  border: 1px solid rgba(255, 120, 90, 0.5);
+  background: linear-gradient(180deg, rgba(42, 21, 18, 0.97), rgba(23, 12, 10, 0.98));
+  box-shadow: 0 0 30px rgba(180, 40, 20, 0.32);
+}
+
+.na-tag {
+  font-size: 11px;
+  letter-spacing: 5px;
+  color: #ff8f7a;
+}
+
+.na-title {
+  margin: 4px 0 10px;
+  font-size: 19px;
+  font-weight: 800;
+  color: #ffd9cf;
+}
+
+.na-list {
+  margin-bottom: 10px;
+}
+
+.na-line {
+  padding: 8px 0;
+  font-size: 13px;
+  line-height: 1.72;
+  color: #ecd8d0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.na-line:last-child {
+  border-bottom: 0;
+}
+
+/* 死亡：整块血红，压在所有东西上面 */
+.modal.modal-death-alert {
+  width: 94%;
+  max-width: 460px;
+  border: 1px solid #a11b1b;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(120, 14, 14, 0.96), rgba(26, 3, 3, 0.99) 72%);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.8),
+    0 0 44px rgba(190, 0, 0, 0.55);
+}
+
+/* 这两个窗口不给叉：必须点【安葬】/【知道了】 */
+.modal-death-alert .modal-x,
+.modal-night-alert .modal-x {
+  display: none;
+}
+
+.dead-mark {
+  font-size: 12px;
+  letter-spacing: 8px;
+  color: #ff9b9b;
+}
+
+.dead-title {
+  margin: 6px 0 12px;
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.4;
+  color: #ffffff;
+}
+
+.dead-one {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 9px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.14);
+}
+
+.dead-one:last-child {
+  border-bottom: 0;
+}
+
+.dead-one b {
+  font-size: 17px;
+  color: #ffffff;
+}
+
+.dead-one span {
+  font-size: 12px;
+  color: #ffb3a8;
+}
+
+.modal-death-alert .btn {
+  width: 100%;
+  border-color: #c13030;
+  background: #8c1010;
+  color: #ffffff;
+}
+
+.modal-death-alert .btn:active {
+  background: #a81616;
+}
+
+
+
+/* ============ v137：抢物资 —— 背包 8 格、毯子定位修正 ============ */
+.mini-cnt-cap.is-full {
+  color: #ff8f7a;
+  font-weight: 700;
+}
+
+
+
+/* ============ v139：卡片高亮只留“选中”一种金光，可喂的人只用小绿点 ============ */
+.mini-card.is-ready:not(.is-lead) {
+  border-color: rgba(210, 220, 200, 0.22) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45) !important;
+}
+
+.mini-card.is-ready .mini-name::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 5px;
+  border-radius: 50%;
+  background: #7fd16a;
+  box-shadow: 0 0 6px rgba(127, 209, 106, 0.85);
+  vertical-align: middle;
+}
+
+
+
+/* ============ v142：天数右移 + 物品栏改成「基础物资 / 道具」 ============ */
+.day-big {
+  left: auto;
+  right: 14px;
+  top: 26px;
+  z-index: 40;
+  text-align: right;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.day-big b {
+  font-size: 24px;
+}
+
+/* 物品栏：中间那栏放得下七八件道具，整体往上紧凑一点 */
+.inv {
+  width: 306px;
+  max-width: 78vw;
+  right: 8px;
+  top: 58px;
+}
+
+.shelf-sec {
+  padding-top: 7px;
+  margin-bottom: 2px;
+}
+
+.shelf-label {
+  font-size: 9px;
+  padding: 1px 6px;
+  margin-bottom: 1px;
+}
+
+.shelf-row {
+  gap: 2px;
+  min-height: 0;
+}
+
+.shelf-row-wrap {
+  flex-wrap: wrap;
+}
+
+.inv-cell .inv-ico svg,
+.inv-cell .inv-ico img {
+  width: 38px !important;
+  height: 38px !important;
+}
+
+
+
+/* ============ v143：破损收音机黑白 + 道具区精简 ============ */
+.inv-cell.is-broken .inv-ico,
+.inv-cell.is-broken .inv-ico svg,
+.inv-cell.is-broken .inv-ico img {
+  filter: grayscale(100%) brightness(0.6) !important;
+}
+
+.gear-big-ico.is-broken {
+  filter: grayscale(100%) brightness(0.6);
+}
+
+
+
+/* 破损道具的小标签 */
+.inv-cell .inv-tag {
+  position: absolute;
+  left: 1px;
+  bottom: 1px;
+  padding: 0 2px;
+  font-size: 8px;
+  line-height: 1.2;
+  color: #ffb3a8;
+  background: rgba(0, 0, 0, 0.65);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+
+
+/* ============ v145：左下角改成同伴的一句话，不再是生硬的任务条 ============ */
+.quest {
+  display: block;
+}
+
+.quest-who {
+  display: inline-block;
+  margin-right: 5px;
+  padding: 0 5px;
+  font-size: 10px;
+  line-height: 1.6;
+  font-weight: 700;
+  color: #14110a;
+  background: linear-gradient(180deg, #ffe9a8, #d9b243);
+  border-radius: 3px;
+  vertical-align: middle;
+}
+
+.quest-say {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #ffe9a8;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+
+
+/* ============ v146：正文 / 日志里的关键词上色 ============ */
+.hi {
+  font-weight: 700;
+}
+
+.hi-gold {
+  color: #ffd76a;
+}
+
+.hi-place {
+  color: #7fd7ff;
+}
+
+.hi-bad {
+  color: #ff7f6e;
+}
+
+.hi-good {
+  color: #8fe6a8;
+}
+
+.hi-stat {
+  color: #c9e3ff;
+}
+
+.hi-key {
+  color: #ffe9a8;
+  text-shadow: 0 0 8px rgba(255, 214, 90, 0.35);
+}
+
+
+
+/* ============ v148：左下角提示放大，说话的人更醒目 ============ */
+.quest-who {
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 1px 8px;
+  margin-right: 6px;
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+
+.quest-say {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #ffe9a8;
+}
+
+
+
+/* ============ v149：音效开关、今晚风险、地图缺口、逝者名单 ============ */
+.mute-btn {
+  position: absolute;
+  left: 6px;
+  top: 4px;
+  z-index: 45;
+  padding: 4px 7px;
+  font-family: inherit;
+  font-size: 11px;
+  color: #e8f0e0;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.night-risk {
+  margin: 0 0 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #b9c6af;
+}
+
+.night-risk.is-warn {
+  color: #ffd76a;
+}
+
+.night-risk.is-bad {
+  color: #ff7f6e;
+  font-weight: 700;
+}
+
+.map-need {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+.map-need img,
+.map-need svg {
+  width: 16px !important;
+  height: 16px !important;
+  object-fit: contain;
+}
+
+.quest-note {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #ffb3a8;
+}
+
+.grave-line {
+  padding: 2px 0;
+  font-size: 12px;
+  color: #c9b0ab;
+}
+
+@media (max-width: 360px) {
+  .inv {
+    width: 252px;
+    max-width: 82vw;
+  }
+
+  .quest-say {
+    font-size: 12.5px;
+  }
+
+  .day-big b {
+    font-size: 20px;
+  }
+}
+
+
+
+/* ============ v150：投喂按钮 + 第一天引导呼吸光 ============ */
+.actions .btn.is-next {
+  animation: guidePulse 1.8s ease-in-out infinite;
+  border-color: rgba(255, 214, 90, 0.85) !important;
+}
+
+@keyframes guidePulse {
+  0%, 100% {
+    box-shadow: 0 0 6px rgba(255, 214, 90, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(255, 214, 90, 0.85);
+  }
+}
+
+
+
+/* ============ v153：人物说话气泡挪到人物旁边，不再被人物卡挡住 ============ */
+.bubbles {
+  z-index: 60;
+}
+
+.bubble {
+  left: 33%;
+  top: 9%;
+  max-width: 150px;
+  padding: 5px 8px;
+  font-size: 11px;
+  line-height: 1.45;
+  border-radius: 8px;
+  transform: none;
+  z-index: 61;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+}
+
+.bubble::after {
+  left: -9px;
+  top: 10px;
+  bottom: auto;
+  margin-left: 0;
+  border: 5px solid transparent;
+  border-right-color: #f4ecc8;
+  border-top-color: transparent;
+}
+
+#bubble-0 { left: 33%; top: 8%; }
+#bubble-1 { left: 33%; top: 16%; }
+#bubble-2 { left: 33%; top: 24%; }
+#bubble-3 { left: 33%; top: 32%; }
+
+@media (max-width: 360px) {
+  .bubble {
+    left: 31%;
+    max-width: 136px;
+    font-size: 10.5px;
+  }
+}
+
+
+
+/* ============ v156：人物面板重做 —— 档案头 + 身份 + 数值 + 状态标签 ============ */
+.people-panel {
+  gap: 4px;
+  max-height: calc(100% - 190px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.people-panel::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* 面板小标题：几个人、今天还差几口 */
+.people-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 0 0 auto;
+  padding: 2px 7px 2px 8px;
+  font-size: 9.5px;
+  line-height: 1.3;
+  letter-spacing: 0.5px;
+  color: #cfe4c6;
+  background: linear-gradient(180deg, rgba(20, 34, 24, 0.86), rgba(8, 14, 10, 0.82));
+  border: 1px solid rgba(150, 220, 160, 0.22);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.people-title {
+  color: #dff3e2;
+  font-weight: 700;
+}
+
+.people-count {
+  color: #8fa595;
+}
+
+.people-count b {
+  font-size: 11px;
+  color: #ffe28a;
+}
+
+.people-ok,
+.people-need {
+  margin-left: auto;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.people-ok {
+  color: #9fd8a6;
+}
+
+.people-need {
+  color: #ffcf6b;
+  font-weight: 700;
+}
+
+/* 名片左边一条状态色边：一眼看出谁最危险 */
+.mini-card {
+  flex: 0 0 auto;
+  padding: 5px 7px 5px 8px;
+  border-left-width: 3px;
+  border-left-style: solid;
+  border-left-color: rgba(140, 210, 150, 0.55);
+  transition: transform 0.08s ease;
+}
+
+.mini-card:active {
+  transform: scale(0.985);
+}
+
+.mini-card.is-starving {
+  border-left-color: #ffc93c;
+}
+
+.mini-card.is-deadly {
+  border-left-color: #ff4b3a;
+}
+
+.mini-card.is-lead {
+  border-left-color: #ffd35c;
+}
+
+.mini-card.is-dead {
+  border-left-color: rgba(150, 150, 150, 0.4);
+}
+
+/* 名字前面的“带队”星标 */
+.mini-star {
+  margin-right: 2px;
+  font-size: 9px;
+  color: #ffd35c;
+  text-shadow: 0 0 6px rgba(255, 211, 92, 0.85);
+}
+
+/* 名字行：星标 + 名字 + 今日状态 + 装备槽，挤在一行里，不额外占高度 */
+.mini-name {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mini-name-main {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-marks {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 1px;
+}
+
+.mini-mark {
+  padding: 0 1px;
+  font-size: 8px;
+  line-height: 1.2;
+  border-radius: 2px;
+  color: #b9c9bb;
+}
+
+.mini-mark.is-ok {
+  color: #9be6a8;
+}
+
+.mini-mark.is-warn {
+  color: #ffcf6b;
+}
+
+.mini-mark.is-bad {
+  color: #ff9a8a;
+  font-weight: 700;
+}
+
+.mini-name .mini-slot {
+  margin-left: auto;
+}
+
+.mini-main {
+  gap: 1px;
+}
+
+.mrow {
+  height: 10px;
+}
+
+/* 状态条右边的数字 */
+.mval {
+  flex: 0 0 auto;
+  width: 15px;
+  font-size: 8.5px;
+  line-height: 1;
+  text-align: right;
+  color: rgba(255, 255, 255, 0.55);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 1px #000;
+}
+
+.mrow.is-low .mval {
+  color: #ff8f7a;
+  font-weight: 700;
+}
+
+/* 某项快见底时给小按键补个感叹号，颜色跟着条子走 */
+.mini-card .mrow.is-low.r-hp .mkey::after {
+  content: "!";
+  margin-left: 1px;
+  color: #ff7f6e;
+  font-weight: 700;
+}
+
+.mini-card .mrow.is-low.r-thirst .mkey::after {
+  content: "!";
+  margin-left: 1px;
+  color: #6fd8ff;
+  font-weight: 700;
+}
+
+.mini-card .mrow.is-low.r-food .mkey::after {
+  content: "!";
+  margin-left: 1px;
+  color: #ffca4d;
+  font-weight: 700;
+}
+
+.mini-card .mrow.is-low.r-mood .mkey::after {
+  content: "!";
+  margin-left: 1px;
+  color: #8fe6a8;
+  font-weight: 700;
+}
+
+/* 窄屏：别把面板撑太高 */
+@media (max-width: 360px) {
+  .mini-mark {
+    font-size: 7.5px;
+  }
+}
+
+
+
+/* ============ v159：进下一层之前，先把危险说明白 ============ */
+.risk-note {
+  margin: 6px 0 2px;
+  padding: 5px 8px;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: #cfd8c6;
+  background: rgba(0, 0, 0, 0.35);
+  border-left: 3px solid rgba(200, 210, 190, 0.45);
+  border-radius: 5px;
+}
+
+.risk-note.is-warn {
+  color: #ffe4a3;
+  border-left-color: #ffc93c;
+  background: rgba(80, 60, 10, 0.32);
+}
+
+.risk-note.is-bad {
+  color: #ffb3a8;
+  border-left-color: #ff4b3a;
+  background: rgba(110, 20, 12, 0.36);
+  font-weight: 700;
+}
+
+
+
+/* ============ v160：单人名片改成一份小档案 ============ */
+.modal-detail .hero {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 0 10px;
+}
+
+.modal-detail .hero-fig {
+  flex: 0 0 auto;
+  padding: 3px;
+  background: #08110c;
+  border-radius: 8px;
+  box-shadow:
+    inset 0 2px 10px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(150, 220, 160, 0.25);
+}
+
+.modal-detail .hero-fig .portrait-img {
+  display: block;
+  border-radius: 5px;
+  border: 2px solid rgba(150, 220, 160, 0.55);
+  box-shadow: 0 0 12px rgba(79, 224, 106, 0.35);
+  filter: sepia(0.12) contrast(1.05);
+}
+
+.hero-meta {
+  min-width: 0;
+}
+
+.hero-name {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #eafff0;
+  text-shadow: 0 2px 6px #000;
+}
+
+.hero-lead {
+  margin-left: 6px;
+  padding: 1px 5px;
+  font-size: 9.5px;
+  font-weight: 700;
+  vertical-align: middle;
+  color: #14110a;
+  background: linear-gradient(180deg, #ffe9a8, #d9b243);
+  border-radius: 3px;
+}
+
+.hero-role {
+  margin-top: 2px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: #9fd8a6;
+}
+
+.hero-quote {
+  margin-top: 5px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #d9c98f;
+  text-shadow: 0 1px 2px #000;
+}
+
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 5px;
+}
+
+.hero-tag {
+  padding: 1px 5px;
+  font-size: 9.5px;
+  color: #cfe4c6;
+  background: rgba(80, 200, 120, 0.13);
+  border: 1px solid rgba(120, 220, 150, 0.28);
+  border-radius: 3px;
+}
+
+.info-box {
+  margin: 0 0 8px;
+  padding: 7px 9px;
+  background: rgba(10, 22, 15, 0.62);
+  border: 1px solid rgba(120, 180, 135, 0.18);
+  border-left: 3px solid #3f7a52;
+  border-radius: 6px;
+}
+
+.box-title {
+  margin-bottom: 4px;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #8fc79d;
+}
+
+.box-text {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #d5e2d3;
+}
+
+.adv-row {
+  display: flex;
+  gap: 6px;
+  padding: 3px 0;
+  border-top: 1px dashed rgba(120, 180, 135, 0.15);
+}
+
+.adv-row:first-of-type {
+  border-top: 0;
+}
+
+.adv-name {
+  flex: 0 0 auto;
+  min-width: 52px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffe9a8;
+}
+
+.adv-desc {
+  flex: 1;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #c8d6c8;
+}
+
+
+
+/* ============ v161：探险日志更好读，按钮更好点 ============ */
+.modal.modal-log {
+  max-width: 520px;
+}
+
+.modal-log .log-line {
+  margin: 7px 0;
+  font-size: 15px;
+  line-height: 1.85;
+  color: #e6ecdf;
+}
+
+.modal-log .res-label {
+  margin: 16px 0 7px;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: #b7c9a9;
+}
+
+.modal-log .res-text {
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+/* 摸到的东西：字更大、按种类上色 */
+.modal-log .loot-chip {
+  gap: 6px;
+  padding: 6px 11px;
+  font-size: 13.5px;
+  font-weight: 700;
+  border-radius: 6px;
+  background: #232823;
+  border: 2px solid #3f4a3f;
+}
+
+.modal-log .loot-chip svg {
+  width: 20px;
+}
+
+.modal-log .loot-qty {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffe28a;
+}
+
+.modal-log .loot-chip.is-food {
+  color: #c6f5cf;
+  background: rgba(40, 92, 56, 0.55);
+  border-color: rgba(120, 220, 150, 0.55);
+}
+
+.modal-log .loot-chip.is-water {
+  color: #c3e6ff;
+  background: rgba(24, 62, 96, 0.6);
+  border-color: rgba(110, 190, 255, 0.55);
+}
+
+.modal-log .loot-chip.is-medicine {
+  color: #ffc9d6;
+  background: rgba(92, 34, 56, 0.55);
+  border-color: rgba(255, 140, 180, 0.5);
+}
+
+.modal-log .loot-chip.is-material {
+  color: #ffdcaa;
+  background: rgba(92, 66, 30, 0.55);
+  border-color: rgba(235, 190, 110, 0.5);
+}
+
+.modal-log .loot-chip.is-total {
+  box-shadow: 0 0 8px rgba(255, 214, 90, 0.22);
+}
+
+.modal-log .res-line {
+  font-size: 13.5px;
+}
+
+.modal-log .res-line .res-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffe28a;
+}
+
+.modal-log .res-bad {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.modal-log .night-story {
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: #ffe9a8;
+  border-left: 3px solid rgba(255, 214, 90, 0.45);
+}
+
+.modal-log .risk-note {
+  font-size: 12.5px;
+}
+
+/* 底部按钮：整行、加大，别再挤成小方块 */
+.modal-log .modal-actions {
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 16px;
+}
+
+.modal-log .modal-actions .btn {
+  flex: none;
+  width: 100%;
+  min-height: 50px;
+  padding: 14px 12px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  border-radius: 8px;
+}
+
+.modal-log .modal-actions .btn-main {
+  min-height: 56px;
+  font-size: 17px;
+  box-shadow: 0 0 14px rgba(255, 214, 90, 0.28);
+}
+
+.modal-log .opt-desc {
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
+@media (max-width: 360px) {
+  .modal-log .log-line {
+    font-size: 14px;
+  }
+
+  .modal-log .modal-actions .btn {
+    min-height: 46px;
+    font-size: 15px;
+  }
+}
+
+
+.modal-log .modal-actions-col {
+  gap: 8px;
+}
+
+.modal-log .opt-row {
+  margin: 0;
+}
+
+.modal-log .opt-row .btn {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 10px;
+  font-size: 15.5px;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+
+
+/* ============ v162：下一层能翻出什么，概率写在按钮上面 ============ */
+.depth-facts {
+  margin: 6px 0 2px;
+  padding: 7px 10px;
+  background: rgba(18, 34, 24, 0.62);
+  border: 1px solid rgba(150, 220, 160, 0.22);
+  border-left: 3px solid #4f8f62;
+  border-radius: 6px;
+}
+
+.df-title {
+  margin-bottom: 3px;
+  font-size: 10.5px;
+  letter-spacing: 1px;
+  color: #9fd8a6;
+}
+
+.depth-facts ul {
+  margin: 0;
+  padding-left: 16px;
+}
+
+.depth-facts li {
+  margin: 2px 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #d5e2d3;
+}
+
+.depth-facts li::marker {
+  color: #7fd16a;
+}
+
+
+
+/* ============ v164：说清楚能力和队长的区别 ============ */
+.pp-hint {
+  margin: 2px 0 6px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #9fd8a6;
+}
+
+
+
+/* ============ v165：删掉“队长”之后，所有名片同样亮 ============ */
+.mini-card:not(.is-lead) {
+  filter: none;
+}
+
+
+
+/* ============ v166：今天已经出去过的人，灰着留在名单里 ============ */
+.pp-row.is-tired {
+  opacity: 0.45;
+}
+
+.pp-row.is-tired .pp-main {
+  cursor: default;
+}
+
+
+
+/* ============ v167：木板改造 + 后日谈 ============ */
+.up-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  margin: 0 0 6px;
+  padding: 8px 10px;
+  text-align: left;
+  font-family: inherit;
+  color: #d5e2d3;
+  background: rgba(16, 30, 20, 0.7);
+  border: 1px solid rgba(120, 180, 135, 0.25);
+  border-left: 3px solid #4f8f62;
+  border-radius: 6px;
+}
+
+.up-row.is-off {
+  opacity: 0.45;
+}
+
+.up-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffe9a8;
+}
+
+.up-desc {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #b9c9bb;
+}
+
+.up-cost {
+  font-size: 11px;
+  color: #ffcf6b;
+}
+
+.epi-line {
+  margin: 4px 0;
+  font-size: 12.5px;
+  line-height: 1.65;
+  color: #d5e2d3;
+}
+
+.epi-line b {
+  color: #ffe9a8;
+}
+
+
+
+/* ============ v168：同一个地点一天只搜一次 ============ */
+.map-spot.is-done {
+  opacity: 0.4;
+  filter: grayscale(1);
 }

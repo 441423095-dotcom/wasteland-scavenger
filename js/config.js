@@ -12,7 +12,7 @@ SF.CONFIG = {
   maxStat: 100,
 
   startSupplies: {
-    food: 3,
+    food: 2,
     water: 2
   },
 
@@ -20,7 +20,7 @@ SF.CONFIG = {
     hp: 100,
     hunger: 20,
     thirst: 20,
-    mood: 75
+    mood: 80
   },
 
   // 主角什么时候改成蹲着的样子
@@ -40,8 +40,21 @@ SF.CONFIG = {
       role: '程序员',
       trait: '电子达人',
       traitText: '捡到收音机时，他修好的概率极高。',
+      quote: '代码能跑，人就能活。别慌。',
+      epilogue: '撤离之后被安排进通信营修设备，据说全队的电台都归他管。他还是那句老话：能修的东西，别急着扔。',
+      bio: '在一家外包公司写了六年代码，加班到凌晨是家常便饭，最擅长把一台开不了机的旧设备拆开、修好、再装回去。末日那天他抱着公司的主机躲进楼道，后来才明白，真正救命的不是硬盘里那些代码，是这双手。队里谁的手电没电、收音机不响，最后都会堆到他面前。',
+      strengths: [
+        { name: '拆解高手', desc: '进到深处能拆出更多木板，车库一趟多两块。' },
+        { name: '修收音机', desc: '他修收音机的成功率 90%，别人只有 35%。' },
+        { name: '手脚麻利', desc: '翻找时更容易先摸到能用的零件。' }
+      ],
+      lines: {
+        haul: ['这堆东西够撑两天，走吧，别贪。', '板子给我，我拆开来还能用。', '运气不错，再多待十分钟就说不准了。'],
+        empty: ['白跑一趟……下趟我带工具来。', '先回去，别把命送给一堆空柜子。'],
+        hurt: ['别动，我看看伤口。', '撑住，回去我给你缝。']
+      },
       style: 'chen',
-      portrait: 'assets/portrait-tie.png',
+      portrait: 'assets/portrait-chen.jpg?v=5',
       isPlayer: true
     },
     {
@@ -50,8 +63,21 @@ SF.CONFIG = {
       role: '考研党',
       trait: '囤积癖',
       traitText: '队里的水和物资都由她清点，谁都别想浪费。',
+      quote: '水省着喝，先记账。',
+      epilogue: '安置点的物资登记表是她一笔一划重做的，再没人敢多领一瓶水。她说等安稳了就回去把没考完的那场试考完。',
+      bio: '二战考研，专业课背到第三轮，世界先塌了。她把宿舍能吃的东西全算了一遍，连半瓶矿泉水都记在本子上，从此落下毛病——看见任何能吃能喝的，先想的是“这个能放几天”。队里的账现在全在她手里，谁也糊弄不过去。',
+      strengths: [
+        { name: '精打细算', desc: '队里的水和物资都由她清点，每天总能多匀出一点。' },
+        { name: '药理知识', desc: '进到深处会认出草药，多带回一份药品。' },
+        { name: '心细', desc: '角落里的半罐杀虫剂、零碎小件，她一眼就能看见。' }
+      ],
+      lines: {
+        haul: ['这些我先记账。水只留两瓶，剩下的封起来。', '别急着吃，先看看哪样放得住。', '药归药，吃的归吃的，别混一起。'],
+        empty: ['空了就是空了，记一笔，下趟换地方。', '别再往里走了，家里还有三个人等着。'],
+        hurt: ['按着这里，别松手，血会止住的。', '我算过分量，药还够救你一次。']
+      },
       style: 'lin',
-      portrait: 'assets/portrait-chen.png'
+      portrait: 'assets/portrait-lin.jpg?v=5'
     },
     {
       id: 'tie',
@@ -59,8 +85,21 @@ SF.CONFIG = {
       role: '健身教练',
       trait: '体力充沛',
       traitText: '派他出门带回的物资翻倍。',
+      quote: '东西我背，你们走前面。',
+      epilogue: '他成了安置点搬东西的那个人，一天还是吃六顿，只是终于又吃得下了。有人问他末日里怕不怕，他说怕，怕的是没人让他搬。',
+      bio: '健身房教练，一天能吃六顿，最喜欢带学员做硬拉。楼塌的时候他正扛着杠铃，是唯一一个轻轻松松把变形的防盗门推开的人。从那天起他再没去过健身房，也再没胃口，但只要有东西要搬，他还是第一个站起来。',
+      strengths: [
+        { name: '力大', desc: '食物和木板能多背两份，负重 4 格。' },
+        { name: '挡在前面', desc: '保安亭最里面带上他，受伤概率从 80% 降到 55%。' },
+        { name: '胃口也大', desc: '每天要吃两份食物，粮食紧张时得先算他。' }
+      ],
+      lines: {
+        haul: ['都给我，我来背。你们手空着好打架。', '就这点？下趟把陈默也带上，他能拆。', '这一趟够本，回去吃饭。'],
+        empty: ['空手？我不信，让我再砸开一扇门。', '算了，命要紧，回去。'],
+        hurt: ['皮外伤，死不了。', '把包给我，我还能走。']
+      },
       style: 'tie',
-      portrait: 'assets/portrait-lin.png'
+      portrait: 'assets/portrait-tie.jpg?v=5'
     },
     {
       id: 'nana',
@@ -68,8 +107,21 @@ SF.CONFIG = {
       role: '美妆博主',
       trait: '交涉能力',
       traitText: '遇到掠夺者时，她大概率能毫发无伤地保住物资，甚至多拿一些。',
+      quote: '别怕，他们也怕。',
+      epilogue: '到了安置点，她第一件事是借了面镜子重新化妆。后来营地跟隔壁为了水管吵起来，是她去谈下来的。',
+      bio: '镜头前一百多万粉丝，镜头后一个人住。末日那天她照样化好妆才出门，说万一被拍到，不能难看。结果这张脸、这张嘴，后来救过全队好几次——毕竟在这年头，能好好说话的人比子弹管用。',
+      strengths: [
+        { name: '能说会道', desc: '遇到掠夺者或野狗，她能谈下来，这一趟不会受伤。' },
+        { name: '顺手捞一点', desc: '谈完还能反抢回一些物资。' },
+        { name: '撑场面', desc: '门口来人、黑市砍价这类事，带上她准没错。' }
+      ],
+      lines: {
+        haul: ['别摆那张脸，笑一个，明天还得来。', '这点东西也值得你皱眉？我见过更惨的。', '东西收好，我看看还有没有人跟着。'],
+        empty: ['空手也比躺下强，走了。', '别苦着脸，明天我带你们去个好地方。'],
+        hurt: ['哎呀，破相了……不过还能看。', '别喊，疼就咬着这个。']
+      },
       style: 'nana',
-      portrait: 'assets/portrait-nana.png'
+      portrait: 'assets/portrait-nana.jpg?v=5'
     }
   ],
 
@@ -78,7 +130,7 @@ SF.CONFIG = {
     tieFoodCost: 2,       // 铁柱每天吃 2 份食物
     tieLootMult: 2,       // 铁柱带回的物资翻倍
     linWaterFactor: 1,    // 水统一按整数算
-    nanaNegotiate: 0.85,  // 娜娜交涉成功概率
+    nanaNegotiate: 0.8,   // 娜娜交涉成功概率（80%）
     nanaBonus: [1, 3],    // 交涉成功额外带回
     chenRepair: 0.9,      // 陈默修收音机
     otherRepair: 0.35,    // 别人修收音机
@@ -90,28 +142,37 @@ SF.CONFIG = {
     searchDelay: 900,
     maxSurvivors: 4,
 
-    newcomerChance: 0.1,      // 带回新幸存者（10%）
+    // 这栋楼里不会再有人加入了：只有可能少人，不可能多一个外人
+    newcomerChance: 0,       // 保留字段，永远为 0
     specialChance: 0.04,      // 搜到收音机 / 杀虫剂（极低）
 
-    hungerCost: 12,
-    thirstCost: 16,
+    hungerCost: 10,
+    thirstCost: 20,
 
     junkChanceNear: 0.2,      // 近点只搜到材料的概率
-    junkLoot: [1, 3],
+    junkLoot: [1, 2],
 
     radioChance: 0.3,         // 车库 / 保安亭深层翻出破收音机的概率
 
     failLootFactor: 0.25,
 
-    injuryChanceFar: 0.3,     // 远点（卫生站 / 车库 / 保安亭）受伤概率
+    injuryChanceFar: 0.3,     // 远点（医务室 / 车库 / 保安亭）受伤概率
     injuryChanceNear: 0.15,   // 近点失手受伤概率
     injuryHp: 30,             // 被流浪狗 / 强盗伤到：直接掉 30 血
     injuredPenalty: 0.5,      // 受伤的人成功率减半
 
+    // 最里面那一层：受伤概率明显变高，但不再是必受伤
+    deepRisk: 0.55,           // 第 3 层的受伤概率
+    deepGuardRisk: 0.8,       // 保安亭第 3 层、又没武器没铁柱时
+    deepHp: 40,               // 第 3 层受伤掉的血
+
+    // 极端恶性事件：只有摸到最深一层才会碰上，一旦碰上直接没命
+    fatalChance: 0.02,        // 约 2%（1%~3% 之间，想更狠就调高）
+
     refuseMoodBelow: 30,      // 心情低于这条线拒绝出门
 
-    moodOnSuccess: 6,
-    moodOnFail: -9,
+    moodOnSuccess: 10,
+    moodOnFail: -10,
 
     minChance: 0.08,
     maxChance: 0.96,
@@ -140,7 +201,7 @@ SF.CONFIG = {
   meal: {
     foodCost: 1,             // 一份食物 = 1 个库存
     waterCost: 1,            // 一份水 = 1 个库存
-    restore: 50              // 投喂后立刻恢复 50 点对应属性
+    restore: 50              // 投喂后立刻恢复 50 点对应属性（正好一半）
   },
 
   // ---------- 夜晚结算 ----------
@@ -148,7 +209,7 @@ SF.CONFIG = {
     foodPerPerson: 1,
     waterPerPerson: 1,
 
-    // 没吃 / 没喝：对应的食 / 水各掉 35（满 100 就死）
+    // 没吃 / 没喝：对应的食 / 水各掉 30
     missLoss: 30,
     // 饿或渴超过这条线：心情每天额外掉 20
     painAt: 70,
@@ -156,20 +217,23 @@ SF.CONFIG = {
     // 连着两天没喝到水（口渴 > 70）：50% 概率生病
     sickThirstDays: 2,
     sickChance: 0.5,
-    // 生病每晚掉血
+    // 生病每晚掉 20 血
     sickDamage: 20,
 
-    recoverHp: 6,
+    recoverHp: 10,
     recoverBelow: 40,
 
-    moodFed: 8,
-    moodDrank: 8,
+    moodFed: 10,
+    moodDrank: 10,
     moodHungry: 0,
     moodThirsty: 0,
     moodSick: -10,
 
-    medicineHeal: 30,
-    injuredRecoverHp: 55     // 吃饱喝足、血量回到这条线以上，伤就好了
+    medicineHeal: 50,
+    injuredRecoverHp: 60,    // 吃饱喝足、血量回到这条线以上，伤就好了
+
+    // 连续两天没人洗澡：全员心情跌到 20 以下（直接逼疯）
+    dirtyToMood: 10
   },
 
   // ---------- 材料与防贼 ----------
@@ -181,18 +245,20 @@ SF.CONFIG = {
   },
 
   // ---------- 负重 ----------
+  // 一趟能背多少，是出门这几个人各自的负重加起来的
   pack: {
-    base: 2,        // 每人基础负重：2 格（单槽装备）
-    heavy: 2,       // 保留字段：单槽之后不再有人额外多格
-    bagBonus: 2     // 背上双肩包 → 4 格
+    base: 2,        // 普通队员的负重：2 格
+    heavy: 4,       // 铁柱（体力充沛）：4 格
+    bagBonus: 2     // 背上双肩包 +2 格（包在谁身上就算谁的）
   },
 
   // 一次探索里，每种物资最多带回几件（超过会被压到这个数）
+  // 一趟实际能带回的上限是「出门的人负重之和 + 2」（轻微超载）
   lootCaps: {
-    food: 2,
-    water: 2,
-    medicine: 1,
-    material: 3
+    food: 4,
+    water: 4,
+    medicine: 3,
+    material: 4
   },
 
   // 进入地点后的第一层：三个入口，先选再搜
@@ -200,27 +266,27 @@ SF.CONFIG = {
     {
       key: 'front',
       label: '翻外围货架（稳妥）',
-      desc: '六成空手，最多 1 件，不会受伤。',
-      items: 1,
-      empty: 0.6,
+      desc: '三成空手，一般 2 件，不会受伤。',
+      items: 2,
+      empty: 0.3,
       risk: 0,
       hp: 0
     },
     {
       key: 'back',
       label: '走后门（有点动静）',
-      desc: '至少 1 件，偶尔 2 件，20% 概率受伤 −15 血。',
-      items: 1,
-      extra: 0.35,
+      desc: '至少 2 件，偶尔 3 件，20% 概率受伤 −15 血。',
+      items: 2,
+      extra: 0.4,
       risk: 0.2,
       hp: 15
     },
     {
       key: 'inner',
       label: '摸最里面（赌一把）',
-      desc: '稳稳 2 件，偶尔 3 件，45% 概率受伤 −20 血。',
-      items: 2,
-      extra: 0.15,
+      desc: '稳稳 3 件，偶尔 4 件，45% 概率受伤 −20 血。',
+      items: 3,
+      extra: 0.25,
       risk: 0.45,
       hp: 20
     }
@@ -374,14 +440,14 @@ SF.CONFIG = {
         food: [0, 0],
         water: [1, 2],
         medicine: [0, 0],
-        material: [2, 3]
+        material: [1, 2]
       },
       okText: '绿化带的浇花软管里还存着水，你接满几瓶，又把拆下来的木栅栏捆成一捆。',
       badText: '灌木丛里窜出两条野狗，你扔下半袋东西往回跑，只剩腋下夹着几根木条。'
     },
     {
       id: 'clinic',
-      name: '隔壁社区卫生站',
+      name: '医务室',
       icon: 'hospital',
       mapX: 20,
       mapY: 64,
@@ -390,7 +456,6 @@ SF.CONFIG = {
       hint: '药品 · 少量食物',
       rec: '防毒面具',
       far: true,
-      unlockDay: 7,
       chance: 0.74,
       newcomerBonus: 0,
       loot: {
@@ -413,14 +478,13 @@ SF.CONFIG = {
       hint: '木板 · 手电 · 坏收音机',
       rec: '手电筒',
       far: true,
-      unlockDay: 4,
       chance: 0.62,
       newcomerBonus: 0,
       loot: {
         food: [1, 2],
         water: [1, 2],
-        medicine: [0, 1],
-        material: [2, 4]
+        medicine: [0, 2],
+        material: [1, 2]
       },
       okText: '你们从车库侧门钻进去，成堆的木板和没拆封的箱子还堆在最里面。',
       badText: '车库深处有东西在动，你们只摸到门口几个破箱子，就被逼着退了出来。'
@@ -436,7 +500,6 @@ SF.CONFIG = {
       hint: '武器 · 信号弹',
       rec: '武器',
       far: true,
-      unlockDay: 8,
       chance: 0.66,
       newcomerBonus: 0,
       loot: {

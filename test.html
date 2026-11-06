@@ -75,8 +75,8 @@
 <body>
 
 <h1>末日公寓 · 测试台</h1>
-<p style="font-size:11px;color:#8f9d86;margin:0 0 8px;">测试台对应游戏版本 v121</p>
-<p class="tip">下面的“一键场景”会直接覆盖这台机器上的存档。想保留现在的进度，先别点，或者先记下它。</p>
+<p style="font-size:11px;color:#8f9d86;margin:0 0 8px;">测试台对应游戏版本 v174</p>
+<p class="tip">下面的一键场景只写入“测试存档”，不会覆盖你的正式存档。想清掉正式存档，请到游戏里的测试面板点“重新开始”。</p>
 
 <h2>一键场景（点完自动进游戏）</h2>
 <div class="grid">
@@ -85,6 +85,8 @@
   <button class="scene" data-scene="guard">第 8 天 · 保安亭前夜<small>手电 + 收音机 + 面具齐全</small></button>
   <button class="scene" data-scene="end">最后一晚 · 终局<small>已有信号弹，测结局</small></button>
   <button class="scene" data-scene="rich">物资全满<small>食物 / 水 / 药品 / 木板 各 20 + 全部装备</small></button>
+  <button class="scene" data-scene="allopen">全开测试<small>物资各 30 + 全部装备 + 所有地点解锁</small></button>
+  <button class="scene" data-scene="mini">抢物资小游戏<small>只玩接物资，玩完自动回测试台</small></button>
   <button class="scene" data-scene="starve">全员濒危<small>血 6、饥饿/口渴 96、心情 4</small></button>
   <button class="scene" data-scene="sick">全员生病<small>测试药品和夜晚掉血</small></button>
   <button class="scene" data-scene="empty">物资清零<small>测试“必须出门”</small></button>
@@ -98,14 +100,18 @@
 <pre id="out">还没开始。</pre>
 
 <a class="back" href="index.html">返回游戏</a>
+<a class="back" href="tools/compress.html" style="margin-left:12px;">压缩图片</a>
 
-<script src="js/config.js?v=121"></script>
-<script src="js/balance.js?v=121"></script>
-<script src="js/game.js?v=121"></script>
-<script src="js/save.js?v=121"></script>
+<script src="js/config.js?v=174"></script>
+<script src="js/balance.js?v=174"></script>
+<script src="js/game.js?v=174"></script>
+<script src="js/save.js?v=174"></script>
 <script>
 (function () {
   var KEY = 'wasteland-save-v1';
+
+  // 测试台的场景和自检都用测试存档，正式存档一律不碰
+  SF.useTestSave = true;
 
   function $(id) { return document.getElementById(id); }
 
@@ -119,7 +125,7 @@
 
   function play(state) {
     SF.saveGame(state);
-    window.location.href = 'index.html';
+    window.location.href = 'index.html?test=1';
   }
 
   function fresh() {
@@ -135,7 +141,6 @@
     state.items.cards = true;
     state.items.pesticide = true;
     state.items.backpack = true;
-    state.parts = 2;
   }
 
   var SCENES = {
@@ -163,6 +168,8 @@
       s.items.flashlight = true;
       s.items.radio = true;
       s.items.gasMask = true;
+      s.items.weapon = true;
+      s.seenClinic = true;
       s.storySeenDay = 7;
       return s;
     },
@@ -193,6 +200,21 @@
       s.supplies.medicine = 20;
       s.supplies.material = 20;
       allGear(s);
+      s.seenClinic = true;
+      return s;
+    },
+
+    allopen: function () {
+      var s = SF.newGame();
+      s.day = 12;
+      s.supplies.food = 30;
+      s.supplies.water = 30;
+      s.supplies.medicine = 30;
+      s.supplies.material = 30;
+      allGear(s);
+      s.vaultUnlocked = true;
+      s.allOpen = true;
+      s.seenClinic = true;
       return s;
     },
 
@@ -237,6 +259,14 @@
     if (!btn) return;
 
     var key = btn.getAttribute('data-scene');
+
+    // 抢物资小游戏：不进存档，只开游戏页的小游戏，玩完自动回来
+    if (key === 'mini') {
+      $('scene-msg').textContent = '正在打开「抢物资小游戏」……玩完会自己回到测试台。';
+      window.location.href = 'index.html?mini=1';
+      return;
+    }
+
     var make = SCENES[key];
     if (!make) return;
 
@@ -245,8 +275,8 @@
   });
 
   $('clear-save').addEventListener('click', function () {
-    SF.clearSave();
-    $('scene-msg').textContent = '存档已清空。下次进游戏就是全新开局。';
+    SF.clearSave(true);
+    $('scene-msg').textContent = '测试存档已清空。你的正式存档没被动过。';
   });
 
   /* ---------------- 自动自检 ---------- */
@@ -278,10 +308,10 @@
       var chen = SF.findChar(s, 'chen');
       var tie = SF.findChar(s, 'tie');
 
-      ck('基础负重 2 格', SF.carryOf(SF.findChar(s, 'lin')) === 2, SF.carryOf(chen));
-      ck('单槽装备后铁柱也是 2 格', SF.carryOf(tie) === 2, SF.carryOf(tie));
+      ck('基础负重 4 格', SF.carryOf(SF.findChar(s, 'lin')) === 4, SF.carryOf(chen));
+      ck('铁柱体力好，负重 4 格', SF.carryOf(tie) === 4, SF.carryOf(tie));
       tie.hasPack = true;
-      ck('背上双肩包 → 4 格', SF.carryOf(tie) === 4, SF.carryOf(tie));
+      ck('铁柱背上双肩包 → 6 格', SF.carryOf(tie) === 6, SF.carryOf(tie));
 
       // 1.5 单槽：一把手电只能一个人穿
       var gSlot = SF.newGame();
@@ -299,62 +329,98 @@
         chenS.hasPack === true && chenS.hasTorch === false &&
         gSlot.items.flashlight === true);
 
-      // 2. 第一层三选一（探索可能先抽到路人事件，重试几次）
+      // 1.6 死亡判定：主角倒下不算全灭，最后一个人倒下才算
+      var gOver = SF.newGame();
+      var chenO = SF.findChar(gOver, 'chen');
+      chenO.alive = false;
+      chenO.hp = 0;
+      SF.checkOver(gOver, 4);
+      ck('主角倒下、队友还在，游戏继续',
+        gOver.over === false && SF.aliveAll(gOver).length === 3);
+
+      for (var oi = 0; oi < gOver.survivors.length; oi++) {
+        gOver.survivors[oi].alive = false;
+      }
+      SF.checkOver(gOver, 4);
+      ck('最后一个人倒下才算全灭', gOver.over === true);
+
+      // 2.5 极度饥饿 / 缺水只扣血，不会当场判死
+      //      （这两条先把随机夜间事件关掉，免得随机伤害影响判断）
+      var realNightEvents = SF.makeNightEvents;
+      SF.makeNightEvents = function () { return [{ id: 'calm', text: '这一夜很安静。' }]; };
+
+      var gHunger = SF.newGame();
+      var h1 = SF.aliveAll(gHunger)[0];
+      h1.hunger = 100;
+      h1.thirst = 100;
+      h1.mood = 60;
+      SF.finishNight(gHunger, SF.startNight(gHunger, { eat: {}, drink: {}, prepaid: true }));
+      ck('极度饥饿缺水只扣血，不当场判死',
+        h1.alive === true && h1.hp > 0 && gHunger.over === false,
+        'hp=' + Math.round(h1.hp));
+
+      // 2.6 血掉光才算死，并且要留下死因（全屏血红警告要用）
+      var gDead = SF.newGame();
+      var d1 = SF.aliveAll(gDead)[0];
+      d1.hp = 1;
+      d1.hunger = 100;
+      d1.thirst = 100;
+      d1.mood = 60;
+      var repDead = SF.startNight(gDead, { eat: {}, drink: {}, prepaid: true });
+      SF.finishNight(gDead, repDead);
+      ck('血掉光才算死，并记下死因',
+        d1.alive === false && !!(repDead.deathsList && repDead.deathsList.length),
+        repDead.deathsList && repDead.deathsList[0] && repDead.deathsList[0].cause);
+
+      SF.makeNightEvents = realNightEvents;
+
+      // 2. 第一层三选一（探索偶尔会先抽到路人事件，重试几次即可）
       var one = SF.newGame();
-      var r1 = SF.explore(one, 'store', [one.leaderId], 1);
-      for (var t1 = 0; t1 < 40 && !(r1.choice && r1.choice.id === 'floor1'); t1++) {
+      var r1 = SF.explore(one, 'store', [one.survivors[0].id], 1);
+      for (var t1 = 0; t1 < 3 && !(r1.choice && r1.choice.id === 'floor1'); t1++) {
         one = SF.newGame();
-        r1 = SF.explore(one, 'store', [one.leaderId], 1);
+        r1 = SF.explore(one, 'store', [one.survivors[0].id], 1);
       }
       ck('第一层有三个入口', !!(r1.choice && r1.choice.id === 'floor1' && r1.choice.options.length === 3),
         (r1.choice && r1.choice.id) + ' / ' + (r1.choice && r1.choice.options && r1.choice.options.length));
 
-      // 3. 第一层空手率
-      var empty = 0;
-      for (var i = 0; i < 40; i++) {
-        var g = SF.newGame();
-        var rr = SF.explore(g, 'store', [g.leaderId], 1);
-        SF.applyExploreChoice(g, rr, 'front');
-        if (totalOf(g.tripTotals || {}) === 0) empty += 1;
-      }
-      var rate = empty / 40;
-      ck('“稳妥”入口大约六成空手', rate > 0.3 && rate < 0.85, Math.round(rate * 100) + '%');
-
       // 4. 搜三层最多超载 2 件
       var g4 = SF.newGame();
-      var rr1 = SF.explore(g4, 'store', [g4.leaderId], 1);
+      var rr1 = SF.explore(g4, 'store', [g4.survivors[0].id], 1);
       SF.applyExploreChoice(g4, rr1, 'inner');
-      var r2 = SF.explore(g4, 'store', [g4.leaderId], 2);
+      var r2 = SF.explore(g4, 'store', [g4.survivors[0].id], 2);
       if (r2.choice && r2.choice.options.length) {
         SF.applyExploreChoice(g4, r2, r2.choice.options[r2.choice.options.length - 1].key);
       }
-      var r3 = SF.explore(g4, 'store', [g4.leaderId], 3);
+      var r3 = SF.explore(g4, 'store', [g4.survivors[0].id], 3);
       if (r3.choice && r3.choice.options.length) {
         SF.applyExploreChoice(g4, r3, r3.choice.options[r3.choice.options.length - 1].key);
       }
       var over = totalOf(g4.tripTotals) - SF.packState(g4).cap;
       ck('搜完三层最多超载 2 件', over <= 2, over);
 
-      // 5. 陈默在公寓地下车库必得零件
+      // 5. 陈默进车库：多带木板
       var g5 = SF.newGame();
       g5.day = 5;
-      var before = g5.parts || 0;
-      SF.explore(g5, 'garage', [g5.leaderId], 2);
-      ck('陈默进地下车库第 2 层必得零件', (g5.parts || 0) === before + 1, g5.parts);
+      var beforeMat = g5.supplies.material || 0;
+      SF.explore(g5, 'garage', [g5.survivors[0].id], 2);
+      ck('陈默进地下车库会多带木板', (g5.supplies.material || 0) > beforeMat,
+        beforeMat + ' → ' + g5.supplies.material);
 
-      // 6. 电子零件修收音机
+      // 6. 修收音机：3 块木板
       var g6 = SF.newGame();
       g6.items.radioBroken = true;
-      var noPart = SF.repairRadio(g6);
-      g6.parts = 1;
-      var withPart = SF.repairRadio(g6);
-      ck('没零件修不了、有零件能修好',
-        noPart.ok === false && withPart.ok === true &&
-        g6.items.radio === true && g6.items.radioBroken === false);
+      var noBoard = SF.repairRadio(g6);
+      g6.supplies.material = 3;
+      var withBoard = SF.repairRadio(g6);
+      ck('木板不够修不了、3 块木板能修好',
+        noBoard.ok === false && withBoard.ok === true &&
+        g6.items.radio === true && g6.items.radioBroken === false &&
+        g6.supplies.material === 0);
 
       // 7. 每天写一篇日记
       var g7 = SF.newGame();
-      SF.explore(g7, 'store', [g7.leaderId], 1);
+      SF.explore(g7, 'store', [g7.survivors[0].id], 1);
       var alive7 = SF.aliveAll(g7);
       var plan = { eat: {}, drink: {}, prepaid: true };
       for (var a = 0; a < alive7.length; a++) {
@@ -387,44 +453,49 @@
         return SF.startNight(g, plan8);
       }
 
-      // 9. 修好收音机才会随机出救援日
-      var gRadio = SF.newGame();
-      gRadio.day = 6;
-      var rescueDay = SF.setRescueDay(gRadio);
-      ck('修好收音机能随机出救援日', rescueDay > 6, '第 ' + rescueDay + ' 天');
+      // 9. 拿到信号弹：第二天清晨撤离
+      var gFlare = SF.newGame();
+      gFlare.day = 5;
+      SF.grabFlare(gFlare);
+      ck('信号弹到手：撤离日就是明天', gFlare.rescueDay === 6, gFlare.rescueDay);
 
-      // 10. 没有收音机：永远不会有救援
-      var gNoRadio = SF.newGame();
-      gNoRadio.day = 30;
-      gNoRadio.supplies.food = 30;
-      gNoRadio.supplies.water = 30;
-      SF.finishNight(gNoRadio, goodNight(gNoRadio));
-      ck('没有收音机就等不到救援', gNoRadio.over === false && gNoRadio.won === false);
+      gFlare.supplies.food = 20;
+      gFlare.supplies.water = 20;
+      SF.finishNight(gFlare, goodNight(gFlare));
+      ck('第二天清晨有信号弹就获救',
+        gFlare.won === true && gFlare.overAtDay === 6, gFlare.overAtDay);
 
-      // 11. 到了救援日、手里有信号弹 = 获救
-      var gWin = SF.newGame();
-      gWin.items.radio = true;
-      SF.setRescueDay(gWin);
-      gWin.day = gWin.rescueDay - 1;
-      gWin.items.flare = true;
-      gWin.supplies.food = 20;
-      gWin.supplies.water = 20;
-      SF.finishNight(gWin, goodNight(gWin));
-      ck('救援日当天有信号弹就获救',
-        gWin.won === true && gWin.overAtDay === gWin.rescueDay, gWin.rescueDay);
+      // 10. 硬撑到第 30 天：自动获救
+      var g30 = SF.newGame();
+      g30.day = 30;
+      g30.supplies.food = 20;
+      g30.supplies.water = 20;
+      SF.finishNight(g30, goodNight(g30));
+      ck('活到第 30 天自动获救',
+        g30.won === true && g30.endingKind === 'day30', g30.endingKind);
 
-      // 12. 救援日到了却没信号弹 = 失败
-      var gNoFlare = SF.newGame();
-      gNoFlare.items.radio = true;
-      SF.setRescueDay(gNoFlare);
-      gNoFlare.day = gNoFlare.rescueDay - 1;
-      gNoFlare.supplies.food = 20;
-      gNoFlare.supplies.water = 20;
-      SF.finishNight(gNoFlare, goodNight(gNoFlare));
-      ck('救援日到了却没信号弹，就是失败',
-        gNoFlare.over === true && gNoFlare.won === false);
+      // 11. 有信号弹但全员阵亡：结局是失败
+      var gDead = SF.newGame();
+      gDead.day = 5;
+      SF.grabFlare(gDead);
+      var allD = SF.aliveAll(gDead);
+      for (var dd = 0; dd < allD.length; dd++) allD[dd].hp = 0;
+      SF.finishNight(gDead, goodNight(gDead));
+      ck('信号弹亮了、人却全死了：算失败',
+        gDead.won === false && gDead.endingKind === 'nobody', gDead.endingKind);
 
-      // 11. 地图改名后：地点 ID 不重复、门禁还在
+      // 12. 死了人但还有人活着：带他们回家
+      var gScar = SF.newGame();
+      gScar.day = 5;
+      SF.grabFlare(gScar);
+      SF.aliveAll(gScar)[0].hp = 0;
+      gScar.supplies.food = 20;
+      gScar.supplies.water = 20;
+      SF.finishNight(gScar, goodNight(gScar));
+      ck('死了人还活着回来：带他们回家',
+        gScar.won === true && gScar.endingKind === 'scarred', gScar.endingKind);
+
+      // 13. 地图改名后：地点 ID 不重复、门禁还在
       var seenIds = {};
       var dupIds = 0;
       var locs = SF.CONFIG.locations;
@@ -442,17 +513,24 @@
       g13.items.gasMask = true;
       g13.items.radio = true;
       g13.items.weapon = true;
-      ck('装备齐了车库 / 卫生站 / 保安亭都能进',
+      g13.seenClinic = true;
+      ck('装备齐了车库 / 医务室 / 保安亭都能进',
         SF.gateFor(g13, SF.findLocation('garage')).ok === true &&
         SF.gateFor(g13, SF.findLocation('clinic')).ok === true &&
         SF.gateFor(g13, SF.findLocation('guard')).ok === true);
 
       var gGuard = SF.newGame();
       gGuard.items.weapon = true;
-      ck('有武器就能进保安亭（收音机可以在里面找）',
+      gGuard.seenClinic = true;
+      ck('去过医务室、手里有武器就能进保安亭',
         SF.gateFor(gGuard, SF.findLocation('guard')).ok === true);
 
-      // 12. 林晓在社区卫生站药品翻倍
+      var gNoVisit = SF.newGame();
+      gNoVisit.items.weapon = true;
+      ck('没去过医务室，有武器也进不了保安亭',
+        SF.gateFor(gNoVisit, SF.findLocation('guard')).ok === false);
+
+      // 12. 林晓在医务室药品翻倍
       var g14 = SF.newGame();
       g14.day = 8;
       var linId = SF.findChar(g14, 'lin').id;
@@ -461,7 +539,7 @@
       for (var q14 = 0; q14 < r14.lines.length; q14++) {
         if (r14.lines[q14].indexOf('林晓看懂了说明书') >= 0) linLine = true;
       }
-      ck('林晓进卫生站，药品翻倍', linLine === true);
+      ck('林晓进医务室，药品翻倍', linLine === true);
 
       // 13. 公寓新事件都能正常弹出（11 个）
       var newEvents = ['plaza', 'postgrad', 'maskSeller', 'nurse',
@@ -509,9 +587,6 @@
   }
 
   $('run-checks').addEventListener('click', runChecks);
-
-  // 加 ?auto 可以打开页面就自动跑一遍（方便我自己验证）
-  if (window.location.search.indexOf('auto') >= 0) runChecks();
 })();
 </script>
 </body>

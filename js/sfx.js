@@ -8,6 +8,78 @@ window.SF = window.SF || {};
 (function () {
 
   var ctx = null;
+  var MUTE_KEY = 'sf-mute';
+  var muted = false;
+
+  try {
+    muted = localStorage.getItem(MUTE_KEY) === '1';
+  } catch (e) {
+    muted = false;
+  }
+
+  SF.sfxMuted = function () { return muted; };
+
+  SF.setSfxMuted = function (v) {
+    muted = !!v;
+    try {
+      localStorage.setItem(MUTE_KEY, muted ? '1' : '0');
+    } catch (e) {
+      /* 忽略 */
+    }
+    if (SF.ambientRefresh) SF.ambientRefresh();
+  };
+
+  /* ---------- 环境音：极轻的风声，一直垫在背景里 ---------- */
+
+  var amb = null;
+
+  function startAmbient() {
+    if (muted || amb) return;
+
+    var ac = audio();
+    if (!ac) return;
+
+    try {
+      var len = Math.floor(ac.sampleRate * 3);
+      var buf = ac.createBuffer(1, len, ac.sampleRate);
+      var data = buf.getChannelData(0);
+
+      for (var i = 0; i < len; i++) data[i] = (Math.random() * 2 - 1) * 0.5;
+
+      var src = ac.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+
+      var filt = ac.createBiquadFilter();
+      filt.type = 'lowpass';
+      filt.frequency.value = 380;
+
+      var amp = ac.createGain();
+      amp.gain.value = 0.018;
+
+      src.connect(filt);
+      filt.connect(amp);
+      amp.connect(ac.destination);
+      src.start();
+
+      amb = { src: src, amp: amp };
+    } catch (e) {
+      amb = null;
+    }
+  }
+
+  function stopAmbient() {
+    if (!amb) return;
+    try { amb.src.stop(); } catch (e) { /* 忽略 */ }
+    amb = null;
+  }
+
+  SF.ambientStart = startAmbient;
+  SF.ambientStop = stopAmbient;
+  SF.ambientRefresh = function () {
+    if (muted) stopAmbient();
+    else startAmbient();
+  };
 
   function audio() {
     try {
@@ -24,6 +96,7 @@ window.SF = window.SF || {};
   }
 
   function tone(freq, start, dur, type, gain) {
+    if (muted) return;
     var ac = audio();
     if (!ac) return;
 
@@ -48,6 +121,7 @@ window.SF = window.SF || {};
   }
 
   function sweep(from, to, start, dur, gain) {
+    if (muted) return;
     var ac = audio();
     if (!ac) return;
 
